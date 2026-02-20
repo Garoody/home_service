@@ -1,2 +1,13 @@
-"# home_service"  git init git add README.md git commit -m "first commit" git branch -M main git remote add origin https://github.com/Garoody/home_service.git git push -u origin main
-"# home_service" 
+
+
+```
+home_service
+├─ database
+│  ├─ migration  # Tout le code SQL pour créer la base de donnees et les tables 
+│  ├─ seeders # Tout le code pour peupler les tables de la base de données 
+│  └─ views # Creation de vue pour l'affichage frontend
+├─ docs
+├─ migration.sql
+└─ README.md
+
+```
