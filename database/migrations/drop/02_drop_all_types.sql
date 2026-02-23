@@ -7,7 +7,9 @@ DROP TYPE IF EXISTS payment_status CASCADE;
 
 DROP TYPE IF EXISTS booking_status CASCADE;
 
-DROP TYPE IF EXISTS user_role CASCADE;
+DROP TYPE IF EXISTS role_enum CASCADE;
+
+DROP TYPE IF EXISTS auth_provider_enum CASCADE;
 
 ADD
 

@@ -1,3 +1,4 @@
+-- Active: 1771510940833@@127.0.0.1@5432@service_db_dev
 -- ============================================================================
 -- TODO ÉTAPE 2 (DCL) : SÉCURISATION ET RÔLES (à exécuter avec le rôle postgres)
 -- ============================================================================
@@ -14,3 +15,5 @@ END
 $$;
 
 GRANT CONNECT ON DATABASE service_db_dev TO app_service;
+
+1

@@ -10,8 +10,8 @@ SET CLIENT_ENCODING TO 'UTF8';
 -- Rôles utilisateurs (Access Control Level)
 CREATE TYPE role_enum AS ENUM(
     'admin',         -- Gestion des utilisateurs et des droits
-    'customer',      -- Utilisateur normal
-    -- 'super_admin'    -- Gestion des droits système
+    'client',     -- Utilisateur normal
+     'provider'    --pour distinguer les prestataires.
 );
 
 COMMENT ON TYPE role_enum IS 'Rôles des utilisateurs pour la gestion des droits Access Controle Level (ACL)';
