@@ -17,6 +17,8 @@ DROP TABLE IF EXISTS categories CASCADE;
 
 DROP TABLE IF EXISTS users CASCADE;
 
+DROP TABLE IF EXISTS user_categories CASCADE;
+
 -- (Optionnel) supprimer les types ENUM
 DROP TYPE IF EXISTS payment_status CASCADE;
 
