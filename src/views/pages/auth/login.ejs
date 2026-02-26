@@ -1,0 +1,69 @@
+<section class="min-h-[calc(100vh-4rem)] flex items-center justify-center px-4 py-10">
+  <div class="w-full max-w-md">
+    <div class="mb-6 text-center">
+      <h1 class="text-3xl font-semibold tracking-tight">Connexion</h1>
+      <p class="mt-2 text-sm text-slate-400">
+        Connecte-toi pour gerer tes services et reservations.
+      </p>
+    </div>
+
+    <div class="p-8 rounded-2xl bg-white/5 backdrop-blur border border-white/10 shadow-xl shadow-black/20">
+      <% if (typeof error !== "undefined" && error) { %>
+        <div class="mb-5 rounded-lg border border-red-500/20 bg-red-500/10 px-4 py-3 text-sm text-red-300">
+          <%= error %>
+        </div>
+      <% } %>
+
+      <form action="/auth/login" method="POST" class="space-y-5">
+        <% if (typeof csrfToken !== "undefined" && csrfToken) { %>
+          <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+        <% } %>
+
+        <div>
+          <label for="email" class="block text-sm mb-1 text-slate-300">Email</label>
+          <input
+            id="email"
+            type="email"
+            name="email"
+            value="<%= (formData && formData.email) ? formData.email : '' %>"
+            autocomplete="email"
+            required
+            placeholder="exemple@mail.com"
+            class="w-full px-4 py-2.5 rounded-lg bg-slate-900/70 border border-slate-700 text-slate-100 placeholder:text-slate-500 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition"
+          >
+        </div>
+
+        <div>
+          <div class="flex items-center justify-between mb-1">
+            <label for="password" class="block text-sm text-slate-300">Mot de passe</label>
+          </div>
+          <input
+            id="password"
+            type="password"
+            name="password"
+            autocomplete="current-password"
+            required
+            placeholder="Ton mot de passe"
+            class="w-full px-4 py-2.5 rounded-lg bg-slate-900/70 border border-slate-700 text-slate-100 placeholder:text-slate-500 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition"
+          >
+        </div>
+
+        <button
+          type="submit"
+          class="w-full py-2.5 rounded-lg bg-blue-600 hover:bg-blue-500 active:bg-blue-700 transition font-medium shadow-lg shadow-blue-600/20"
+        >
+          Se connecter
+        </button>
+      </form>
+
+      <div class="mt-6 flex items-center justify-between text-sm">
+        <a href="/" class="text-slate-400 hover:text-white transition">
+          <- Retour a l'accueil
+        </a>
+        <a href="/auth/register" class="text-blue-400 hover:underline">
+          Creer un compte
+        </a>
+      </div>
+    </div>
+  </div>
+</section>

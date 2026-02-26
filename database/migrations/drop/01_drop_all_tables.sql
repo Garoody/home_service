@@ -4,6 +4,7 @@
 -- =========================================
 
 -- Supprimer dans l'ordre inverse des dépendances
+DROP TABLE IF EXISTS user_categories CASCADE;
 
 DROP TABLE IF EXISTS reviews CASCADE;
 
@@ -16,8 +17,6 @@ DROP TABLE IF EXISTS services CASCADE;
 DROP TABLE IF EXISTS categories CASCADE;
 
 DROP TABLE IF EXISTS users CASCADE;
-
-DROP TABLE IF EXISTS user_categories CASCADE;
 
 -- (Optionnel) supprimer les types ENUM
 DROP TYPE IF EXISTS payment_status CASCADE;

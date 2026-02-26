@@ -1,0 +1,47 @@
+<section class="py-8">
+  <div class="flex items-center justify-between mb-8">
+    <div>
+      <h1 class="text-3xl font-semibold tracking-tight">Categories</h1>
+      <p class="text-slate-400 mt-2">
+        Gere les categories de services disponibles sur HomeService.
+      </p>
+    </div>
+
+    <a
+      href="/categories/new"
+      class="px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 transition font-medium shadow-lg shadow-blue-600/20"
+    >
+      + Nouvelle categorie
+    </a>
+  </div>
+
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+    <% if (!categories || categories.length === 0) { %>
+      <div class="col-span-full p-10 rounded-2xl bg-white/5 border border-white/10 text-center">
+        <p class="text-slate-300">Aucune categorie pour le moment.</p>
+        <a href="/categories/new" class="inline-block mt-4 text-blue-400 hover:underline">
+          Creer la premiere categorie
+        </a>
+      </div>
+    <% } else { %>
+      <% categories.forEach((category) => { %>
+        <div class="p-6 rounded-2xl bg-white/5 border border-white/10 hover:border-white/20 transition shadow-lg">
+          <h3 class="text-lg font-semibold"><%= category.name %></h3>
+
+          <p class="text-sm text-slate-400 mt-2">
+            <%= category.description || "Pas de description." %>
+          </p>
+
+          <div class="mt-5 flex items-center justify-between text-sm">
+            <span class="text-slate-500">
+              <%= category.id_category ? String(category.id_category).slice(0, 8) : "" %>
+            </span>
+            <a href="/services?category_id=<%= category.id %>" class="text-blue-400 hover:underline">
+              Voir les services
+            </a>
+          </div>
+        </div>
+      <% }) %>
+    <% } %>
+  </div>
+</section>

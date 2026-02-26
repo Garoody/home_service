@@ -1,0 +1,104 @@
+<div class="min-h-[calc(100vh-4rem)] flex items-center justify-center px-4">
+
+  <div class="w-full max-w-2xl p-8 rounded-2xl bg-white/5 backdrop-blur shadow-xl border border-white/10">
+
+    <h2 class="text-2xl font-semibold mb-6 text-center">
+      Modifier le service
+    </h2>
+
+    <!-- ✅ Utilise le slug du service -->
+    <form action="/services/<%= service.slug %>/update" method="POST" class="space-y-5">
+
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+
+      <!-- Titre -->
+      <div>
+        <label class="block text-sm mb-1 text-slate-300">Titre du service</label>
+        <input
+          type="text"
+          name="title"
+          value="<%= service.title %>"
+          required
+          class="w-full px-4 py-2 rounded-lg bg-slate-900/70 border border-slate-700
+                 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition"
+        >
+      </div>
+
+      <!-- Prix -->
+      <div>
+        <label class="block text-sm mb-1 text-slate-300">Prix (€)</label>
+        <input
+          type="number"
+          name="price"
+          value="<%= service.price %>"
+          step="0.01"
+          required
+          class="w-full px-4 py-2 rounded-lg bg-slate-900/70 border border-slate-700
+                 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition"
+        >
+      </div>
+
+      <!-- Catégorie -->
+      <div>
+        <label class="block text-sm mb-1 text-slate-300">Catégorie</label>
+        <select
+          name="category_id"
+          required
+          class="w-full px-4 py-2 rounded-lg bg-slate-900/70 border border-slate-700
+                 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition"
+        >
+          <% categories.forEach(category => { %>
+            <option value="<%= category.id %>"
+              <%= category.id === service.category_id ? "selected" : "" %>>
+              <%= category.name %>
+            </option>
+          <% }) %>
+        </select>
+      </div>
+
+      <!-- Description -->
+      <div>
+        <label class="block text-sm mb-1 text-slate-300">Description</label>
+        <textarea
+          name="description"
+          rows="5"
+          required
+          class="w-full px-4 py-2 rounded-lg bg-slate-900/70 border border-slate-700
+                 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition"
+        ><%= service.description %></textarea>
+      </div>
+
+      <!-- Boutons -->
+      <div class="flex items-center justify-between pt-4">
+
+        <a
+          href="/services/<%= service.slug %>"
+          class="text-sm text-slate-400 hover:text-white transition"
+        >
+          ← Retour
+        </a>
+
+        <div class="flex gap-3">
+          <button
+            type="reset"
+            class="px-4 py-2 rounded-lg bg-slate-700 hover:bg-slate-600 transition"
+          >
+            Réinitialiser
+          </button>
+
+          <button
+            type="submit"
+            class="px-5 py-2 rounded-lg bg-blue-600 hover:bg-blue-500
+                   active:bg-blue-700 transition font-medium shadow-lg shadow-blue-600/20"
+          >
+            Mettre à jour
+          </button>
+        </div>
+
+      </div>
+
+    </form>
+
+  </div>
+
+</div>

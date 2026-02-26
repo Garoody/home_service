@@ -1,0 +1,108 @@
+<section class="min-h-[calc(100vh-4rem)] flex items-center justify-center px-4 py-10">
+  <div class="w-full max-w-md">
+    <div class="mb-6 text-center">
+      <h1 class="text-3xl font-semibold tracking-tight">Creer un compte</h1>
+      <p class="mt-2 text-sm text-slate-400">
+        Rejoins HomeService pour reserver ou proposer des services.
+      </p>
+    </div>
+
+    <div class="p-8 rounded-2xl bg-white/5 backdrop-blur border border-white/10 shadow-xl shadow-black/20">
+      <% if (typeof error !== "undefined" && error) { %>
+        <div class="mb-5 rounded-lg border border-red-500/20 bg-red-500/10 px-4 py-3 text-sm text-red-300">
+          <%= error %>
+        </div>
+      <% } %>
+
+      <form action="/auth/register" method="POST" class="space-y-5">
+        <% if (typeof csrfToken !== "undefined" && csrfToken) { %>
+          <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+        <% } %>
+
+        <div>
+          <label for="full_name" class="block text-sm mb-1 text-slate-300">Nom complet</label>
+          <input
+            id="full_name"
+            type="text"
+            name="full_name"
+            value="<%= (formData && formData.full_name) ? formData.full_name : '' %>"
+            required
+            class="w-full px-4 py-2.5 rounded-lg bg-slate-900/70 border border-slate-700 text-slate-100 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition"
+          >
+        </div>
+
+        <div>
+          <label for="phone" class="block text-sm mb-1 text-slate-300">Telephone (optionnel)</label>
+          <input
+            id="phone"
+            type="tel"
+            name="phone"
+            value="<%= (formData && formData.phone) ? formData.phone : '' %>"
+            class="w-full px-4 py-2.5 rounded-lg bg-slate-900/70 border border-slate-700 text-slate-100 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition"
+          >
+        </div>
+
+        <div>
+          <label for="role" class="block text-sm mb-1 text-slate-300">Je suis</label>
+          <select
+            id="role"
+            name="role"
+            required
+            class="w-full px-4 py-2.5 rounded-lg bg-slate-900/70 border border-slate-700 text-slate-100 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition"
+          >
+            <option value="client" <%= formData && formData.role === "client" ? "selected" : "" %>>Client</option>
+            <option value="provider" <%= formData && formData.role === "provider" ? "selected" : "" %>>Prestataire</option>
+          </select>
+        </div>
+
+        <div>
+          <label for="email" class="block text-sm mb-1 text-slate-300">Email</label>
+          <input
+            id="email"
+            type="email"
+            name="email"
+            value="<%= (formData && formData.email) ? formData.email : '' %>"
+            required
+            autocomplete="email"
+            class="w-full px-4 py-2.5 rounded-lg bg-slate-900/70 border border-slate-700 text-slate-100 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition"
+          >
+        </div>
+
+        <div>
+          <label for="password" class="block text-sm mb-1 text-slate-300">Mot de passe</label>
+          <input
+            id="password"
+            type="password"
+            name="password"
+            required
+            autocomplete="new-password"
+            class="w-full px-4 py-2.5 rounded-lg bg-slate-900/70 border border-slate-700 text-slate-100 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition"
+          >
+        </div>
+
+        <label class="flex items-start gap-2 text-sm text-slate-400">
+          <input
+            type="checkbox"
+            name="gdpr_consent"
+            class="mt-1 accent-blue-500"
+            <%= formData && formData.gdpr_consent ? "checked" : "" %>
+            required
+          >
+          <span>J'accepte les conditions et la politique de confidentialite.</span>
+        </label>
+
+        <button
+          type="submit"
+          class="w-full py-2.5 rounded-lg bg-blue-600 hover:bg-blue-500 active:bg-blue-700 transition font-medium shadow-lg shadow-blue-600/20"
+        >
+          S'inscrire
+        </button>
+      </form>
+
+      <div class="mt-6 flex items-center justify-between text-sm">
+        <a href="/auth/login" class="text-blue-400 hover:underline">Se connecter</a>
+        <a href="/" class="text-slate-400 hover:text-white transition"><- Accueil</a>
+      </div>
+    </div>
+  </div>
+</section>

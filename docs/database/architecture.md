@@ -10,7 +10,7 @@ memoria/
 │
 ├── database/ # 🗄️ TOUT LE SQL
 │ ├── migrations/ # Scripts de création
-│ │ ├── 00_create_database.sql
+│ │ ├── 00*create_database.sql
 │ │ ├── 01_create_roles.sql
 │ │ ├── 02_enable_extensions.sql
 │ │ ├── 03_create_types.sql
@@ -106,10 +106,10 @@ memoria/
 │ └── errorMiddleware.js # Gestion erreurs globales
 │
 ├── routes/ # 🛤️ Définition des routes
-│ ├── authRoutes.js # /auth/_
+│ ├── authRoutes.js # /auth/*
 │ ├── itemRoutes.js # /items/_
 │ ├── tagRoutes.js # /tags/_
-│ ├── shareRoutes.js # /shares/_
+│ ├── shareRoutes.js # /shares/\_
 │ ├── dashboardRoutes.js # /dashboard
 │ └── index.js # Point d'entrée routes
 │
@@ -179,3 +179,176 @@ UserService.getUserProfile() → applique logique métier
 UserController.getProfile() → convertit en UserDTO
 ↓
 Vue EJS → reçoit uniquement { id, email, pseudo, role }
+
+homeservice/
+│
+├── .env
+├── .env.example
+├── .gitignore
+├── package.json
+├── README.md
+│
+├── database/
+│ ├── tables/
+│ │ ├── 00_add_extensions_and_helpers.sql
+│ │ ├── 01_add_users_table.sql
+│ │ ├── 02_add_categories_table.sql
+│ │ ├── 03_add_services_table.sql
+│ │ ├── 04_add_bookings_table.sql
+│ │ ├── 05_add_payments_table.sql
+│ │ ├── 06_add_reviews_table.sql
+│ │ └── 07_users_categories_table_pivot.sql
+│ │
+│ ├── seeders/
+│ │ ├── 01_seed_users.sql
+│ │ ├── 02_seed_categories.sql
+│ │ ├── 03_seed_services.sql
+│ │ ├── 04_seed_bookings.sql
+│ │ ├── 05_seed_payments.sql
+│ │ └── 06_seed_reviews.sql
+│ │
+│ ├── queries/
+│ │ ├── 01_get_recent_users.sql
+│ │ ├── 02_find_services_by_keyword.sql
+│ │ ├── 03_get_services_by_category.sql
+│ │ ├── 04_check_provider_availability.sql
+│ │ ├── 05_get_client_bookings.sql
+│ │ ├── 06_get_provider_bookings.sql
+│ │ ├── 07_user_stats_count.sql
+│ │ ├── 08_provider_stats.sql
+│ │ ├── 09_unpaid_payments.sql
+│ │ └── 10_revenue_by_month.sql
+│ │
+│ ├── triggers/
+│ │ └── 01_trigger_updated_at.sql
+│ │
+│ └── views/
+│ ├── 01_v_services_full.sql
+│ ├── 02_v_bookings_full.sql
+│ ├── 03_v_payments_full.sql
+│ └── 04_v_provider_stats.sql
+│
+├── scripts/
+│ ├── init_db.sh
+│ ├── reset_db.sh
+│ └── seed_db.sh
+│
+├── public/
+│ ├── css/
+│ │ └── style.css
+│ ├── js/
+│ │ └── main.js
+│ ├── images/
+│ │ └── logo.png
+│ └── uploads/
+│ └── .gitkeep
+│
+└── src/
+├── app.js
+│
+├── config/
+│ ├── database.js
+│ ├── logger.js
+│ ├── security.js
+│ ├── session.js
+│ └── upload.js
+│
+├── controllers/
+│ ├── AuthController.js
+│ ├── HomeController.js
+│ ├── UserController.js
+│ ├── CategoryController.js
+│ ├── ServiceController.js
+│ ├── BookingController.js
+│ ├── PaymentController.js
+│ └── ReviewController.js
+│
+├── routes/
+│ ├── index.js
+│ ├── authRoutes.js
+│ ├── homeRoutes.js
+│ ├── userRoutes.js
+│ ├── categoryRoutes.js
+│ ├── serviceRoutes.js
+│ ├── bookingRoutes.js
+│ ├── paymentRoutes.js
+│ └── reviewRoutes.js
+│
+├── middlewares/
+│ ├── authMiddleware.js
+│ ├── flashMiddleware.js
+│ ├── validationMiddleware.js
+│ └── errorMiddleware.js
+│
+├── repositories/
+│ ├── UserRepository.js
+│ ├── CategoryRepository.js
+│ ├── ServiceRepository.js
+│ ├── BookingRepository.js
+│ ├── PaymentRepository.js
+│ └── ReviewRepository.js
+│
+├── services/
+│ ├── AuthService.js
+│ ├── UserService.js
+│ ├── CategoryService.js
+│ ├── ServiceService.js
+│ ├── BookingService.js
+│ ├── PaymentService.js
+│ └── ReviewService.js
+│
+├── dto/
+│ ├── UserDTO.js
+│ ├── ServiceDTO.js
+│ ├── BookingDTO.js
+│ ├── PaymentDTO.js
+│ └── ReviewDTO.js
+│
+├── validators/
+│ ├── authValidator.js
+│ ├── serviceValidator.js
+│ ├── bookingValidator.js
+│ ├── paymentValidator.js
+│ └── reviewValidator.js
+│
+├── utils/
+│ ├── passwordHelper.js
+│ ├── dateHelper.js
+│ └── slugHelper.js
+│
+└── views/
+├── layouts/
+│ └── main.ejs
+├── partials/
+│ ├── header.ejs
+│ ├── navbar.ejs
+│ ├── flash.ejs
+│ └── footer.ejs
+├── pages/
+│ ├── home.ejs
+│ ├── auth/
+│ │ ├── login.ejs
+│ │ └── register.ejs
+│ ├── services/
+│ │ ├── index.ejs
+│ │ ├── show.ejs
+│ │ ├── new.ejs
+│ │ └── edit.ejs
+│ ├── bookings/
+│ │ ├── index.ejs
+│ │ ├── show.ejs
+│ │ └── new.ejs
+│ ├── categories/
+│ │ ├── index.ejs
+│ │ ├── new.ejs
+│ │ └── edit.ejs
+│ ├── payments/
+│ │ ├── index.ejs
+│ │ └── new.ejs
+│ ├── reviews/
+│ │ ├── index.ejs
+│ │ └── new.ejs
+│ └── errors/
+│ ├── 403.ejs
+│ ├── 404.ejs
+│ └── 500.ejs

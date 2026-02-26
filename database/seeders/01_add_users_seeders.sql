@@ -31,7 +31,7 @@ VALUES (
         crypt ('Client123!', gen_salt ('bf')),
         '0611111111',
         'Lyon',
-        'provider',
+        'client',
         TRUE,
         CURRENT_TIMESTAMP
     ),

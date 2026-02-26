@@ -3,33 +3,43 @@
   "version": "1.0.0",
   "description": "Plateforme de réservation de services à domicile (AFPA)",
   "main": "src/index.js",
-  "type": "commonjs",
+  "type": "module",
   "scripts": {
     "db:drop:tables": "psql \"$DATABASE_URL\" -f database/migrations/drop/01_drop_all_tables.sql",
     "db:drop:types": "psql \"$DATABASE_URL\" -f database/migrations/drop/02_drop_all_types.sql",
-
     "db:extensions": "psql \"$DATABASE_URL\" -f database/migrations/config/03_add_extensions.sql",
     "db:types": "psql \"$DATABASE_URL\" -f database/migrations/config/04_add_types.sql",
     "db:triggers": "psql \"$DATABASE_URL\" -f database/migrations/triggers/00_add_triggers.sql",
-
     "db:tables:users": "psql \"$DATABASE_URL\" -f database/migrations/tables/01_add_users_table.sql",
     "db:tables:categories": "psql \"$DATABASE_URL\" -f database/migrations/tables/02_add_categories_table.sql",
     "db:tables:services": "psql \"$DATABASE_URL\" -f database/migrations/tables/03_add_services_table.sql",
     "db:tables:bookings": "psql \"$DATABASE_URL\" -f database/migrations/tables/04_add_bookings_table.sql",
     "db:tables:payments": "psql \"$DATABASE_URL\" -f database/migrations/tables/05_add_payments_table.sql",
     "db:tables:reviews": "psql \"$DATABASE_URL\" -f database/migrations/tables/06_add_reviews_table.sql",
-
-    "db:up": "npm run db:extensions && npm run db:types && npm run db:triggers && npm run db:tables:users && npm run db:tables:categories && npm run db:tables:services && npm run db:tables:bookings && npm run db:tables:payments && npm run db:tables:reviews",
-
+    "db:tables:user-sessions": "psql \"$DATABASE_URL\" -f database/migrations/tables/08_create_user_sessions_table.sql",
+    "db:up": "npm run db:extensions && npm run db:types && npm run db:triggers && npm run db:tables:users && npm run db:tables:categories && npm run db:tables:services && npm run db:tables:bookings && npm run db:tables:payments && npm run db:tables:reviews && npm run db:tables:user-sessions",
     "db:reset": "npm run db:drop:tables && npm run db:drop:types && npm run db:up",
-
-    "start": "node src/index.js",
-    "dev": "nodemon src/index.js"
+    "start": "node src/app.js",
+    "dev": "node --env-file=.env --watch src/app.js"
   },
   "dependencies": {
+    "bcrypt": "^6.0.0",
+    "connect-pg-simple": "^10.0.0",
+    "cookie-parser": "^1.4.7",
+    "cors": "^2.8.6",
+    "csrf-csrf": "^4.0.3",
     "dotenv": "^16.4.5",
+    "ejs": "^4.0.1",
+    "express": "^4.19.2",
+    "express-ejs-layouts": "^2.5.1",
+    "express-rate-limit": "^8.2.1",
+    "express-session": "^1.19.0",
+    "helmet": "^8.1.0",
     "pg": "^8.12.0",
-    "express": "^4.19.2"
+    "pino": "^10.3.1",
+    "pino-http": "^11.0.0",
+    "pino-pretty": "^13.1.3",
+    "zod": "^4.3.6"
   },
   "devDependencies": {
     "nodemon": "^3.1.4"

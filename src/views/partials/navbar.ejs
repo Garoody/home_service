@@ -1,0 +1,59 @@
+<nav class="bg-slate-950/90 backdrop-blur border-b border-white/10">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="flex justify-between items-center h-16">
+
+      <div class="flex items-center">
+        <a href="/" class="text-xl font-bold text-white hover:text-blue-400 transition">
+          HomeService
+        </a>
+      </div>
+
+      <div class="hidden md:flex items-center gap-6 text-sm font-medium">
+        <a href="/" class="hover:text-blue-400 transition">Accueil</a>
+        <a href="/categories" class="hover:text-blue-400 transition">Categories</a>
+        <a href="/services" class="hover:text-blue-400 transition">Services</a>
+
+        <% if (currentUser) { %>
+          <span class="text-slate-300">
+            Connecte en tant que
+            <span class="text-white"><%= currentUser.name || "Utilisateur" %></span>
+            (<%= currentUser.role || "client" %>)
+          </span>
+          <a href="/auth/logout" class="hover:text-red-300 transition">Deconnexion</a>
+        <% } else { %>
+          <a href="/auth/login" class="hover:text-blue-400 transition">Connexion</a>
+        <% } %>
+      </div>
+
+      <div class="md:hidden">
+        <button id="menu-btn" class="text-white focus:outline-none" type="button">
+          Menu
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div id="mobile-menu" class="hidden md:hidden px-4 pb-4 space-y-2 text-sm">
+    <a href="/" class="block hover:text-blue-400">Accueil</a>
+    <a href="/categories" class="block hover:text-blue-400">Categories</a>
+    <a href="/services" class="block hover:text-blue-400">Services</a>
+    <% if (currentUser) { %>
+      <div class="pt-2 text-slate-300">
+        Connecte en tant que <span class="text-white"><%= currentUser.name || "Utilisateur" %></span> (<%= currentUser.role || "client" %>)
+      </div>
+      <a href="/auth/logout" class="block hover:text-red-300">Deconnexion</a>
+    <% } else { %>
+      <a href="/auth/login" class="block hover:text-blue-400">Connexion</a>
+    <% } %>
+  </div>
+</nav>
+
+<script>
+  const btn = document.getElementById("menu-btn");
+  const menu = document.getElementById("mobile-menu");
+  if (btn && menu) {
+    btn.addEventListener("click", () => {
+      menu.classList.toggle("hidden");
+    });
+  }
+</script>
