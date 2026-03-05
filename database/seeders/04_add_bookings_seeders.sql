@@ -1,6 +1,8 @@
 -- 04_seed_bookings.sql
 -- Crée 2 réservations pour "Client Test" sur les services existants
 
+SET CLIENT_ENCODING TO 'UTF8';
+
 WITH
     client AS (
         SELECT id_user

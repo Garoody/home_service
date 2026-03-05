@@ -70,7 +70,6 @@ export const authLimiter = rateLimit({
   max: 10,
   standardHeaders: true,
   legacyHeaders: false,
-  message: "Trop de tentatives de connexion. Réessayez plus tard.",
 });
 
 // ═══════════════════════════════════════════════════════════════
@@ -155,3 +154,4 @@ export function generateToken(req, res) {
 }
 
 export { doubleCsrfProtection };
+

@@ -1,5 +1,7 @@
 -- 02_seed_categories.sql
 
+SET CLIENT_ENCODING TO 'UTF8';
+
 INSERT INTO
     categories (
         id_category,
@@ -8,22 +10,22 @@ INSERT INTO
     )
 VALUES (
         uuidv7 (),
-        'Ménage',
+        U&'M\00E9nage',
         'Nettoyage et entretien'
     ),
     (
         uuidv7 (),
         'Jardinage',
-        'Entretien des espaces verts'
+        U&'Entretien des espaces verts'
     ),
     (
         uuidv7 (),
         'Plomberie',
-        'Dépannage plomberie'
+        U&'D\00E9pannage plomberie'
     ),
     (
         uuidv7 (),
-        'Réparation',
-        'Petits travaux et réparations'
+        U&'R\00E9paration',
+        U&'Petits travaux et r\00E9parations'
     )
 ON CONFLICT (name) DO NOTHING;

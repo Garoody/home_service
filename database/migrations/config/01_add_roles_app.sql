@@ -15,5 +15,3 @@ END
 $$;
 
 GRANT CONNECT ON DATABASE service_db_dev TO app_service;
-
-1

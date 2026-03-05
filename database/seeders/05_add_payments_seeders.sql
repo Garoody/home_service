@@ -1,6 +1,8 @@
 -- 05_seed_payments.sql
 -- Paiement "paid" pour la 1ère réservation, "pending" pour la 2ème
 
+SET CLIENT_ENCODING TO 'UTF8';
+
 WITH
     b AS (
         SELECT id_booking, total_price, ROW_NUMBER() OVER (

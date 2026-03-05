@@ -1,5 +1,7 @@
 -- 03_seed_services.sql
--- Crée des services pour "Provider Test" dans plusieurs catégories
+-- Cree des services pour "Provider Test" dans plusieurs categories
+
+SET CLIENT_ENCODING TO 'UTF8';
 
 WITH
     provider AS (
@@ -33,7 +35,7 @@ SELECT
     'Service de ' || c.name,
     'Prestation professionnelle de ' || c.name,
     CASE c.name
-        WHEN 'Ménage' THEN 45.00
+        WHEN U&'M\00E9nage' THEN 45.00
         WHEN 'Jardinage' THEN 55.00
         WHEN 'Plomberie' THEN 70.00
         ELSE 50.00

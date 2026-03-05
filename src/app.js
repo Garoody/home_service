@@ -70,7 +70,6 @@
 //   max: 10,
 //   standardHeaders: true,
 //   legacyHeaders: false,
-//   message: "Trop de tentatives de connexion. Réessayez plus tard.",
 // });
 
 // // ═══════════════════════════════════════════════════════════════
@@ -117,7 +116,6 @@
 //       // Si tu n’as pas encore la vue 403, change vers res.status(403).send(...)
 //       return res.status(403).render("pages/errors/403", {
 //         title: "Action non autorisée",
-//         message: "Votre session a expiré ou le formulaire est invalide.",
 //       });
 //     },
 //   });
@@ -179,6 +177,7 @@ import {
 
 // Session
 import { sessionMiddleware } from "./config/sessions.js";
+import { configurePassport, passport } from "./config/passport.js";
 
 // Middlewares métier
 import { flashMiddleware } from "./middlewares/flashMiddleware.js";
@@ -191,6 +190,9 @@ import {
 dotenv.config({
   path: process.env.NODE_ENV === "test" ? ".env.test" : ".env",
 });
+
+// Initialise les strategies Passport (Google OAuth) apres chargement du .env.
+configurePassport();
 
 // ─────────────────────────────────────────────────────────────
 // CONFIGURATION ESM
@@ -235,6 +237,8 @@ app.use(globalLimiter);
 // SESSION
 // ─────────────────────────────────────────────────────────────
 app.use(sessionMiddleware);
+// Passport est utilise ici en mode stateless pour le callback OAuth.
+app.use(passport.initialize());
 
 // ─────────────────────────────────────────────────────────────
 // FLASH + USER CONTEXT
@@ -288,9 +292,9 @@ app.set("layout extractScripts", true);
 app.set("layout extractStyles", true);
 
 // ─────────────────────────────────────────────────────────────
-// RATE LIMITER AUTH (uniquement /auth)
+// RATE LIMITER AUTH desactive temporairement
 // ─────────────────────────────────────────────────────────────
-app.use("/auth", authLimiter);
+// app.use("/auth", authLimiter);
 
 // ─────────────────────────────────────────────────────────────
 // ROUTES
@@ -336,3 +340,5 @@ process.on("SIGINT", () => {
 });
 
 export default app;
+
+

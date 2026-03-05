@@ -1,6 +1,8 @@
 -- 06_seed_reviews.sql
 -- Avis sur une réservation (si possible)
 
+SET CLIENT_ENCODING TO 'UTF8';
+
 WITH
     one_booking AS (
         SELECT b.id_booking, b.client_id, s.provider_id

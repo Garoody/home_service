@@ -1,7 +1,7 @@
 {
   "name": "homeservices",
   "version": "1.0.0",
-  "description": "Plateforme de réservation de services à domicile (AFPA)",
+  "description": "Plateforme de reservation de services a domicile (AFPA)",
   "main": "src/index.js",
   "type": "module",
   "scripts": {
@@ -35,6 +35,8 @@
     "express-rate-limit": "^8.2.1",
     "express-session": "^1.19.0",
     "helmet": "^8.1.0",
+    "passport": "^0.7.0",
+    "passport-google-oauth20": "^2.0.0",
     "pg": "^8.12.0",
     "pino": "^10.3.1",
     "pino-http": "^11.0.0",

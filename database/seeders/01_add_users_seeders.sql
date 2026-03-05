@@ -1,6 +1,8 @@
 -- 01_seed_users.sql
 -- Crée 1 admin + 2 customers (dont 1 servira de "provider")
 
+SET CLIENT_ENCODING TO 'UTF8';
+
 INSERT INTO
     users (
         id_user,
