@@ -25,11 +25,19 @@
             <%= (service.price ?? 0).toString().replace(".", ",") %> EUR
           </p>
           <a
-            href="/services/<%= service.slug %>/edit"
-            class="inline-block mt-4 px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 transition font-medium"
+            href="/bookings/new?service=<%= service.slug %>"
+            class="inline-block mt-4 mr-2 px-4 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 transition font-medium"
           >
-            Modifier
+            Réserver
           </a>
+          <% if (currentUser && (currentUser.role === "admin" || String(currentUser.id) === String(service.provider_id))) { %>
+            <a
+              href="/services/<%= service.slug %>/edit"
+              class="inline-block mt-4 px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 transition font-medium"
+            >
+              Modifier
+            </a>
+          <% } %>
         </div>
       </div>
 

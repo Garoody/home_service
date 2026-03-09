@@ -8,6 +8,7 @@ CREATE TABLE IF NOT EXISTS payments (
     id_payment uuid DEFAULT uuidv7() PRIMARY KEY,
     booking_id uuid NOT NULL,
     amount numeric(10,2) NOT NULL CHECK (amount >= 0),
+    payment_method varchar(30) NOT NULL DEFAULT 'card',
     payment_status payment_status_enum NOT NULL DEFAULT 'pending',
     payment_date timestamptz,
     created_at timestamptz NOT NULL DEFAULT CURRENT_TIMESTAMP,

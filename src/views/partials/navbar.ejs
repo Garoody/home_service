@@ -10,16 +10,17 @@
 
       <div class="hidden md:flex items-center gap-6 text-sm font-medium">
         <a href="/" class="hover:text-blue-400 transition">Accueil</a>
-        <a href="/categories" class="hover:text-blue-400 transition">Categories</a>
+        <a href="/categories" class="hover:text-blue-400 transition">Catégories</a>
         <a href="/services" class="hover:text-blue-400 transition">Services</a>
 
         <% if (currentUser) { %>
+          <a href="/bookings" class="hover:text-blue-400 transition">Mes réservations</a>
           <span class="text-slate-300">
-            Connecte en tant que
+            Connecté en tant que
             <span class="text-white"><%= currentUser.name || "Utilisateur" %></span>
             (<%= currentUser.role || "client" %>)
           </span>
-          <a href="/auth/logout" class="hover:text-red-300 transition">Deconnexion</a>
+          <a href="/auth/logout" class="hover:text-red-300 transition">Déconnexion</a>
         <% } else { %>
           <a href="/auth/login" class="hover:text-blue-400 transition">Connexion</a>
         <% } %>
@@ -35,13 +36,14 @@
 
   <div id="mobile-menu" class="hidden md:hidden px-4 pb-4 space-y-2 text-sm">
     <a href="/" class="block hover:text-blue-400">Accueil</a>
-    <a href="/categories" class="block hover:text-blue-400">Categories</a>
+    <a href="/categories" class="block hover:text-blue-400">Catégories</a>
     <a href="/services" class="block hover:text-blue-400">Services</a>
     <% if (currentUser) { %>
+      <a href="/bookings" class="block hover:text-blue-400">Mes réservations</a>
       <div class="pt-2 text-slate-300">
-        Connecte en tant que <span class="text-white"><%= currentUser.name || "Utilisateur" %></span> (<%= currentUser.role || "client" %>)
+        Connecté en tant que <span class="text-white"><%= currentUser.name || "Utilisateur" %></span> (<%= currentUser.role || "client" %>)
       </div>
-      <a href="/auth/logout" class="block hover:text-red-300">Deconnexion</a>
+      <a href="/auth/logout" class="block hover:text-red-300">Déconnexion</a>
     <% } else { %>
       <a href="/auth/login" class="block hover:text-blue-400">Connexion</a>
     <% } %>

@@ -1,8 +1,10 @@
 "use strict";
 
 import CategoryService from "../services/CategoryService.js";
+import { validateCategoryPayload } from "../validators/categoryValidator.js";
 
 class CategoryController {
+  // Affiche la liste des categories.
   async index(req, res) {
     try {
       const categories = await CategoryService.list();
@@ -17,6 +19,7 @@ class CategoryController {
     }
   }
 
+  // Affiche le formulaire de creation de categorie.
   async create(req, res) {
     res.render("pages/category/new", {
       title: "Creer une categorie",
@@ -24,9 +27,16 @@ class CategoryController {
     });
   }
 
+  // Traite la soumission du formulaire de creation.
   async store(req, res) {
     try {
-      await CategoryService.create(req.body);
+      const validation = validateCategoryPayload(req.body);
+      if (!validation.success) {
+        req.flash?.("error", validation.message);
+        return res.redirect("/categories/new");
+      }
+
+      await CategoryService.create(validation.data);
       req.flash?.("success", "Categorie creee.");
       res.redirect("/categories");
     } catch (error) {

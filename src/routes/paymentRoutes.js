@@ -2,19 +2,14 @@
 
 import { Router } from "express";
 import PaymentController from "../controllers/PaymentController.js";
+import { requireClient } from "../middlewares/authMiddleware.js";
 
 const router = Router();
 
-// GET /payments (liste)
-// router.get("/", PaymentController.index);
+router.use(requireClient);
 
-// GET /payments/new?booking_id=...
-// router.get("/new", PaymentController.new);
-
-// POST /payments (créer un paiement)
-// router.post("/", PaymentController.create);
-
-// GET /payments/:id
-// router.get("/:id", PaymentController.show);
+router.get("/", PaymentController.index);
+router.get("/:bookingId", PaymentController.pay);
+router.post("/:bookingId", PaymentController.handlePay);
 
 export default router;

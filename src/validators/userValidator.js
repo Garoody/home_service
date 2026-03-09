@@ -2,11 +2,13 @@
 
 import { z } from "zod";
 
+// Validation des champs de connexion.
+
 /**
- * Schéma de validation pour la connexion.
+ * Schï¿½ma de validation pour la connexion.
  *
- * Règles:
- * - email doit être valide
+ * Rï¿½gles:
+ * - email doit ï¿½tre valide
  * - password non vide
  */
 const loginSchema = z.object({
@@ -15,16 +17,17 @@ const loginSchema = z.object({
 });
 
 /**
- * Schéma de validation pour l'inscription.
+ * Schï¿½ma de validation pour l'inscription.
  *
- * Règles:
- * - full_name entre 2 et 150 caractères
+ * Rï¿½gles:
+ * - full_name entre 2 et 150 caractï¿½res
  * - phone optionnel (max 50)
  * - email valide
- * - password minimum 8 caractères
- * - role limité à client/provider
- * - gdpr_consent booléen
+ * - password minimum 8 caractï¿½res
+ * - role limitï¿½ ï¿½ client/provider
+ * - gdpr_consent boolï¿½en
  */
+// Validation des champs d'inscription.
 const registerSchema = z.object({
   full_name: z
     .string()
@@ -41,13 +44,14 @@ const registerSchema = z.object({
 });
 
 /**
- * Valide les données de login.
+ * Valide les donnï¿½es de login.
  *
  * Contrat de retour (uniforme):
  * - success: boolean
- * - data: payload validé (si success=true)
- * - message: message concaténé lisible UI (si success=false)
+ * - data: payload validï¿½ (si success=true)
+ * - message: message concatï¿½nï¿½ lisible UI (si success=false)
  */
+// Valide le payload de connexion et retourne un format uniforme.
 export function validateLoginPayload(payload = {}) {
   const result = loginSchema.safeParse(payload);
 
@@ -63,11 +67,12 @@ export function validateLoginPayload(payload = {}) {
 }
 
 /**
- * Normalise puis valide les données d'inscription.
+ * Normalise puis valide les donnï¿½es d'inscription.
  *
- * Normalisation nécessaire:
+ * Normalisation nï¿½cessaire:
  * - gdpr_consent arrive souvent depuis HTML sous forme "on"/"true".
  */
+// Normalise (notamment RGPD) puis valide le payload d'inscription.
 export function validateRegisterPayload(payload = {}) {
   const normalized = {
     full_name: payload.full_name,
@@ -91,7 +96,7 @@ export function validateRegisterPayload(payload = {}) {
     };
   }
 
-  // Règle métier complémentaire explicite: consentement RGPD obligatoire.
+  // Regle metier complementaire explicite: consentement RGPD obligatoire.
   if (!result.data.gdpr_consent) {
     return {
       success: false,

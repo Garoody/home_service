@@ -2,25 +2,24 @@
 
 import { Router } from "express";
 import BookingController from "../controllers/BookingController.js";
+import { requireClient } from "../middlewares/authMiddleware.js";
 
 const router = Router();
 
-// GET /bookings (liste)
+// Protection globale: seules les sessions client/admin peuvent acceder aux reservations.
+router.use(requireClient);
+
+// Liste des reservations de l'utilisateur connecte.
 router.get("/", BookingController.index);
-
-// GET /bookings/new?service_id=...
-// router.get("/new", BookingController.new);
-
-// POST /bookings (création)
-router.post("/", BookingController.create);
-
-// GET /bookings/:id (détails)
-// router.get("/:id", BookingController.show);
-
-// POST /bookings/:id/update-status (status = pending/confirmed/completed/cancelled)
-// router.post("/:id/update-status", BookingController.updateStatus);
-
-// POST /bookings/:id/delete
-// router.post("/:id/delete", BookingController.destroy);
+// Formulaire de creation d'une reservation.
+router.get("/new", BookingController.new);
+// Creation d'une reservation.
+router.post("/", BookingController.store);
+// Mise a jour (date/heure) d'une reservation.
+router.post("/:id/update", BookingController.update);
+// Suppression d'une reservation.
+router.post("/:id/delete", BookingController.destroy);
+// Route de secours pour suppression via lien direct.
+router.get("/:id/delete", BookingController.destroy);
 
 export default router;

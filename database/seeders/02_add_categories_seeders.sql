@@ -21,11 +21,11 @@ VALUES (
     (
         uuidv7 (),
         'Plomberie',
-        U&'D\00E9pannage plomberie'
+        U&'Dépannage plomberie'
     ),
     (
         uuidv7 (),
-        U&'R\00E9paration',
-        U&'Petits travaux et r\00E9parations'
+        U&'Reparation',
+        U&'Petits travaux et reparations'
     )
 ON CONFLICT (name) DO NOTHING;

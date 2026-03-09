@@ -3,10 +3,12 @@
 import db from "../config/database.js";
 
 class CategoryService {
+  // Alias metier: liste des categories (utilise par les controllers).
   static async list() {
     return this.getAll();
   }
 
+  // Recupere toutes les categories triees par nom.
   static async getAll() {
     const result = await db.query(
       `
@@ -24,6 +26,7 @@ class CategoryService {
     return result.rows;
   }
 
+  // Cree une nouvelle categorie.
   static async create({ name, description }) {
     const result = await db.query(
       `

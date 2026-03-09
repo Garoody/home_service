@@ -35,7 +35,7 @@ SELECT
     'Service de ' || c.name,
     'Prestation professionnelle de ' || c.name,
     CASE c.name
-        WHEN U&'M\00E9nage' THEN 45.00
+        WHEN U&'Menage' THEN 45.00
         WHEN 'Jardinage' THEN 55.00
         WHEN 'Plomberie' THEN 70.00
         ELSE 50.00

@@ -36,6 +36,19 @@
       lg:px-8
       py-6
     ">
+    <% if (flash && (flash.success?.length || flash.error?.length || flash.info?.length)) { %>
+      <div class="mb-6 space-y-2">
+        <% flash.success?.forEach((msg) => { %>
+          <div class="rounded-lg border border-emerald-500/30 bg-emerald-500/10 px-4 py-3 text-emerald-200 text-sm"><%= msg %></div>
+        <% }) %>
+        <% flash.error?.forEach((msg) => { %>
+          <div class="rounded-lg border border-red-500/30 bg-red-500/10 px-4 py-3 text-red-200 text-sm"><%= msg %></div>
+        <% }) %>
+        <% flash.info?.forEach((msg) => { %>
+          <div class="rounded-lg border border-blue-500/30 bg-blue-500/10 px-4 py-3 text-blue-200 text-sm"><%= msg %></div>
+        <% }) %>
+      </div>
+    <% } %>
     <%- body %>
   </main>
 

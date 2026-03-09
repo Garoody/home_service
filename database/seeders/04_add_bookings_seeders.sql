@@ -22,6 +22,10 @@ INSERT INTO
         id_booking,
         client_id,
         service_id,
+        first_name,
+        last_name,
+        city,
+        address,
         booking_date,
         booking_time,
         status,
@@ -31,6 +35,16 @@ INSERT INTO
 SELECT uuidv7 (), (
         SELECT id_user
         FROM client
-    ), s.id_service, CURRENT_DATE + (ROW_NUMBER() OVER ())::int, TIME '14:00', 'pending', s.price, CURRENT_TIMESTAMP
+    ),
+    s.id_service,
+    'Client',
+    'Test',
+    'Paris',
+    '10 rue de la Paix',
+    CURRENT_DATE + (ROW_NUMBER() OVER ())::int,
+    TIME '14:00',
+    'pending',
+    s.price,
+    CURRENT_TIMESTAMP
 FROM svc s
 ON CONFLICT DO NOTHING;

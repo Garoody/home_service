@@ -2,6 +2,7 @@
 
 import ServiceService from "../services/ServiceService.js";
 import CategoryService from "../services/CategoryService.js";
+import { validateServicePayload } from "../validators/serviceValidator.js";
 
 class ServiceController {
   async index(req, res) {
@@ -66,12 +67,18 @@ class ServiceController {
         return res.redirect("/auth/login");
       }
 
+      const validation = validateServicePayload(req.body);
+      if (!validation.success) {
+        req.flash("error", validation.message);
+        return res.redirect("/services/new");
+      }
+
       await ServiceService.create({
         provider_id: providerId,
-        category_id: req.body.category_id,
-        title: req.body.title,
-        description: req.body.description,
-        price: req.body.price,
+        category_id: validation.data.category_id,
+        title: validation.data.title,
+        description: validation.data.description,
+        price: validation.data.price,
       });
 
       req.flash("success", "Service cree.");
@@ -105,12 +112,17 @@ class ServiceController {
   async update(req, res) {
     try {
       const { slug } = req.params;
+      const validation = validateServicePayload(req.body);
+      if (!validation.success) {
+        req.flash("error", validation.message);
+        return res.redirect(`/services/${slug}/edit`);
+      }
 
       await ServiceService.updateBySlug(slug, {
-        category_id: req.body.category_id,
-        title: req.body.title,
-        description: req.body.description,
-        price: req.body.price,
+        category_id: validation.data.category_id,
+        title: validation.data.title,
+        description: validation.data.description,
+        price: validation.data.price,
       });
 
       req.flash("success", "Service mis a jour.");

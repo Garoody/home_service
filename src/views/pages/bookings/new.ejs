@@ -1,0 +1,101 @@
+<section class="py-10">
+  <div class="max-w-2xl mx-auto px-4">
+    <div class="p-8 rounded-2xl bg-white/5 border border-white/10 shadow-xl">
+      <h1 class="text-2xl font-semibold">Nouvelle réservation</h1>
+      <p class="mt-2 text-sm text-slate-400">
+        Choisis une date et une heure pour confirmer ta réservation.
+      </p>
+
+      <form action="/bookings" method="POST" class="mt-8 space-y-5">
+        <% if (csrfToken) { %>
+          <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+        <% } %>
+
+        <input type="hidden" name="service_id" value="<%= serviceId || '' %>">
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm text-slate-300 mb-2" for="last_name">Nom</label>
+            <input
+              id="last_name"
+              name="last_name"
+              type="text"
+              required
+              class="w-full px-4 py-2.5 rounded-lg bg-white/5 border border-white/10 text-slate-100 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+            >
+          </div>
+
+          <div>
+            <label class="block text-sm text-slate-300 mb-2" for="first_name">Prénom</label>
+            <input
+              id="first_name"
+              name="first_name"
+              type="text"
+              required
+              class="w-full px-4 py-2.5 rounded-lg bg-white/5 border border-white/10 text-slate-100 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+            >
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-sm text-slate-300 mb-2" for="city">Ville</label>
+          <input
+            id="city"
+            name="city"
+            type="text"
+            required
+            class="w-full px-4 py-2.5 rounded-lg bg-white/5 border border-white/10 text-slate-100 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+          >
+        </div>
+
+        <div>
+          <label class="block text-sm text-slate-300 mb-2" for="address">Adresse</label>
+          <input
+            id="address"
+            name="address"
+            type="text"
+            required
+            class="w-full px-4 py-2.5 rounded-lg bg-white/5 border border-white/10 text-slate-100 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+          >
+        </div>
+
+        <div>
+          <label class="block text-sm text-slate-300 mb-2" for="booking_date">Date</label>
+          <input
+            id="booking_date"
+            name="booking_date"
+            type="date"
+            required
+            class="w-full px-4 py-2.5 rounded-lg bg-white/5 border border-white/10 text-slate-100 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+          >
+        </div>
+
+        <div>
+          <label class="block text-sm text-slate-300 mb-2" for="booking_time">Heure</label>
+          <input
+            id="booking_time"
+            name="booking_time"
+            type="time"
+            required
+            class="w-full px-4 py-2.5 rounded-lg bg-white/5 border border-white/10 text-slate-100 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+          >
+        </div>
+
+        <div class="flex flex-wrap gap-3 pt-2">
+          <button
+            type="submit"
+            class="px-5 py-2.5 rounded-lg bg-blue-600 hover:bg-blue-500 transition font-medium"
+          >
+            Confirmer
+          </button>
+          <a
+            href="/bookings"
+            class="px-5 py-2.5 rounded-lg bg-white/5 border border-white/10 hover:border-white/20 transition"
+          >
+            Retour
+          </a>
+        </div>
+      </form>
+    </div>
+  </div>
+</section>
