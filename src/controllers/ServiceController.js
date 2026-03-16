@@ -2,6 +2,7 @@
 
 import ServiceService from "../services/ServiceService.js";
 import CategoryService from "../services/CategoryService.js";
+import ReviewService from "../services/ReviewService.js";
 import { validateServicePayload } from "../validators/serviceValidator.js";
 
 class ServiceController {
@@ -30,11 +31,15 @@ class ServiceController {
   async show(req, res) {
     try {
       const { slug } = req.params;
-      const service = await ServiceService.getBySlug(slug);
+      const [service, reviews] = await Promise.all([
+        ServiceService.getBySlug(slug),
+        ReviewService.getByService(slug),
+      ]);
 
       res.render("pages/services/show", {
         title: "Detail du service - HomeService",
         service,
+        reviews,
         csrfToken: res.locals.csrfToken,
       });
     } catch (error) {
@@ -79,6 +84,10 @@ class ServiceController {
         title: validation.data.title,
         description: validation.data.description,
         price: validation.data.price,
+        experience_years: validation.data.experience_years,
+        trainings: validation.data.trainings,
+        has_driving_license: validation.data.has_driving_license,
+        service_area: validation.data.service_area,
       });
 
       req.flash("success", "Service cree.");
@@ -123,6 +132,10 @@ class ServiceController {
         title: validation.data.title,
         description: validation.data.description,
         price: validation.data.price,
+        experience_years: validation.data.experience_years,
+        trainings: validation.data.trainings,
+        has_driving_license: validation.data.has_driving_license,
+        service_area: validation.data.service_area,
       });
 
       req.flash("success", "Service mis a jour.");

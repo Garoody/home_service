@@ -32,5 +32,7 @@ router.get("/profile", requireAuth, UserController.profile);
 
 // Update profil (form POST)
 router.post("/profile", requireAuth, UserController.updateProfile);
+// Droit a l'oubli: suppression du compte client connecte.
+router.post("/profile/delete", requireAuth, UserController.deleteAccount);
 
 export default router;

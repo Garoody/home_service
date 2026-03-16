@@ -14,6 +14,7 @@ function getUserId(req) {
 }
 
 class PaymentController {
+  // Affiche l'historique des paiements du client connecte.
   async index(req, res) {
     try {
       const clientId = getUserId(req);
@@ -29,15 +30,36 @@ class PaymentController {
     }
   }
 
+  // Affiche les cartes deja memorisees pour les paiements futurs.
+  async cards(req, res) {
+    try {
+      const clientId = getUserId(req);
+      const savedMethods = await PaymentService.listSavedMethodsForUser(clientId);
+
+      res.render("pages/payments/cards", {
+        title: "Mes cartes enregistrees - HomeService",
+        savedMethods,
+      });
+    } catch (error) {
+      req.flash("error", error.message);
+      res.redirect("/payments");
+    }
+  }
+
+  // Affiche l'ecran de paiement d'une reservation.
   async pay(req, res) {
     try {
       const clientId = getUserId(req);
       const { bookingId } = req.params;
-      const booking = await PaymentService.getPayContext(bookingId, clientId);
+      const [booking, savedMethods] = await Promise.all([
+        PaymentService.getPayContext(bookingId, clientId),
+        PaymentService.listSavedMethodsForUser(clientId),
+      ]);
 
       res.render("pages/payments/pay", {
         title: "Paiement - HomeService",
         booking,
+        savedMethods,
         csrfToken: res.locals.csrfToken,
       });
     } catch (error) {
@@ -46,6 +68,7 @@ class PaymentController {
     }
   }
 
+  // Enregistre le paiement choisi par le client.
   async handlePay(req, res) {
     try {
       const clientId = getUserId(req);
@@ -54,7 +77,15 @@ class PaymentController {
       const validation = validatePaymentPayload({
         booking_id: bookingId,
         amount: req.body.amount,
+        payment_source: req.body.payment_source,
+        saved_method_id: req.body.saved_method_id,
         payment_method: req.body.payment_method,
+        cardholder_name: req.body.cardholder_name,
+        card_number: req.body.card_number,
+        exp_month: req.body.exp_month,
+        exp_year: req.body.exp_year,
+        cvc: req.body.cvc,
+        save_card: req.body.save_card,
       });
 
       if (!validation.success) {
@@ -65,7 +96,14 @@ class PaymentController {
       await PaymentService.payBooking({
         bookingId,
         clientId,
+        payment_source: validation.data.payment_source,
+        saved_method_id: validation.data.saved_method_id,
         payment_method: validation.data.payment_method,
+        save_card: validation.data.save_card,
+        cardholder_name: validation.data.cardholder_name,
+        card_number: validation.data.card_number,
+        exp_month: validation.data.exp_month,
+        exp_year: validation.data.exp_year,
       });
 
       req.flash("success", "Paiement valide.");

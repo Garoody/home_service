@@ -46,6 +46,23 @@ class BookingController {
     });
   }
 
+  async edit(req, res) {
+    try {
+      const clientId = getUserId(req);
+      const { id } = req.params;
+      const booking = await BookingService.getByIdForUser({ bookingId: id, clientId });
+
+      res.render("pages/bookings/edit", {
+        title: "Modifier la reservation - HomeService",
+        booking,
+        csrfToken: res.locals.csrfToken,
+      });
+    } catch (error) {
+      req.flash("error", error.message);
+      res.redirect("/bookings");
+    }
+  }
+
   async store(req, res) {
     const validation = validateBookingCreatePayload(req.body);
     const serviceIdForRedirect = req.body?.service_id || "";
@@ -93,16 +110,20 @@ class BookingController {
       const validation = validateBookingUpdatePayload(req.body);
       if (!validation.success) {
         req.flash("error", validation.message);
-        return res.redirect("/bookings");
+        return res.redirect(`/bookings/${req.params.id}/edit`);
       }
 
       const clientId = getUserId(req);
       const { id } = req.params;
-      const { booking_date, booking_time } = validation.data;
+      const { first_name, last_name, city, address, booking_date, booking_time } = validation.data;
 
       await BookingService.updateByClient({
         bookingId: id,
         clientId,
+        first_name,
+        last_name,
+        city,
+        address,
         booking_date,
         booking_time,
       });
@@ -111,7 +132,7 @@ class BookingController {
       res.redirect("/bookings");
     } catch (error) {
       req.flash("error", error.message);
-      res.redirect("/bookings");
+      res.redirect(`/bookings/${req.params.id}/edit`);
     }
   }
 

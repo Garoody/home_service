@@ -57,9 +57,11 @@
         <a href="/" class="text-slate-400 hover:text-white transition">
           <- Retour a l'accueil
         </a>
-        <a href="/auth/register" class="text-blue-400 hover:underline">
-          Creer un compte
-        </a>
+        <% if (!currentUser) { %>
+          <a href="/auth/register" class="text-blue-400 hover:underline">
+            Creer un compte
+          </a>
+        <% } %>
       </div>
     </div>
   </div>

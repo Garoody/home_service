@@ -62,6 +62,7 @@ class BookingService {
         b.id_booking::text AS id,
         b.client_id,
         b.service_id,
+        s.provider_id::text AS provider_id,
         ${hasContactColumns ? "b.first_name" : "''::text AS first_name"},
         ${hasContactColumns ? "b.last_name" : "''::text AS last_name"},
         ${hasContactColumns ? "b.city" : "''::text AS city"},
@@ -73,9 +74,11 @@ class BookingService {
         b.created_at,
         b.updated_at,
         s.title AS service_title,
-        s.id_service::text AS service_slug
+        s.id_service::text AS service_slug,
+        (r.id_review IS NOT NULL) AS has_review
       FROM public.bookings b
       JOIN public.services s ON s.id_service = b.service_id
+      LEFT JOIN public.reviews r ON r.booking_id = b.id_booking
       WHERE b.client_id = $1
       ORDER BY b.created_at DESC
       `,
@@ -83,6 +86,45 @@ class BookingService {
     );
 
     return result.rows;
+  }
+
+  // Charge une reservation precise du client pour l'ecran d'edition.
+  static async getByIdForUser({ bookingId, clientId }) {
+    if (!clientId) {
+      throw new Error("Utilisateur non connecte.");
+    }
+
+    const hasContactColumns = await this.hasContactColumns();
+
+    const result = await db.query(
+      `
+      SELECT
+        b.id_booking::text AS id,
+        b.client_id::text AS client_id,
+        b.service_id::text AS service_id,
+        ${hasContactColumns ? "b.first_name" : "''::text AS first_name"},
+        ${hasContactColumns ? "b.last_name" : "''::text AS last_name"},
+        ${hasContactColumns ? "b.city" : "''::text AS city"},
+        ${hasContactColumns ? "b.address" : "''::text AS address"},
+        b.booking_date,
+        b.booking_time,
+        b.status,
+        b.total_price,
+        s.title AS service_title
+      FROM public.bookings b
+      JOIN public.services s ON s.id_service = b.service_id
+      WHERE b.id_booking::text = $1
+        AND b.client_id::text = $2
+      LIMIT 1
+      `,
+      [bookingId, clientId]
+    );
+
+    if (!result.rows[0]) {
+      throw new Error("Reservation introuvable.");
+    }
+
+    return result.rows[0];
   }
 
   // Cree une reservation avec le prix recopie depuis le service.
@@ -134,30 +176,58 @@ class BookingService {
     return result.rows[0];
   }
 
-  // Met a jour date/heure d'une reservation appartenant au client.
-  static async updateByClient({ bookingId, clientId, booking_date, booking_time }) {
+  // Met a jour les informations principales d'une reservation appartenant au client.
+  static async updateByClient({
+    bookingId,
+    clientId,
+    first_name,
+    last_name,
+    city,
+    address,
+    booking_date,
+    booking_time,
+  }) {
     if (!clientId) {
       throw new Error("Utilisateur non connecte.");
     }
-    if (!booking_date || !booking_time) {
-      throw new Error("Date et heure obligatoires.");
+    if (!first_name || !last_name || !city || !address || !booking_date || !booking_time) {
+      throw new Error("Tous les champs du formulaire sont obligatoires.");
     }
 
     // Double controle: verification de proprietaire avant l'UPDATE.
     await this.assertOwnership(bookingId, clientId);
 
-    const result = await db.query(
-      `
-      UPDATE public.bookings
-      SET
-        booking_date = $1,
-        booking_time = $2,
-        updated_at = NOW()
-      WHERE id_booking::text = $3
-      RETURNING id_booking::text AS id
-      `,
-      [booking_date, booking_time, bookingId]
-    );
+    const hasContactColumns = await this.hasContactColumns();
+
+    const result = hasContactColumns
+      ? await db.query(
+          `
+          UPDATE public.bookings
+          SET
+            first_name = $1,
+            last_name = $2,
+            city = $3,
+            address = $4,
+            booking_date = $5,
+            booking_time = $6,
+            updated_at = NOW()
+          WHERE id_booking::text = $7
+          RETURNING id_booking::text AS id
+          `,
+          [first_name, last_name, city, address, booking_date, booking_time, bookingId]
+        )
+      : await db.query(
+          `
+          UPDATE public.bookings
+          SET
+            booking_date = $1,
+            booking_time = $2,
+            updated_at = NOW()
+          WHERE id_booking::text = $3
+          RETURNING id_booking::text AS id
+          `,
+          [booking_date, booking_time, bookingId]
+        );
 
     if (!result.rows[0]) {
       throw new Error("Reservation introuvable.");

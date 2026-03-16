@@ -2,8 +2,14 @@
 
 import db from "../config/database.js";
 
+/**
+ * PaymentService
+ * Gere le paiement d'une reservation et les cartes enregistrees du client.
+ * Les donnees sensibles de carte ne sont jamais persistees en clair.
+ */
 class PaymentService {
   static _hasPaymentMethodColumn = null;
+  static _hasSavedPaymentMethodsTable = null;
 
   static async hasPaymentMethodColumn() {
     if (this._hasPaymentMethodColumn !== null) return this._hasPaymentMethodColumn;
@@ -22,6 +28,118 @@ class PaymentService {
     return this._hasPaymentMethodColumn;
   }
 
+  static async hasSavedPaymentMethodsTable() {
+    if (this._hasSavedPaymentMethodsTable !== null) return this._hasSavedPaymentMethodsTable;
+
+    const result = await db.query(
+      `
+      SELECT COUNT(*)::int AS count
+      FROM information_schema.tables
+      WHERE table_schema = 'public'
+        AND table_name = 'saved_payment_methods'
+      `
+    );
+
+    this._hasSavedPaymentMethodsTable = result.rows[0]?.count === 1;
+    return this._hasSavedPaymentMethodsTable;
+  }
+
+  static async listSavedMethodsForUser(clientId) {
+    const hasTable = await this.hasSavedPaymentMethodsTable();
+    if (!hasTable) return [];
+
+    const result = await db.query(
+      `
+      SELECT
+        id_saved_payment_method::text AS id,
+        brand,
+        last4,
+        exp_month,
+        exp_year,
+        cardholder_name,
+        is_default,
+        created_at
+      FROM public.saved_payment_methods
+      WHERE user_id::text = $1
+      ORDER BY is_default DESC, created_at DESC
+      `,
+      [clientId]
+    );
+
+    return result.rows;
+  }
+
+  // Charge une carte enregistree appartenant bien au client connecte.
+  static async getSavedMethodById({ clientId, savedMethodId }) {
+    const hasTable = await this.hasSavedPaymentMethodsTable();
+    if (!hasTable) {
+      throw new Error("Les cartes enregistrees ne sont pas disponibles.");
+    }
+
+    const result = await db.query(
+      `
+      SELECT
+        id_saved_payment_method::text AS id,
+        brand,
+        last4,
+        exp_month,
+        exp_year,
+        cardholder_name,
+        is_default
+      FROM public.saved_payment_methods
+      WHERE id_saved_payment_method::text = $1
+        AND user_id::text = $2
+      LIMIT 1
+      `,
+      [savedMethodId, clientId]
+    );
+
+    if (!result.rows[0]) {
+      throw new Error("Carte enregistree introuvable.");
+    }
+
+    return result.rows[0];
+  }
+
+  // Enregistre uniquement des metadonnees non sensibles pour reutilisation future.
+  static async saveCardForUser({ clientId, brand, last4, exp_month, exp_year, cardholder_name, is_default = false }) {
+    const hasTable = await this.hasSavedPaymentMethodsTable();
+    if (!hasTable) {
+      return null;
+    }
+
+    if (is_default) {
+      await db.query(
+        `
+        UPDATE public.saved_payment_methods
+        SET is_default = false, updated_at = NOW()
+        WHERE user_id::text = $1
+        `,
+        [clientId]
+      );
+    }
+
+    const result = await db.query(
+      `
+      INSERT INTO public.saved_payment_methods (
+        user_id,
+        brand,
+        last4,
+        exp_month,
+        exp_year,
+        cardholder_name,
+        is_default
+      )
+      VALUES ($1::uuid, $2, $3, $4, $5, $6, $7)
+      RETURNING id_saved_payment_method::text AS id
+      `,
+      [clientId, brand, last4, exp_month, exp_year, cardholder_name, is_default]
+    );
+
+    return result.rows[0];
+  }
+
+  // Retourne l'historique des paiements du client.
   static async listForUser(clientId) {
     const hasPaymentMethodColumn = await this.hasPaymentMethodColumn();
 
@@ -48,6 +166,7 @@ class PaymentService {
     return result.rows;
   }
 
+  // Verifie qu'une reservation appartient au client avant paiement.
   static async getPayContext(bookingId, clientId) {
     const result = await db.query(
       `
@@ -71,11 +190,45 @@ class PaymentService {
     return result.rows[0];
   }
 
-  static async payBooking({ bookingId, clientId, payment_method }) {
+  static async payBooking({
+    bookingId,
+    clientId,
+    payment_method,
+    payment_source,
+    saved_method_id,
+    save_card,
+    cardholder_name,
+    card_number,
+    exp_month,
+    exp_year,
+  }) {
     const hasPaymentMethodColumn = await this.hasPaymentMethodColumn();
-
     const context = await this.getPayContext(bookingId, clientId);
 
+    let finalPaymentMethod = payment_method;
+
+    // Deux chemins possibles:
+    // - utiliser une carte deja enregistree
+    // - utiliser une nouvelle carte et, si demande, en memoriser les metadonnees
+    if (payment_source === "saved") {
+      const savedMethod = await this.getSavedMethodById({
+        clientId,
+        savedMethodId: saved_method_id,
+      });
+      finalPaymentMethod = savedMethod.brand;
+    } else if (save_card) {
+      const digits = String(card_number || "").replace(/\s+/g, "");
+      await this.saveCardForUser({
+        clientId,
+        brand: payment_method,
+        last4: digits.slice(-4),
+        exp_month,
+        exp_year,
+        cardholder_name,
+      });
+    }
+
+    // Le paiement est marque comme regle dans la reservation cible.
     const result = hasPaymentMethodColumn
       ? await db.query(
           `
@@ -90,7 +243,7 @@ class PaymentService {
             updated_at = NOW()
           RETURNING id_payment::text AS id
           `,
-          [bookingId, context.amount, payment_method]
+          [bookingId, context.amount, finalPaymentMethod]
         )
       : await db.query(
           `

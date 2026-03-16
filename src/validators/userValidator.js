@@ -43,6 +43,14 @@ const registerSchema = z.object({
   gdpr_consent: z.boolean(),
 });
 
+// Validation du profil prestataire.
+const providerProfileSchema = z.object({
+  experience_years: z.number().int().min(0, "L'annee d'experience est invalide.").max(60, "L'annee d'experience est invalide."),
+  trainings: z.string().trim().min(2, "La formation est obligatoire.").max(500, "Les formations sont trop longues."),
+  has_driving_license: z.boolean(),
+  service_area: z.string().trim().min(2, "La zone d'intervention est obligatoire.").max(255, "La zone d'intervention est trop longue."),
+});
+
 /**
  * Valide les donn�es de login.
  *
@@ -102,6 +110,30 @@ export function validateRegisterPayload(payload = {}) {
       success: false,
       data: null,
       message: "Le consentement RGPD est obligatoire.",
+    };
+  }
+
+  return { success: true, data: result.data, message: null };
+}
+
+export function validateProviderProfilePayload(payload = {}) {
+  const normalized = {
+    experience_years: Number(payload.experience_years),
+    trainings: payload.trainings,
+    has_driving_license:
+      payload.has_driving_license === true ||
+      payload.has_driving_license === "true" ||
+      payload.has_driving_license === "on",
+    service_area: payload.service_area,
+  };
+
+  const result = providerProfileSchema.safeParse(normalized);
+
+  if (!result.success) {
+    return {
+      success: false,
+      data: null,
+      message: result.error.issues.map((issue) => issue.message).join(" | "),
     };
   }
 

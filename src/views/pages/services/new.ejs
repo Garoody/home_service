@@ -1,66 +1,131 @@
-<div class="min-h-[calc(100vh-4rem)] flex items-center justify-center px-4">
+<section class="py-10">
+  <div class="max-w-2xl mx-auto px-4">
+    <div class="p-8 rounded-2xl bg-white/5 backdrop-blur shadow-xl border border-white/10">
+      <div class="mb-6 text-center">
+        <h1 class="text-2xl font-semibold tracking-tight">Proposer un service</h1>
+        <p class="text-sm text-slate-400 mt-1">
+          Decris ton service pour que les clients puissent reserver.
+        </p>
+      </div>
 
-  <div class="w-full max-w-md p-8 rounded-2xl bg-white/5 backdrop-blur shadow-xl border border-white/10">
+      <form action="/services" method="POST" class="space-y-5">
+        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
 
-    <h2 class="text-xl font-semibold mb-6 text-center">
-      Ajouter une catégorie
-    </h2>
+        <div>
+          <label class="block text-sm mb-1 text-slate-300">Titre</label>
+          <input
+            type="text"
+            name="title"
+            required
+            placeholder="Ex: Menage 2h (appartement)"
+            class="w-full px-4 py-2 rounded-lg bg-slate-900/70 border border-slate-700 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition"
+          >
+        </div>
 
-    <form action="/categories" method="POST" class="space-y-5">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm mb-1 text-slate-300">Prix (EUR)</label>
+            <input
+              type="number"
+              name="price"
+              step="0.01"
+              min="0"
+              required
+              placeholder="Ex: 35"
+              class="w-full px-4 py-2 rounded-lg bg-slate-900/70 border border-slate-700 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition"
+            >
+          </div>
 
-      <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+          <div>
+            <label class="block text-sm mb-1 text-slate-300">Categorie</label>
+            <select
+              name="category_id"
+              required
+              class="w-full px-4 py-2 rounded-lg bg-slate-900/70 border border-slate-700 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition"
+            >
+              <option value="" disabled selected>Choisir une categorie</option>
+              <% (categories || []).forEach((category) => { %>
+                <option value="<%= category.id %>"><%= category.name %></option>
+              <% }) %>
+            </select>
+          </div>
+        </div>
 
-      <!-- Nom -->
-      <div>
-        <label class="block text-sm mb-1 text-slate-300">
-          Nom de la catégorie
+        <div>
+          <label class="block text-sm mb-1 text-slate-300">Description</label>
+          <textarea
+            name="description"
+            rows="6"
+            required
+            placeholder="Decris ce que tu proposes, la duree, le materiel et la zone d'intervention."
+            class="w-full px-4 py-2 rounded-lg bg-slate-900/70 border border-slate-700 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition"
+          ></textarea>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm mb-1 text-slate-300">Annee d'experience</label>
+            <input
+              type="number"
+              name="experience_years"
+              min="0"
+              max="60"
+              required
+              placeholder="Ex: 5"
+              class="w-full px-4 py-2 rounded-lg bg-slate-900/70 border border-slate-700 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition"
+            >
+          </div>
+
+          <div>
+            <label class="block text-sm mb-1 text-slate-300">Zone d'intervention</label>
+            <input
+              type="text"
+              name="service_area"
+              required
+              placeholder="Ex: Lyon et 20 km autour"
+              class="w-full px-4 py-2 rounded-lg bg-slate-900/70 border border-slate-700 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition"
+            >
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-sm mb-1 text-slate-300">Formations suivies</label>
+          <textarea
+            name="trainings"
+            rows="3"
+            required
+            placeholder="Ex: CAP, certifications, formations professionnelles..."
+            class="w-full px-4 py-2 rounded-lg bg-slate-900/70 border border-slate-700 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition"
+          ></textarea>
+        </div>
+
+        <label class="inline-flex items-center gap-3 text-sm text-slate-300">
+          <input type="checkbox" name="has_driving_license">
+          <span>Permis de conduire</span>
         </label>
-        <input
-          type="text"
-          name="name"
-          placeholder="Ex: Plomberie"
-          required
-          class="w-full px-4 py-2 rounded-lg bg-slate-900/70 border border-slate-700
-                 focus:border-blue-500 focus:ring-1 focus:ring-blue-500
-                 outline-none transition"
-        >
-      </div>
 
-      <!-- Description -->
-      <div>
-        <label class="block text-sm mb-1 text-slate-300">
-          Description (optionnelle)
-        </label>
-        <textarea
-          name="description"
-          rows="3"
-          placeholder="Ex: Services liés aux installations sanitaires..."
-          class="w-full px-4 py-2 rounded-lg bg-slate-900/70 border border-slate-700
-                 focus:border-blue-500 focus:ring-1 focus:ring-blue-500
-                 outline-none transition"
-        ></textarea>
-      </div>
+        <div class="flex items-center justify-between pt-2">
+          <a href="/services" class="text-sm text-slate-400 hover:text-white transition">
+            <- Retour
+          </a>
 
-      <!-- Boutons -->
-      <div class="flex items-center justify-between pt-2">
+          <div class="flex gap-3">
+            <button
+              type="reset"
+              class="px-4 py-2 rounded-lg bg-slate-700 hover:bg-slate-600 transition"
+            >
+              Reinitialiser
+            </button>
 
-        <a href="/categories"
-           class="text-sm text-slate-400 hover:text-white transition">
-          ← Retour
-        </a>
-
-        <button
-          type="submit"
-          class="px-5 py-2 rounded-lg bg-blue-600 hover:bg-blue-500
-                 active:bg-blue-700 transition font-medium
-                 shadow-lg shadow-blue-600/20">
-          Enregistrer
-        </button>
-
-      </div>
-
-    </form>
-
+            <button
+              type="submit"
+              class="px-5 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 active:bg-blue-700 transition font-medium shadow-lg shadow-blue-600/20"
+            >
+              Publier
+            </button>
+          </div>
+        </div>
+      </form>
+    </div>
   </div>
-
-</div>
+</section>

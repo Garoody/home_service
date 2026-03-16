@@ -6,6 +6,10 @@ import UserRepository from "../repositories/UserRepository.js";
  * UserService
  */
 class UserService {
+  async getById(userId) {
+    return UserRepository.findById(userId);
+  }
+
   async getByEmail(email) {
     return UserRepository.findByEmail(email);
   }
@@ -19,6 +23,14 @@ class UserService {
       role,
       gdpr_consent,
     });
+  }
+
+  async deleteById(userId) {
+    return UserRepository.deleteById(userId);
+  }
+
+  async updateProviderProfile(payload) {
+    return UserRepository.updateProviderProfile(payload);
   }
 }
 

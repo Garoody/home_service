@@ -53,6 +53,9 @@ router.use("/", homeRoutes);
 // Aliases (legacy links) -> auth routes
 router.get("/login", (req, res) => res.redirect("/auth/login"));
 router.get("/register", (req, res) => res.redirect("/auth/register"));
+
+
+
 router.get("/connexion", (req, res) => res.redirect("/auth/login"));
 router.get("/inscription", (req, res) => res.redirect("/auth/register"));
 

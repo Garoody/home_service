@@ -39,7 +39,7 @@ VALUES (
     ),
     (
         uuidv7 (),
-        'Provider Test',
+        'Garoody Chery',
         'provider@homeservices.local',
         crypt (
             'Provider123!',

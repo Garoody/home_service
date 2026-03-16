@@ -13,6 +13,8 @@ router.use(requireClient);
 router.get("/", BookingController.index);
 // Formulaire de creation d'une reservation.
 router.get("/new", BookingController.new);
+// Formulaire d'edition d'une reservation existante.
+router.get("/:id/edit", BookingController.edit);
 // Creation d'une reservation.
 router.post("/", BookingController.store);
 // Mise a jour (date/heure) d'une reservation.

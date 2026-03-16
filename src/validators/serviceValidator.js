@@ -21,6 +21,11 @@ const serviceSchema = z.object({
   description: z.string().trim().min(5, "La description est obligatoire."),
   // Prix numerique >= 0.
   price: z.number().min(0, "Le prix doit etre positif."),
+  // Informations professionnelles ajoutees au service.
+  experience_years: z.number().int().min(0, "L'annee d'experience est invalide.").max(60, "L'annee d'experience est invalide."),
+  trainings: z.string().trim().min(2, "Les formations suivies sont obligatoires.").max(500, "Les formations sont trop longues."),
+  has_driving_license: z.boolean(),
+  service_area: z.string().trim().min(2, "La zone d'intervention est obligatoire.").max(255, "La zone d'intervention est trop longue."),
 });
 
 /**
@@ -39,6 +44,13 @@ export function validateServicePayload(payload = {}) {
     title: payload.title,
     description: payload.description,
     price: Number(payload.price),
+    experience_years: Number(payload.experience_years),
+    trainings: payload.trainings,
+    has_driving_license:
+      payload.has_driving_license === true ||
+      payload.has_driving_license === "true" ||
+      payload.has_driving_license === "on",
+    service_area: payload.service_area,
   };
 
   const result = serviceSchema.safeParse(normalized);

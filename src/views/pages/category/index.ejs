@@ -7,21 +7,25 @@
       </p>
     </div>
 
-    <a
-      href="/categories/new"
-      class="px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 transition font-medium shadow-lg shadow-blue-600/20"
-    >
-      + Nouvelle categorie
-    </a>
+    <% if (currentUser && currentUser.role === "admin") { %>
+      <a
+        href="/categories/new"
+        class="px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 transition font-medium shadow-lg shadow-blue-600/20"
+      >
+        + Nouvelle categorie
+      </a>
+    <% } %>
   </div>
 
   <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
     <% if (!categories || categories.length === 0) { %>
       <div class="col-span-full p-10 rounded-2xl bg-white/5 border border-white/10 text-center">
         <p class="text-slate-300">Aucune categorie pour le moment.</p>
-        <a href="/categories/new" class="inline-block mt-4 text-blue-400 hover:underline">
-          Creer la premiere categorie
-        </a>
+        <% if (currentUser && currentUser.role === "admin") { %>
+          <a href="/categories/new" class="inline-block mt-4 text-blue-400 hover:underline">
+            Creer la premiere categorie
+          </a>
+        <% } %>
       </div>
     <% } else { %>
       <% categories.forEach((category) => { %>

@@ -2,22 +2,16 @@
 
 import { Router } from "express";
 import ReviewController from "../controllers/ReviewController.js";
+import { requireClient } from "../middlewares/authMiddleware.js";
 
 const router = Router();
 
-// GET /reviews (liste)
-// router.get("/", ReviewController.index);
+router.use(requireClient);
 
-// GET /reviews/new?booking_id=...
-// router.get("/new", ReviewController.new);
+// Formulaire d'avis pour une reservation du client connecte.
+router.get("/bookings/:bookingId/new", ReviewController.new);
 
-// POST /reviews
-// router.post("/", ReviewController.create);
-
-// GET /reviews/:id
-// router.get("/:id", ReviewController.show);
-
-// POST /reviews/:id/delete
-// router.post("/:id/delete", ReviewController.destroy);
+// Enregistrement de l'avis.
+router.post("/", ReviewController.store);
 
 export default router;

@@ -17,7 +17,10 @@
     "db:tables:payments": "psql \"$DATABASE_URL\" -f database/migrations/tables/05_add_payments_table.sql",
     "db:tables:reviews": "psql \"$DATABASE_URL\" -f database/migrations/tables/06_add_reviews_table.sql",
     "db:tables:user-sessions": "psql \"$DATABASE_URL\" -f database/migrations/tables/08_create_user_sessions_table.sql",
-    "db:up": "npm run db:extensions && npm run db:types && npm run db:triggers && npm run db:tables:users && npm run db:tables:categories && npm run db:tables:services && npm run db:tables:bookings && npm run db:tables:payments && npm run db:tables:reviews && npm run db:tables:user-sessions",
+    "db:tables:saved-payment-methods": "psql \"$DATABASE_URL\" -f database/migrations/tables/11_add_saved_payment_methods_table.sql",
+    "db:tables:provider-profile": "psql \"$DATABASE_URL\" -f database/migrations/tables/12_add_provider_profile_fields.sql",
+    "db:tables:service-provider-details": "psql \"$DATABASE_URL\" -f database/migrations/tables/13_add_service_provider_details.sql",
+    "db:up": "npm run db:extensions && npm run db:types && npm run db:triggers && npm run db:tables:users && npm run db:tables:categories && npm run db:tables:services && npm run db:tables:bookings && npm run db:tables:payments && npm run db:tables:reviews && npm run db:tables:user-sessions && npm run db:tables:saved-payment-methods && npm run db:tables:provider-profile && npm run db:tables:service-provider-details",
     "db:reset": "npm run db:drop:tables && npm run db:drop:types && npm run db:up",
     "start": "node src/app.js",
     "dev": "node --env-file=.env --watch src/app.js"

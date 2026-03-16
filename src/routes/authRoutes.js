@@ -3,6 +3,7 @@
 import { Router } from "express";
 import AuthController from "../controllers/auth/AuthController.js";
 import { passport } from "../config/passport.js";
+import { requireGuest } from "../middlewares/authMiddleware.js";
 
 const router = Router();
 
@@ -15,11 +16,11 @@ const requireGoogleOAuthConfig = (req, res, next) => {
   next();
 };
 
-router.get("/register", AuthController.showRegister);
-router.post("/register", AuthController.register);
+router.get("/register", requireGuest, AuthController.showRegister);
+router.post("/register", requireGuest, AuthController.register);
 
-router.get("/login", AuthController.showLogin);
-router.post("/login", AuthController.login);
+router.get("/login", requireGuest, AuthController.showLogin);
+router.post("/login", requireGuest, AuthController.login);
 
 // Redirection vers Google (demande d'acces au profil + email).
 router.get(

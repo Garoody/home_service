@@ -54,6 +54,51 @@
         >
       </div>
 
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <label class="block text-sm mb-1 text-slate-300">Annee d'experience</label>
+          <input
+            type="number"
+            min="0"
+            max="60"
+            name="experience_years"
+            value="<%= service.experience_years ?? '' %>"
+            required
+            class="w-full px-4 py-2 rounded-lg bg-slate-900/70 border border-slate-700 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition"
+          >
+        </div>
+
+        <div>
+          <label class="block text-sm mb-1 text-slate-300">Zone d'intervention</label>
+          <input
+            type="text"
+            name="service_area"
+            value="<%= service.service_area || '' %>"
+            required
+            class="w-full px-4 py-2 rounded-lg bg-slate-900/70 border border-slate-700 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition"
+          >
+        </div>
+      </div>
+
+      <div>
+        <label class="block text-sm mb-1 text-slate-300">Formations suivies</label>
+        <textarea
+          name="trainings"
+          rows="3"
+          required
+          class="w-full px-4 py-2 rounded-lg bg-slate-900/70 border border-slate-700 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition"
+        ><%= service.trainings || '' %></textarea>
+      </div>
+
+      <label class="inline-flex items-center gap-3 text-sm text-slate-300">
+        <input
+          type="checkbox"
+          name="has_driving_license"
+          <%= service.has_driving_license ? "checked" : "" %>
+        >
+        <span>Permis de conduire</span>
+      </label>
+
       <div class="flex items-center justify-between pt-2">
         <a href="/services/<%= service.slug %>" class="text-sm text-slate-400 hover:text-white transition">
           <- Retour

@@ -4,28 +4,28 @@ import bcrypt from "bcrypt";
 import { randomBytes } from "crypto";
 import UserRepository from "../repositories/UserRepository.js";
 
-/**
- * AuthService
- */
 class AuthService {
+  // Authentifie un utilisateur via email et mot de passe.
   async authenticate(loginDto) {
-    // 1) Cherche l'utilisateur par email.
     const user = await UserRepository.findByEmail(loginDto.email);
     if (!user) {
       return { success: false, status: 401, message: "Email ou mot de passe incorrect." };
     }
-    // 2) Compare le mot de passe brut avec le hash stocke.
+
+    // Compare le mot de passe saisi avec le hash stocke en base.
     const isValidPassword = user.passwordHash
       ? await bcrypt.compare(loginDto.password, user.passwordHash)
       : false;
+
     if (!isValidPassword) {
       return { success: false, status: 401, message: "Email ou mot de passe incorrect." };
     }
+
     return { success: true, user };
   }
 
+  // Cree un compte local apres verification de l'email.
   async register(registerDto) {
-    // Verifie qu'aucun compte n'existe deja avec cet email.
     const existingUser = await UserRepository.findByEmail(registerDto.email);
 
     if (existingUser) {
@@ -46,8 +46,8 @@ class AuthService {
     return { success: true, user: createdUser };
   }
 
+  // Associe un compte Google a un utilisateur local existant ou nouveau.
   async authenticateWithGoogle(profile) {
-    // Google peut renvoyer plusieurs emails: on prend le premier.
     const email = profile?.emails?.[0]?.value?.toLowerCase();
 
     if (!email) {
@@ -60,7 +60,6 @@ class AuthService {
 
     const existingUser = await UserRepository.findByEmail(email);
     if (existingUser) {
-      // Compte deja present: connexion directe.
       return { success: true, user: existingUser };
     }
 
@@ -68,7 +67,7 @@ class AuthService {
       profile?.displayName ||
       `${profile?.name?.givenName || "Utilisateur"} ${profile?.name?.familyName || "Google"}`.trim();
 
-    // Le schema actuel impose password_hash, meme pour un compte OAuth.
+    // Le schema actuel impose un password_hash, meme pour un compte OAuth.
     const password_hash = await bcrypt.hash(randomBytes(32).toString("hex"), 10);
 
     const createdUser = await UserRepository.create({

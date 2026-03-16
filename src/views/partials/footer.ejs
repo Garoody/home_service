@@ -5,7 +5,14 @@
 
       <!-- Description -->
       <div>
-        <h3 class="text-white font-semibold mb-3">🏠 HomeService</h3>
+        <a href="/" class="inline-flex items-center gap-3 text-white font-semibold mb-3 hover:text-blue-400 transition">
+          <img
+            src="/images/logo.svg"
+            alt="HomeService"
+            class="h-10 w-10 rounded-xl border border-white/10 bg-white/5 p-1.5 shadow-lg shadow-blue-950/20"
+          >
+          <span>HomeService</span>
+        </a>
         <p class="text-slate-400">
           Plateforme de réservation de services à domicile.
           Trouvez rapidement un professionnel qualifié près de chez vous.
@@ -19,7 +26,26 @@
           <li><a href="/" class="hover:text-blue-400 transition">Accueil</a></li>
           <li><a href="/categories" class="hover:text-blue-400 transition">Catégories</a></li>
           <li><a href="/services" class="hover:text-blue-400 transition">Services</a></li>
-          <li><a href="/auth/login" class="hover:text-blue-400 transition">Connexion</a></li>
+          <% if (currentUser) { %>
+            <li><a href="/users/profile" class="hover:text-blue-400 transition">Mon espace</a></li>
+            <li><a href="/bookings" class="hover:text-blue-400 transition">Mes réservations</a></li>
+            <li>
+              <form
+                action="/auth/logout"
+                method="POST"
+                data-confirm="Voulez-vous vraiment vous déconnecter ?"
+              >
+                <button
+                  type="submit"
+                  class="bg-transparent p-0 text-slate-400 hover:text-red-300 transition"
+                >
+                  Déconnexion
+                </button>
+              </form>
+            </li>
+          <% } else { %>
+            <li><a href="/auth/login" class="hover:text-blue-400 transition">Connexion</a></li>
+          <% } %>
         </ul>
       </div>
 

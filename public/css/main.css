@@ -28,7 +28,12 @@ body {
 }
 
 /* Inputs */
-input,
+/*
+  La largeur pleine doit s'appliquer aux champs de saisie classiques.
+  On evite de la mettre sur tous les <input> pour ne pas deformer
+  les radios, checkboxes, fichiers ou boutons speciaux.
+*/
+input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]):not([type="file"]):not([type="submit"]):not([type="reset"]):not([type="button"]),
 textarea,
 select {
     width: 100%;
@@ -42,7 +47,7 @@ select {
     transition: 0.2s ease;
 }
 
-input:focus,
+input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]):not([type="file"]):not([type="submit"]):not([type="reset"]):not([type="button"]):focus,
 textarea:focus,
 select:focus {
     outline: none;

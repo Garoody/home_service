@@ -1,0 +1,32 @@
+<svg width="256" height="256" viewBox="0 0 256 256" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="startupBg" x1="34" y1="24" x2="216" y2="230" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#06B6D4"/>
+      <stop offset="0.55" stop-color="#2563EB"/>
+      <stop offset="1" stop-color="#7C3AED"/>
+    </linearGradient>
+    <linearGradient id="startupCard" x1="76" y1="70" x2="174" y2="182" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FFFFFF"/>
+      <stop offset="1" stop-color="#DBEAFE"/>
+    </linearGradient>
+    <filter id="startupGlow" x="6" y="6" width="244" height="244" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feFlood flood-opacity="0" result="BackgroundImageFix"/>
+      <feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape"/>
+      <feGaussianBlur stdDeviation="10" result="effect1_foregroundBlur_1_1"/>
+    </filter>
+  </defs>
+
+  <rect x="24" y="24" width="208" height="208" rx="52" fill="url(#startupBg)"/>
+  <circle cx="74" cy="70" r="20" fill="#93C5FD" fill-opacity="0.24"/>
+  <circle cx="187" cy="186" r="24" fill="#C4B5FD" fill-opacity="0.24"/>
+  <circle cx="194" cy="70" r="11" fill="#F8FAFC" fill-opacity="0.9"/>
+
+  <g filter="url(#startupGlow)">
+    <path d="M67 113.5L127.058 63.4518C127.617 62.9862 128.424 62.9862 128.983 63.4518L189 113.5" stroke="url(#startupCard)" stroke-width="14" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M83 107V176C83 180.418 86.5817 184 91 184H165C169.418 184 173 180.418 173 176V107" stroke="url(#startupCard)" stroke-width="14" stroke-linecap="round"/>
+    <path d="M103 113V164" stroke="url(#startupCard)" stroke-width="12" stroke-linecap="round"/>
+    <path d="M153 113V164" stroke="url(#startupCard)" stroke-width="12" stroke-linecap="round"/>
+    <path d="M103 135H153" stroke="url(#startupCard)" stroke-width="12" stroke-linecap="round"/>
+    <rect x="114" y="144" width="28" height="40" rx="10" fill="#E0F2FE" fill-opacity="0.16" stroke="url(#startupCard)" stroke-width="10"/>
+  </g>
+</svg>

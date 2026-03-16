@@ -1,37 +1,492 @@
-<section class="py-10">
-  <div class="max-w-2xl mx-auto px-4">
-    <div class="p-8 rounded-2xl bg-white/5 border border-white/10 shadow-xl">
-      <h1 class="text-2xl font-semibold">Paiement</h1>
-      <p class="mt-2 text-slate-300"><%= booking.service_title || "Service" %></p>
-      <p class="mt-1 text-emerald-300 font-medium"><%= (booking.amount ?? 0).toString().replace(".", ",") %> EUR</p>
+<!--
+  Ecran de paiement inspire tres directement d'une maquette classique.
+  Chaque moyen de paiement occupe une ligne horizontale et seul le bloc
+  selectionne ouvre son contenu.
+-->
+<section class="checkout-page">
+  <div class="checkout-page__inner">
+    <h1 class="checkout-page__title">Selectionner un mode de paiement</h1>
 
-      <form action="/payments/<%= booking.booking_id %>" method="POST" class="mt-8 space-y-5">
-        <% if (csrfToken) { %>
-          <input type="hidden" name="_csrf" value="<%= csrfToken %>">
-        <% } %>
-        <input type="hidden" name="amount" value="<%= booking.amount %>">
+    <form action="/payments/<%= booking.booking_id %>" method="POST" id="payment-form" class="checkout-card">
+      <% if (typeof csrfToken !== "undefined") { %>
+        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+      <% } %>
 
-        <div>
-          <label class="block text-sm text-slate-300 mb-2" for="payment_method">Mode de paiement</label>
-          <select
-            id="payment_method"
-            name="payment_method"
-            required
-            class="w-full px-4 py-2.5 rounded-lg bg-white/5 border border-white/10 text-slate-100 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
-          >
-            <option value="card">Carte bancaire</option>
-            <option value="cash">Especes</option>
-            <option value="bank_transfer">Virement bancaire</option>
-          </select>
+      <input type="hidden" name="amount" value="<%= booking.amount %>">
+      <input type="hidden" name="payment_source" value="new">
+      <input type="hidden" name="exp_month" id="exp_month">
+      <input type="hidden" name="exp_year" id="exp_year">
+
+      <section class="checkout-option is-active" data-method-section data-method="cb">
+        <div class="checkout-option__frame">
+          <label class="checkout-option__header">
+            <input type="radio" name="payment_method" value="cb" checked>
+            <span class="checkout-option__radio"></span>
+
+            <div class="checkout-option__content">
+              <h2 class="checkout-option__title">Payer par Carte Bancaire</h2>
+
+              <div class="checkout-option__logos">
+                <span class="checkout-logo checkout-logo--visa">VISA</span>
+                <span class="checkout-logo checkout-logo--mc">MASTERCARD</span>
+                <span class="checkout-logo checkout-logo--cb">CB</span>
+                <span class="checkout-logo checkout-logo--other">AUTRE</span>
+              </div>
+            </div>
+          </label>
+
+          <div class="checkout-option__body">
+            <div class="checkout-option__inner">
+              <div class="checkout-option__divider"></div>
+
+              <div class="checkout-fields">
+              <input
+                type="text"
+                name="card_number"
+                id="card_number"
+                placeholder="Numero de carte"
+                inputmode="numeric"
+                autocomplete="cc-number"
+                maxlength="23"
+                class="checkout-input checkout-input--number"
+              >
+
+                <input
+                  type="text"
+                  id="expiry"
+                  placeholder="Date d'expiration MM / AA"
+                  inputmode="numeric"
+                  maxlength="5"
+                  class="checkout-input"
+                >
+
+                <input
+                  type="text"
+                  name="cvc"
+                  id="cvc"
+                  placeholder="Cryptogramme CVC"
+                  inputmode="numeric"
+                  autocomplete="cc-csc"
+                  maxlength="4"
+                  class="checkout-input"
+                >
+              </div>
+
+              <div class="checkout-button-row">
+                <button type="submit" class="checkout-button">Payer</button>
+              </div>
+            </div>
+          </div>
         </div>
+      </section>
 
-        <button
-          type="submit"
-          class="px-5 py-2.5 rounded-lg bg-blue-600 hover:bg-blue-500 transition font-medium"
-        >
-          Valider le paiement
-        </button>
-      </form>
-    </div>
+      <section class="checkout-option" data-method-section data-method="paypal">
+        <div class="checkout-option__frame">
+          <label class="checkout-option__header checkout-option__header--compact">
+            <input type="radio" name="payment_method" value="paypal">
+            <span class="checkout-option__radio"></span>
+
+            <div class="checkout-option__content">
+              <h2 class="checkout-option__title">
+                Payer par <span class="checkout-paypal">PayPal</span>
+              </h2>
+            </div>
+          </label>
+
+          <div class="checkout-option__body checkout-option__body--compact">
+            <div class="checkout-option__inner">
+              <div class="checkout-button-row">
+                <button type="submit" class="checkout-button">Payer avec PayPal</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="checkout-option" data-method-section data-method="bank_transfer">
+        <div class="checkout-option__frame">
+          <label class="checkout-option__header checkout-option__header--compact">
+            <input type="radio" name="payment_method" value="bank_transfer">
+            <span class="checkout-option__radio"></span>
+
+            <div class="checkout-option__content">
+              <h2 class="checkout-option__title">Virement Bancaire</h2>
+              <p class="checkout-option__text">Coordonnees bancaires fournies a l'etape suivante.</p>
+            </div>
+          </label>
+
+          <div class="checkout-option__body checkout-option__body--compact">
+            <div class="checkout-option__inner">
+              <div class="checkout-message">Les informations de virement seront communiquees apres validation.</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="checkout-option" data-method-section data-method="cash">
+        <div class="checkout-option__frame">
+          <label class="checkout-option__header checkout-option__header--compact">
+            <input type="radio" name="payment_method" value="cash">
+            <span class="checkout-option__radio"></span>
+
+            <div class="checkout-option__content">
+              <h2 class="checkout-option__title">Payer en Especes</h2>
+              <p class="checkout-option__text">Paiement en especes a la livraison.</p>
+            </div>
+          </label>
+
+          <div class="checkout-option__body checkout-option__body--compact">
+            <div class="checkout-option__inner">
+              <div class="checkout-message">Le paiement sera effectue directement au prestataire lors du service.</div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </form>
   </div>
 </section>
+
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    const form = document.getElementById("payment-form");
+    if (!form) return;
+
+    const methodInputs = Array.from(form.querySelectorAll('input[name="payment_method"]'));
+    const sections = Array.from(form.querySelectorAll("[data-method-section]"));
+    const cardFields = [
+      document.getElementById("card_number"),
+      document.getElementById("expiry"),
+      document.getElementById("cvc"),
+      document.getElementById("exp_month"),
+      document.getElementById("exp_year"),
+    ];
+    const cardNumberInput = document.getElementById("card_number");
+    const expiryInput = document.getElementById("expiry");
+    const expMonthInput = document.getElementById("exp_month");
+    const expYearInput = document.getElementById("exp_year");
+
+    const syncPaymentState = () => {
+      const selectedMethod = form.querySelector('input[name="payment_method"]:checked')?.value || "cb";
+      const isCardPayment = ["cb", "visa", "mastercard", "other"].includes(selectedMethod);
+
+      sections.forEach((section) => {
+        section.classList.toggle("is-active", section.dataset.method === selectedMethod);
+      });
+
+      cardFields.forEach((field) => {
+        if (field) field.disabled = !isCardPayment;
+      });
+    };
+
+    if (cardNumberInput) {
+      cardNumberInput.addEventListener("input", () => {
+        const digits = cardNumberInput.value.replace(/\D+/g, "").slice(0, 19);
+        cardNumberInput.value = digits.replace(/(.{4})/g, "$1 ").trim();
+      });
+    }
+
+    if (expiryInput) {
+      expiryInput.addEventListener("input", () => {
+        const digits = expiryInput.value.replace(/\D+/g, "").slice(0, 4);
+        const month = digits.slice(0, 2);
+        const year = digits.slice(2, 4);
+
+        expiryInput.value = year ? `${month}/${year}` : month;
+        expMonthInput.value = month;
+        expYearInput.value = year ? `20${year}` : "";
+      });
+    }
+
+    methodInputs.forEach((input) => {
+      input.addEventListener("change", syncPaymentState);
+    });
+
+    syncPaymentState();
+  });
+</script>
+
+<style>
+  .checkout-page {
+    min-height: calc(100vh - 4rem);
+    padding: 2.5rem 1rem 3rem;
+    background: #1c1f28;
+  }
+
+  .checkout-page__inner {
+    width: 100%;
+    max-width: 74rem;
+    margin: 0 auto;
+  }
+
+  .checkout-page__title {
+    margin: 0 0 2.8rem;
+    text-align: center;
+    font-size: 2.3rem;
+    font-weight: 700;
+    color: #ffffff;
+  }
+
+  .checkout-card {
+    width: 100%;
+    max-width: 70rem;
+    margin: 0 auto;
+    border: 1px solid #3a3f49;
+    border-radius: 0.2rem;
+    background: #222631;
+    overflow: hidden;
+  }
+
+  .checkout-option {
+    border-top: 1px solid #3a3f49;
+    display: flex;
+    justify-content: center;
+  }
+
+  .checkout-option:first-child {
+    border-top: 0;
+  }
+
+  .checkout-option__frame {
+    width: 100%;
+    max-width: 56rem;
+    margin: 0 auto;
+  }
+
+  .checkout-option__header {
+    display: flex;
+    align-items: flex-start;
+    gap: 1.05rem;
+    padding: 1.75rem 1.55rem 1.1rem;
+    cursor: pointer;
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  .checkout-option__header--compact {
+    padding-bottom: 1.55rem;
+  }
+
+  .checkout-option__header input {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .checkout-option__radio {
+    position: relative;
+    width: 1.15rem;
+    height: 1.15rem;
+    margin-top: 0.28rem;
+    border: 2px solid #5d6573;
+    border-radius: 999px;
+    flex-shrink: 0;
+  }
+
+  .checkout-option__header input:checked + .checkout-option__radio {
+    border-color: #2f67d3;
+  }
+
+  .checkout-option__header input:checked + .checkout-option__radio::after {
+    content: "";
+    position: absolute;
+    inset: 0.14rem;
+    border-radius: 999px;
+    background: #2f67d3;
+  }
+
+  .checkout-option__content {
+    flex: 1;
+    max-width: 44rem;
+  }
+
+  .checkout-option__title {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 700;
+    color: #ffffff;
+  }
+
+  .checkout-option__text {
+    margin: 0.85rem 0 0;
+    font-size: 0.92rem;
+    color: #a6aebb;
+  }
+
+  .checkout-option__logos {
+    display: flex;
+    gap: 0.7rem;
+    flex-wrap: wrap;
+    margin-top: 1rem;
+  }
+
+  .checkout-logo {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 2rem;
+    padding: 0 0.8rem;
+    border-radius: 0.18rem;
+    font-size: 0.72rem;
+    font-weight: 800;
+  }
+
+  .checkout-logo--visa {
+    background: #ffffff;
+    color: #0d63d7;
+  }
+
+  .checkout-logo--mc {
+    background: #121826;
+    color: #ffffff;
+  }
+
+  .checkout-logo--cb {
+    background: #2563eb;
+    color: #ffffff;
+  }
+
+  .checkout-logo--other {
+    background: #40bff8;
+    color: #083344;
+  }
+
+  .checkout-option__body {
+    display: none;
+    padding: 0 1.55rem 1.55rem;
+  }
+
+  .checkout-option__body--compact {
+    padding-top: 0;
+  }
+
+  .checkout-option.is-active .checkout-option__body {
+    display: block;
+  }
+
+  .checkout-option__inner {
+    width: 100%;
+    max-width: 44rem;
+    margin: 0 auto;
+  }
+
+  .checkout-option__divider {
+    height: 1px;
+    background: #3a3f49;
+    margin: 0 0 1.45rem;
+  }
+
+  .checkout-fields {
+    display: flex;
+    flex-wrap: nowrap;
+    gap: 0.35rem;
+    align-items: stretch;
+    justify-content: center;
+    width: 100%;
+  }
+
+  .checkout-input {
+    width: 100%;
+    min-width: 0;
+    min-height: 3.45rem;
+    margin: 0;
+    padding: 0 1rem;
+    border: 1px solid #404654;
+    border-radius: 0.12rem;
+    background: #1b1f28;
+    color: #f8fafc;
+    font-size: 0.98rem;
+  }
+
+  .checkout-input--number {
+    flex: 0 0 20rem;
+  }
+
+  .checkout-input:not(.checkout-input--number) {
+    flex: 0 0 13rem;
+  }
+
+  .checkout-input::placeholder {
+    color: #9da6b3;
+  }
+
+  .checkout-button-row {
+    margin-top: 1.1rem;
+    display: flex;
+    justify-content: center;
+  }
+
+  .checkout-button {
+    min-width: 17rem;
+    min-height: 3.55rem;
+    border: 0;
+    border-radius: 0.15rem;
+    background: #2e61b8;
+    color: #ffffff;
+    font-size: 1rem;
+    font-weight: 700;
+  }
+
+  .checkout-button:hover {
+    background: #3a6bca;
+  }
+
+  .checkout-message {
+    padding: 1rem 1.1rem;
+    border: 1px solid #404654;
+    border-radius: 0.12rem;
+    background: #1b1f28;
+    color: #a6aebb;
+    line-height: 1.5;
+  }
+
+  .checkout-paypal {
+    color: #4da9ff;
+  }
+
+  @media (max-width: 768px) {
+    .checkout-page {
+      padding-top: 1.5rem;
+    }
+
+    .checkout-page__title {
+      font-size: 1.8rem;
+      margin-bottom: 2rem;
+    }
+
+    .checkout-option__header {
+      padding: 1.2rem 1rem 0.9rem;
+    }
+
+    .checkout-option__header--compact {
+      padding-bottom: 1.2rem;
+    }
+
+    .checkout-option__body {
+      padding: 0 1rem 1rem;
+    }
+
+    .checkout-fields {
+      display: flex;
+      flex-wrap: nowrap;
+      gap: 0.35rem;
+      overflow-x: auto;
+      padding-bottom: 0.15rem;
+      justify-content: flex-start;
+    }
+
+    .checkout-input--number {
+      flex: 0 0 16rem;
+      min-width: 16rem;
+    }
+
+    .checkout-input:not(.checkout-input--number) {
+      flex: 0 0 11rem;
+      min-width: 11rem;
+    }
+
+    .checkout-button {
+      width: 100%;
+      min-width: 0;
+    }
+  }
+</style>

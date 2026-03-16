@@ -14,6 +14,10 @@ class User {
     this.address = data.address || null;
     this.gdprConsent = data.gdpr_consent ?? null;
     this.gdprConsentDate = data.gdpr_consent_date || null;
+    this.experienceYears = data.experience_years ?? null;
+    this.trainings = data.trainings || null;
+    this.hasDrivingLicense = data.has_driving_license ?? null;
+    this.serviceArea = data.service_area || null;
     this.createdAt = data.created_at || null;
     this.updatedAt = data.updated_at || null;
   }
@@ -61,6 +65,10 @@ class User {
       role: this.role,
       phone: this.phone,
       address: this.address,
+      experienceYears: this.experienceYears,
+      trainings: this.trainings,
+      hasDrivingLicense: this.hasDrivingLicense,
+      serviceArea: this.serviceArea,
       gdprConsent: this.gdprConsent,
       gdprConsentDate: this.gdprConsentDate,
       createdAt: this.createdAt,

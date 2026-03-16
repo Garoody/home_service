@@ -35,8 +35,12 @@ const bookingCreateSchema = z.object({
   booking_time: bookingTime,
 });
 
-// Validation pour mise a jour (date + heure uniquement).
+// Validation pour mise a jour du formulaire client complet.
 const bookingUpdateSchema = z.object({
+  first_name: z.string().trim().min(2, "Le prenom est obligatoire.").max(120, "Le prenom est trop long."),
+  last_name: z.string().trim().min(2, "Le nom est obligatoire.").max(120, "Le nom est trop long."),
+  city: z.string().trim().min(2, "La ville est obligatoire.").max(120, "La ville est trop longue."),
+  address: z.string().trim().min(5, "L'adresse est obligatoire.").max(255, "L'adresse est trop longue."),
   booking_date: bookingDate,
   booking_time: bookingTime,
 });

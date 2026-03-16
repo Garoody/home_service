@@ -28,7 +28,7 @@
             href="/bookings/new?service=<%= service.slug %>"
             class="inline-block mt-4 mr-2 px-4 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 transition font-medium"
           >
-            Réserver
+            Reserver
           </a>
           <% if (currentUser && (currentUser.role === "admin" || String(currentUser.id) === String(service.provider_id))) { %>
             <a
@@ -44,6 +44,60 @@
       <div class="mt-8">
         <h2 class="text-lg font-semibold">Description</h2>
         <p class="mt-3 text-slate-300 whitespace-pre-line"><%= service.description %></p>
+      </div>
+
+      <div class="mt-8 grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+        <div class="rounded-xl border border-white/10 bg-slate-900/30 p-4">
+          <p class="text-slate-400">Experience</p>
+          <p class="mt-2 text-slate-100"><%= service.experience_years ?? "Non renseignee" %> an(s)</p>
+        </div>
+        <div class="rounded-xl border border-white/10 bg-slate-900/30 p-4">
+          <p class="text-slate-400">Zone d'intervention</p>
+          <p class="mt-2 text-slate-100"><%= service.service_area || "Non renseignee" %></p>
+        </div>
+        <div class="rounded-xl border border-white/10 bg-slate-900/30 p-4">
+          <p class="text-slate-400">Formations suivies</p>
+          <p class="mt-2 text-slate-100 whitespace-pre-line"><%= service.trainings || "Non renseignees" %></p>
+        </div>
+        <div class="rounded-xl border border-white/10 bg-slate-900/30 p-4">
+          <p class="text-slate-400">Permis de conduire</p>
+          <p class="mt-2 text-slate-100"><%= service.has_driving_license ? "Oui" : "Non" %></p>
+        </div>
+      </div>
+
+      <div class="mt-10 border-t border-white/10 pt-8">
+        <div class="flex items-center justify-between gap-3">
+          <h2 class="text-lg font-semibold">Avis clients</h2>
+          <span class="text-sm text-slate-400"><%= reviews.length %> avis</span>
+        </div>
+
+        <% if (!reviews || reviews.length === 0) { %>
+          <div class="mt-4 rounded-xl border border-white/10 bg-slate-900/30 px-4 py-4 text-sm text-slate-400">
+            Aucun avis pour le moment sur ce service.
+          </div>
+        <% } else { %>
+          <div class="mt-5 space-y-4">
+            <% reviews.forEach((review) => { %>
+              <article class="rounded-xl border border-white/10 bg-slate-900/30 p-4">
+                <div class="flex items-center justify-between gap-3">
+                  <div>
+                    <p class="font-medium text-slate-100"><%= review.client_name || "Client" %></p>
+                    <p class="mt-1 text-xs text-slate-500">
+                      <%= new Date(review.created_at).toLocaleDateString("fr-FR") %>
+                    </p>
+                  </div>
+                  <div class="text-amber-300 text-sm font-medium">
+                    <%= "★".repeat(review.rating) %><span class="text-slate-600"><%= "★".repeat(5 - review.rating) %></span>
+                  </div>
+                </div>
+
+                <% if (review.comment) { %>
+                  <p class="mt-3 text-sm text-slate-300 whitespace-pre-line"><%= review.comment %></p>
+                <% } %>
+              </article>
+            <% }) %>
+          </div>
+        <% } %>
       </div>
     </article>
   </div>

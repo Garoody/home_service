@@ -1,0 +1,49 @@
+<div class="min-h-[calc(100vh-4rem)] flex items-center justify-center px-4">
+  <div class="w-full max-w-md p-8 rounded-2xl bg-white/5 backdrop-blur shadow-xl border border-white/10">
+    <h2 class="text-xl font-semibold mb-6 text-center">
+      Ajouter une categorie
+    </h2>
+
+    <form action="/categories" method="POST" class="space-y-5">
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+
+      <div>
+        <label class="block text-sm mb-1 text-slate-300">
+          Nom de la categorie
+        </label>
+        <input
+          type="text"
+          name="name"
+          placeholder="Ex: Plomberie"
+          required
+          class="w-full px-4 py-2 rounded-lg bg-slate-900/70 border border-slate-700 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition"
+        >
+      </div>
+
+      <div>
+        <label class="block text-sm mb-1 text-slate-300">
+          Description (optionnelle)
+        </label>
+        <textarea
+          name="description"
+          rows="3"
+          placeholder="Ex: Services lies aux installations sanitaires."
+          class="w-full px-4 py-2 rounded-lg bg-slate-900/70 border border-slate-700 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition"
+        ></textarea>
+      </div>
+
+      <div class="flex items-center justify-between pt-2">
+        <a href="/categories" class="text-sm text-slate-400 hover:text-white transition">
+          <- Retour
+        </a>
+
+        <button
+          type="submit"
+          class="px-5 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 active:bg-blue-700 transition font-medium shadow-lg shadow-blue-600/20"
+        >
+          Enregistrer
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
