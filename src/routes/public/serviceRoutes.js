@@ -1,10 +1,10 @@
 "use strict";
 
 import { Router } from "express";
-import ServiceController from "../controllers/ServiceController.js";
-import ServiceService from "../services/ServiceService.js";
-import { requireProvider } from "../middlewares/authMiddleware.js";
-import { requireOwnership } from "../middlewares/ownershipMiddleware.js";
+import ServiceController from "../../controllers/ServiceController.js";
+import ServiceService from "../../services/ServiceService.js";
+import { requireProvider } from "../../middlewares/authMiddleware.js";
+import { requireOwnership } from "../../middlewares/ownershipMiddleware.js";
 
 const router = Router();
 

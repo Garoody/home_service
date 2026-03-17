@@ -1,9 +1,9 @@
 "use strict";
 
 import { Router } from "express";
-import AuthController from "../controllers/auth/AuthController.js";
-import { passport } from "../config/passport.js";
-import { requireGuest } from "../middlewares/authMiddleware.js";
+import AuthController from "../../controllers/auth/AuthController.js";
+import { passport } from "../../config/passport.js";
+import { requireGuest } from "../../middlewares/authMiddleware.js";
 
 const router = Router();
 

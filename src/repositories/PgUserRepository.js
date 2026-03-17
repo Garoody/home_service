@@ -5,6 +5,7 @@ import User from "../entities/User.js";
 
 class UserRepository {
   static _hasProviderProfileColumns = null;
+  static _hasModerationColumns = null;
 
   static async hasProviderProfileColumns() {
     if (this._hasProviderProfileColumns !== null) {
@@ -24,8 +25,27 @@ class UserRepository {
     return this._hasProviderProfileColumns;
   }
 
+  static async hasModerationColumns() {
+    if (this._hasModerationColumns !== null) {
+      return this._hasModerationColumns;
+    }
+
+    const query = /*sql*/`
+      SELECT COUNT(*)::int AS count
+      FROM information_schema.columns
+      WHERE table_schema = 'public'
+        AND table_name = 'users'
+        AND column_name IN ('account_status', 'status_reason', 'status_changed_at', 'warning_count');
+    `;
+
+    const { rows } = await db.query(query);
+    this._hasModerationColumns = rows[0]?.count === 4;
+    return this._hasModerationColumns;
+  }
+
   static async findByEmail(email) {
     const hasProviderProfileColumns = await this.hasProviderProfileColumns();
+    const hasModerationColumns = await this.hasModerationColumns();
     const query = /*sql*/`
       SELECT
         id_user,
@@ -37,6 +57,10 @@ class UserRepository {
         role,
         gdpr_consent,
         gdpr_consent_date,
+        ${hasModerationColumns ? "account_status" : "'active'::varchar AS account_status"},
+        ${hasModerationColumns ? "status_reason" : "NULL::text AS status_reason"},
+        ${hasModerationColumns ? "status_changed_at" : "NULL::timestamptz AS status_changed_at"},
+        ${hasModerationColumns ? "warning_count" : "0::int AS warning_count"},
         ${hasProviderProfileColumns ? "experience_years" : "NULL::int AS experience_years"},
         ${hasProviderProfileColumns ? "trainings" : "NULL::text AS trainings"},
         ${hasProviderProfileColumns ? "has_driving_license" : "NULL::boolean AS has_driving_license"},
@@ -54,6 +78,7 @@ class UserRepository {
 
   static async findById(userId) {
     const hasProviderProfileColumns = await this.hasProviderProfileColumns();
+    const hasModerationColumns = await this.hasModerationColumns();
     const query = /*sql*/`
       SELECT
         id_user,
@@ -65,6 +90,10 @@ class UserRepository {
         role,
         gdpr_consent,
         gdpr_consent_date,
+        ${hasModerationColumns ? "account_status" : "'active'::varchar AS account_status"},
+        ${hasModerationColumns ? "status_reason" : "NULL::text AS status_reason"},
+        ${hasModerationColumns ? "status_changed_at" : "NULL::timestamptz AS status_changed_at"},
+        ${hasModerationColumns ? "warning_count" : "0::int AS warning_count"},
         ${hasProviderProfileColumns ? "experience_years" : "NULL::int AS experience_years"},
         ${hasProviderProfileColumns ? "trainings" : "NULL::text AS trainings"},
         ${hasProviderProfileColumns ? "has_driving_license" : "NULL::boolean AS has_driving_license"},
@@ -81,6 +110,8 @@ class UserRepository {
   }
 
   static async create({ full_name, email, password_hash, phone, role, gdpr_consent }) {
+    const hasModerationColumns = await this.hasModerationColumns();
+    const hasProviderProfileColumns = await this.hasProviderProfileColumns();
     const query = /*sql*/`
       INSERT INTO public.users (
         full_name,
@@ -92,7 +123,26 @@ class UserRepository {
         gdpr_consent_date
       )
       VALUES ($1, $2, $3, $4, $5, $6, NOW())
-      RETURNING id_user, full_name, email, password_hash, phone, address, role, gdpr_consent, gdpr_consent_date, created_at, updated_at;
+      RETURNING
+        id_user,
+        full_name,
+        email,
+        password_hash,
+        phone,
+        address,
+        role,
+        gdpr_consent,
+        gdpr_consent_date,
+        ${hasModerationColumns ? "account_status" : "'active'::varchar AS account_status"},
+        ${hasModerationColumns ? "status_reason" : "NULL::text AS status_reason"},
+        ${hasModerationColumns ? "status_changed_at" : "NULL::timestamptz AS status_changed_at"},
+        ${hasModerationColumns ? "warning_count" : "0::int AS warning_count"},
+        ${hasProviderProfileColumns ? "experience_years" : "NULL::int AS experience_years"},
+        ${hasProviderProfileColumns ? "trainings" : "NULL::text AS trainings"},
+        ${hasProviderProfileColumns ? "has_driving_license" : "NULL::boolean AS has_driving_license"},
+        ${hasProviderProfileColumns ? "service_area" : "NULL::varchar AS service_area"},
+        created_at,
+        updated_at;
     `;
 
     const values = [full_name, email, password_hash, phone, role, gdpr_consent];

@@ -1,67 +1,95 @@
-<footer class="bg-slate-950 border-t border-white/10">
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-8 text-sm">
-
-      <!-- Description -->
-      <div>
-        <a href="/" class="inline-flex items-center gap-3 text-white font-semibold mb-3 hover:text-blue-400 transition">
+<footer class="border-t border-white/10 bg-slate-950">
+  <% if (currentUser && currentUser.role === "admin") { %>
+    <div class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
+      <div class="flex flex-col gap-4 text-sm text-slate-400 md:flex-row md:items-center md:justify-between">
+        <div class="flex items-center gap-3">
           <img
             src="/images/logo.svg"
-            alt="HomeService"
-            class="h-10 w-10 rounded-xl border border-white/10 bg-white/5 p-1.5 shadow-lg shadow-blue-950/20"
+            alt="Administration HomeService"
+            class="h-9 w-9 rounded-xl border border-white/10 bg-white/5 p-1.5 shadow-lg shadow-blue-950/20"
           >
-          <span>HomeService</span>
-        </a>
-        <p class="text-slate-400">
-          Plateforme de réservation de services à domicile.
-          Trouvez rapidement un professionnel qualifié près de chez vous.
-        </p>
-      </div>
+          <div>
+            <p class="font-semibold text-white">Administration HomeService</p>
+            <p class="text-xs uppercase tracking-[0.18em] text-slate-500">Back-office</p>
+          </div>
+        </div>
 
-      <!-- Liens rapides -->
-      <div>
-        <h3 class="text-white font-semibold mb-3">Liens rapides</h3>
-        <ul class="space-y-2 text-slate-400">
-          <li><a href="/" class="hover:text-blue-400 transition">Accueil</a></li>
-          <li><a href="/categories" class="hover:text-blue-400 transition">Catégories</a></li>
-          <li><a href="/services" class="hover:text-blue-400 transition">Services</a></li>
-          <% if (currentUser) { %>
-            <li><a href="/users/profile" class="hover:text-blue-400 transition">Mon espace</a></li>
-            <li><a href="/bookings" class="hover:text-blue-400 transition">Mes réservations</a></li>
-            <li>
-              <form
-                action="/auth/logout"
-                method="POST"
-                data-confirm="Voulez-vous vraiment vous déconnecter ?"
-              >
-                <button
-                  type="submit"
-                  class="bg-transparent p-0 text-slate-400 hover:text-red-300 transition"
+        <div class="flex flex-wrap items-center gap-4">
+          <a href="/admin" class="hover:text-blue-400 transition">Dashboard</a>
+          <a href="/admin/users" class="hover:text-blue-400 transition">Utilisateurs</a>
+          <a href="/admin/reports" class="hover:text-blue-400 transition">Signalements</a>
+          <form
+            action="/auth/logout"
+            method="POST"
+            data-confirm="Voulez-vous vraiment vous deconnecter ?"
+          >
+            <button
+              type="submit"
+              class="bg-transparent p-0 text-slate-400 hover:text-red-300 transition"
+            >
+              Deconnexion
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+  <% } else { %>
+    <div class="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+      <div class="grid grid-cols-1 gap-8 text-sm md:grid-cols-3">
+        <div>
+          <a href="/" class="mb-3 inline-flex items-center gap-3 font-semibold text-white hover:text-blue-400 transition">
+            <img
+              src="/images/logo.svg"
+              alt="HomeService"
+              class="h-10 w-10 rounded-xl border border-white/10 bg-white/5 p-1.5 shadow-lg shadow-blue-950/20"
+            >
+            <span>HomeService</span>
+          </a>
+          <p class="text-slate-400">
+            Plateforme de reservation de services a domicile.
+            Trouvez rapidement un professionnel qualifie pres de chez vous.
+          </p>
+        </div>
+
+        <div>
+          <h3 class="mb-3 font-semibold text-white">Liens rapides</h3>
+          <ul class="space-y-2 text-slate-400">
+            <li><a href="/" class="hover:text-blue-400 transition">Accueil</a></li>
+            <li><a href="/services" class="hover:text-blue-400 transition">Services</a></li>
+            <% if (currentUser) { %>
+              <li><a href="/users/profile" class="hover:text-blue-400 transition">Mon espace</a></li>
+              <li><a href="/bookings" class="hover:text-blue-400 transition">Mes reservations</a></li>
+              <li>
+                <form
+                  action="/auth/logout"
+                  method="POST"
+                  data-confirm="Voulez-vous vraiment vous deconnecter ?"
                 >
-                  Déconnexion
-                </button>
-              </form>
-            </li>
-          <% } else { %>
-            <li><a href="/auth/login" class="hover:text-blue-400 transition">Connexion</a></li>
-          <% } %>
-        </ul>
+                  <button
+                    type="submit"
+                    class="bg-transparent p-0 text-slate-400 hover:text-red-300 transition"
+                  >
+                    Deconnexion
+                  </button>
+                </form>
+              </li>
+            <% } else { %>
+              <li><a href="/auth/login" class="hover:text-blue-400 transition">Connexion</a></li>
+            <% } %>
+          </ul>
+        </div>
+
+        <div>
+          <h3 class="mb-3 font-semibold text-white">Contact</h3>
+          <p class="text-slate-400">France</p>
+          <p class="text-slate-400">cherygaroody@gmail.com</p>
+          <p class="text-slate-400">+33 758480076</p>
+        </div>
       </div>
 
-      <!-- Contact -->
-      <div>
-        <h3 class="text-white font-semibold mb-3">Contact</h3>
-        <p class="text-slate-400">📍 France</p>
-        <p class="text-slate-400">📧 cherygaroody@gmail.com</p>
-        <p class="text-slate-400">📞 +33 758480076</p>
+      <div class="mt-8 border-t border-white/10 pt-6 text-center text-xs text-slate-500">
+        © <%= new Date().getFullYear() %> HomeService - Tous droits reserves
       </div>
-
     </div>
-
-    <div class="mt-8 pt-6 border-t border-white/10 text-center text-slate-500 text-xs">
-      © <%= new Date().getFullYear() %> HomeService - Tous droits réservés
-    </div>
-
-  </div>
+  <% } %>
 </footer>

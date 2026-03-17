@@ -1,8 +1,8 @@
 "use strict";
 
 import { Router } from "express";
-import ReviewController from "../controllers/ReviewController.js";
-import { requireClient } from "../middlewares/authMiddleware.js";
+import ReviewController from "../../controllers/ReviewController.js";
+import { requireClient } from "../../middlewares/authMiddleware.js";
 
 const router = Router();
 

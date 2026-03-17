@@ -1,8 +1,8 @@
 "use strict";
 
 import { Router } from "express";
-import BookingController from "../controllers/BookingController.js";
-import { requireClient } from "../middlewares/authMiddleware.js";
+import BookingController from "../../controllers/BookingController.js";
+import { requireClient } from "../../middlewares/authMiddleware.js";
 
 const router = Router();
 

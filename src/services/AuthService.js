@@ -12,6 +12,22 @@ class AuthService {
       return { success: false, status: 401, message: "Email ou mot de passe incorrect." };
     }
 
+    if (user.accountStatus === "suspended") {
+      return {
+        success: false,
+        status: 403,
+        message: "Votre compte est suspendu. Contactez l'administration si besoin.",
+      };
+    }
+
+    if (user.accountStatus === "banned") {
+      return {
+        success: false,
+        status: 403,
+        message: "Votre compte a ete banni de la plateforme.",
+      };
+    }
+
     // Compare le mot de passe saisi avec le hash stocke en base.
     const isValidPassword = user.passwordHash
       ? await bcrypt.compare(loginDto.password, user.passwordHash)
@@ -60,6 +76,22 @@ class AuthService {
 
     const existingUser = await UserRepository.findByEmail(email);
     if (existingUser) {
+      if (existingUser.accountStatus === "suspended") {
+        return {
+          success: false,
+          status: 403,
+          message: "Votre compte est suspendu. Contactez l'administration si besoin.",
+        };
+      }
+
+      if (existingUser.accountStatus === "banned") {
+        return {
+          success: false,
+          status: 403,
+          message: "Votre compte a ete banni de la plateforme.",
+        };
+      }
+
       return { success: true, user: existingUser };
     }
 

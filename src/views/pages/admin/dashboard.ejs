@@ -1,46 +1,484 @@
-<section class="py-10 max-w-6xl mx-auto px-4">
-
-  <div class="flex items-end justify-between gap-4">
+<!--
+  Dashboard administrateur HomeService.
+  Cette page centralise la moderation post-publication :
+  signalements, avertissements, statuts utilisateur et historique d'actions.
+-->
+<section class="py-10 max-w-7xl mx-auto px-4 space-y-8">
+  <div class="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
     <div>
-      <h1 class="text-3xl font-semibold tracking-tight">Admin Dashboard</h1>
-      <p class="mt-2 text-slate-400">Vue d’ensemble de la plateforme HomeService.</p>
+      <p class="text-xs uppercase tracking-[0.3em] text-amber-300">Administration</p>
+      <h1 class="mt-2 text-3xl font-semibold tracking-tight">Dashboard administrateur</h1>
+      <p class="mt-3 max-w-3xl text-sm text-slate-400">
+        L'administration ne valide pas les publications avant mise en ligne.
+        Elle intervient uniquement apres signalement ou comportement abusif.
+      </p>
     </div>
 
-    <a href="/" class="px-4 py-2 rounded-lg bg-white/5 border border-white/10 hover:border-white/20 transition">
-      ← Retour site
+    <a
+      href="/"
+      class="inline-flex items-center justify-center rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm font-medium hover:border-white/20 transition"
+    >
+      Retour au site
     </a>
   </div>
 
-  <div class="mt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-    <div class="p-6 rounded-2xl bg-white/5 border border-white/10">
-      <div class="text-sm text-slate-400">Utilisateurs</div>
-      <div class="mt-2 text-3xl font-semibold"><%= stats.users %></div>
+  <% if (!dashboard.moderationEnabled) { %>
+    <div class="rounded-3xl border border-amber-500/30 bg-amber-500/10 p-6 text-amber-100">
+      La moderation admin n'est pas encore disponible en base.
+      Lance la migration <code>db:tables:moderation</code> pour activer les signalements, avertissements et statuts utilisateur.
+    </div>
+  <% } %>
+
+  <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-5">
+    <a href="/admin/users?role=client" class="group block rounded-3xl border border-blue-400/15 bg-blue-500/10 p-5 hover:border-blue-400/30 hover:bg-blue-500/15 transition">
+      <p class="text-sm text-blue-100/70">Clients</p>
+      <p class="mt-3 text-3xl font-semibold text-white"><%= dashboard.stats.clients %></p>
+      <p class="mt-3 text-xs uppercase tracking-[0.18em] text-blue-100/60 group-hover:text-blue-100/80">Voir les utilisateurs</p>
+    </a>
+    <a href="/admin/users?role=provider" class="group block rounded-3xl border border-cyan-400/15 bg-cyan-500/10 p-5 hover:border-cyan-400/30 hover:bg-cyan-500/15 transition">
+      <p class="text-sm text-cyan-100/70">Prestataires</p>
+      <p class="mt-3 text-3xl font-semibold text-white"><%= dashboard.stats.providers %></p>
+      <p class="mt-3 text-xs uppercase tracking-[0.18em] text-cyan-100/60 group-hover:text-cyan-100/80">Voir les utilisateurs</p>
+    </a>
+    <a href="/admin/services" class="group block rounded-3xl border border-emerald-400/15 bg-emerald-500/10 p-5 hover:border-emerald-400/30 hover:bg-emerald-500/15 transition">
+      <p class="text-sm text-emerald-100/70">Services</p>
+      <p class="mt-3 text-3xl font-semibold text-white"><%= dashboard.stats.services %></p>
+      <p class="mt-3 text-xs uppercase tracking-[0.18em] text-emerald-100/60 group-hover:text-emerald-100/80">Voir les services</p>
+    </a>
+    <a href="/admin/bookings" class="group block rounded-3xl border border-fuchsia-400/15 bg-fuchsia-500/10 p-5 hover:border-fuchsia-400/30 hover:bg-fuchsia-500/15 transition">
+      <p class="text-sm text-fuchsia-100/70">Reservations</p>
+      <p class="mt-3 text-3xl font-semibold text-white"><%= dashboard.stats.bookings %></p>
+      <p class="mt-3 text-xs uppercase tracking-[0.18em] text-fuchsia-100/60 group-hover:text-fuchsia-100/80">Voir les reservations</p>
+    </a>
+    <a href="/admin/reviews" class="group block rounded-3xl border border-amber-400/15 bg-amber-500/10 p-5 hover:border-amber-400/30 hover:bg-amber-500/15 transition">
+      <p class="text-sm text-amber-100/70">Commentaires</p>
+      <p class="mt-3 text-3xl font-semibold text-white"><%= dashboard.stats.reviews %></p>
+      <p class="mt-3 text-xs uppercase tracking-[0.18em] text-amber-100/60 group-hover:text-amber-100/80">Voir les avis</p>
+    </a>
+    <a href="/admin/reports?report_status=pending" class="group block rounded-3xl border border-red-400/20 bg-red-500/10 p-5 hover:border-red-400/40 hover:bg-red-500/15 transition">
+      <p class="text-sm text-red-100/70">Signalements en attente</p>
+      <p class="mt-3 text-3xl font-semibold text-white"><%= dashboard.stats.pendingReports %></p>
+      <p class="mt-3 text-xs uppercase tracking-[0.18em] text-red-100/60 group-hover:text-red-100/80">Voir les signalements</p>
+    </a>
+    <a href="/admin/users?warned_only=1" class="group block rounded-3xl border border-orange-400/20 bg-orange-500/10 p-5 hover:border-orange-400/40 hover:bg-orange-500/15 transition">
+      <p class="text-sm text-orange-100/70">Utilisateurs avertis</p>
+      <p class="mt-3 text-3xl font-semibold text-white"><%= dashboard.stats.warnedUsers %></p>
+      <p class="mt-3 text-xs uppercase tracking-[0.18em] text-orange-100/60 group-hover:text-orange-100/80">Voir les comptes avertis</p>
+    </a>
+    <a href="/admin/warnings" class="group block rounded-3xl border border-violet-400/15 bg-violet-500/10 p-5 hover:border-violet-400/30 hover:bg-violet-500/15 transition">
+      <p class="text-sm text-violet-100/70">Avertissements envoyes</p>
+      <p class="mt-3 text-3xl font-semibold text-white"><%= dashboard.stats.warnings %></p>
+      <p class="mt-3 text-xs uppercase tracking-[0.18em] text-violet-100/60 group-hover:text-violet-100/80">Voir l'historique</p>
+    </a>
+  </div>
+
+  <div class="rounded-3xl border border-white/10 bg-white/5 p-6">
+    <div class="flex flex-col gap-2 lg:flex-row lg:items-end lg:justify-between">
+      <div>
+        <h2 class="text-xl font-semibold">Filtres de moderation</h2>
+        <p class="mt-1 text-sm text-slate-400">Recherche, statuts et cibles de signalement.</p>
+      </div>
+      <div class="flex flex-wrap gap-3 text-sm">
+        <a href="/services" class="rounded-xl border border-white/10 bg-white/5 px-3 py-2 hover:border-white/20 transition">Voir les services</a>
+        <a href="/bookings" class="rounded-xl border border-white/10 bg-white/5 px-3 py-2 hover:border-white/20 transition">Voir les reservations</a>
+      </div>
     </div>
 
-    <div class="p-6 rounded-2xl bg-white/5 border border-white/10">
-      <div class="text-sm text-slate-400">Catégories</div>
-      <div class="mt-2 text-3xl font-semibold"><%= stats.categories %></div>
+    <form action="/admin" method="GET" class="mt-5 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-5 gap-3">
+      <input
+        type="text"
+        name="q"
+        value="<%= dashboard.filters.q %>"
+        placeholder="Nom ou email"
+        class="rounded-xl border border-white/10 bg-slate-900/70 px-4 py-3 text-slate-100 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+      >
+
+      <select
+        name="role"
+        class="rounded-xl border border-white/10 bg-slate-900/70 px-4 py-3 text-slate-100 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+      >
+        <option value="">Tous les roles</option>
+        <option value="client" <%= dashboard.filters.role === "client" ? "selected" : "" %>>Clients</option>
+        <option value="provider" <%= dashboard.filters.role === "provider" ? "selected" : "" %>>Prestataires</option>
+      </select>
+
+      <select
+        name="user_status"
+        class="rounded-xl border border-white/10 bg-slate-900/70 px-4 py-3 text-slate-100 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+      >
+        <option value="">Tous les statuts</option>
+        <option value="active" <%= dashboard.filters.userStatus === "active" ? "selected" : "" %>>Actif</option>
+        <option value="suspended" <%= dashboard.filters.userStatus === "suspended" ? "selected" : "" %>>Suspendu</option>
+        <option value="banned" <%= dashboard.filters.userStatus === "banned" ? "selected" : "" %>>Banni</option>
+      </select>
+
+      <input type="hidden" name="warned_only" value="<%= dashboard.filters.warnedOnly %>">
+
+      <select
+        name="report_status"
+        class="rounded-xl border border-white/10 bg-slate-900/70 px-4 py-3 text-slate-100 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+      >
+        <option value="">Tous les signalements</option>
+        <option value="pending" <%= dashboard.filters.reportStatus === "pending" ? "selected" : "" %>>En attente</option>
+        <option value="reviewed" <%= dashboard.filters.reportStatus === "reviewed" ? "selected" : "" %>>Revu</option>
+        <option value="resolved" <%= dashboard.filters.reportStatus === "resolved" ? "selected" : "" %>>Resolus</option>
+        <option value="dismissed" <%= dashboard.filters.reportStatus === "dismissed" ? "selected" : "" %>>Rejetes</option>
+      </select>
+
+      <div class="flex gap-3">
+        <select
+          name="target_type"
+          class="flex-1 rounded-xl border border-white/10 bg-slate-900/70 px-4 py-3 text-slate-100 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+        >
+          <option value="">Toutes les cibles</option>
+          <option value="service" <%= dashboard.filters.targetType === "service" ? "selected" : "" %>>Service</option>
+          <option value="review" <%= dashboard.filters.targetType === "review" ? "selected" : "" %>>Commentaire</option>
+          <option value="user" <%= dashboard.filters.targetType === "user" ? "selected" : "" %>>Utilisateur</option>
+        </select>
+
+        <button
+          type="submit"
+          class="rounded-xl bg-blue-600 px-4 py-3 font-medium text-white hover:bg-blue-500 transition"
+        >
+          Filtrer
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <div class="grid grid-cols-1 xl:grid-cols-[1.1fr_0.9fr] gap-6">
+    <div id="reports-section" class="rounded-3xl border border-white/10 bg-white/5 p-6">
+      <div class="flex items-center justify-between gap-3">
+        <div>
+          <h2 class="text-xl font-semibold">Signalements</h2>
+          <p class="mt-1 text-sm text-slate-400">Moderation apres publication uniquement.</p>
+        </div>
+        <span class="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs text-slate-300">
+          <%= dashboard.reports.length %> element(s)
+        </span>
+      </div>
+
+      <div class="mt-6 space-y-4">
+        <% if (!dashboard.reports.length) { %>
+          <div class="rounded-2xl border border-white/10 bg-slate-900/30 px-4 py-5 text-sm text-slate-400">
+            Aucun signalement a afficher avec les filtres actuels.
+          </div>
+        <% } else { %>
+          <% dashboard.reports.forEach((report) => { %>
+            <article class="rounded-2xl border border-white/10 bg-slate-900/30 p-4">
+              <div class="flex flex-wrap items-start justify-between gap-3">
+                <div>
+                  <div class="flex flex-wrap items-center gap-2">
+                    <span class="rounded-full border border-red-500/20 bg-red-500/10 px-3 py-1 text-xs text-red-200 capitalize">
+                      <%= report.target_type %>
+                    </span>
+                    <span class="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs text-slate-300 capitalize">
+                      <%= report.status %>
+                    </span>
+                  </div>
+                  <h3 class="mt-3 font-medium text-white"><%= report.target_label || "Contenu indisponible" %></h3>
+                  <p class="mt-2 text-sm text-slate-400">
+                    Signale par <span class="text-slate-200"><%= report.reporter_name || "Utilisateur" %></span>
+                    le <span class="text-slate-200"><%= new Date(report.created_at).toLocaleDateString("fr-FR") %></span>
+                  </p>
+                  <p class="mt-2 text-sm text-slate-300">
+                    Motif : <span class="text-white"><%= report.reason %></span>
+                  </p>
+                  <% if (report.details) { %>
+                    <p class="mt-2 text-sm text-slate-400 whitespace-pre-line"><%= report.details %></p>
+                  <% } %>
+                  <% if (report.resolution_note) { %>
+                    <p class="mt-2 text-sm text-emerald-300 whitespace-pre-line"><%= report.resolution_note %></p>
+                  <% } %>
+                </div>
+              </div>
+
+              <% if (dashboard.moderationEnabled) { %>
+                <form action="/admin/reports/<%= report.id %>/review" method="POST" class="mt-4 grid gap-3 md:grid-cols-[180px_1fr_auto]">
+                  <% if (csrfToken) { %>
+                    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                  <% } %>
+                  <select
+                    name="status"
+                    class="rounded-xl border border-white/10 bg-slate-950/70 px-4 py-3 text-slate-100 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                  >
+                    <option value="reviewed">Marquer comme revu</option>
+                    <option value="resolved">Resoudre</option>
+                    <option value="dismissed">Rejeter</option>
+                  </select>
+                  <input
+                    type="text"
+                    name="resolution_note"
+                    placeholder="Note de moderation"
+                    class="rounded-xl border border-white/10 bg-slate-950/70 px-4 py-3 text-slate-100 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                  >
+                  <button
+                    type="submit"
+                    class="rounded-xl bg-blue-600 px-4 py-3 font-medium text-white hover:bg-blue-500 transition"
+                  >
+                    Traiter
+                  </button>
+                </form>
+              <% } %>
+            </article>
+          <% }) %>
+        <% } %>
+      </div>
     </div>
 
-    <div class="p-6 rounded-2xl bg-white/5 border border-white/10">
-      <div class="text-sm text-slate-400">Services</div>
-      <div class="mt-2 text-3xl font-semibold"><%= stats.services %></div>
-    </div>
+    <div class="space-y-6">
+      <div id="warnings-history" class="rounded-3xl border border-white/10 bg-white/5 p-6">
+        <div class="flex items-center justify-between gap-3">
+          <div>
+            <h2 class="text-xl font-semibold">Avertissements envoyes</h2>
+            <p class="mt-1 text-sm text-slate-400">Historique recent des sanctions progressives.</p>
+          </div>
+        </div>
 
-    <div class="p-6 rounded-2xl bg-white/5 border border-white/10">
-      <div class="text-sm text-slate-400">Réservations</div>
-      <div class="mt-2 text-3xl font-semibold"><%= stats.bookings %></div>
+        <div class="mt-6 space-y-4">
+          <% if (!dashboard.warnings.length) { %>
+            <div class="rounded-2xl border border-white/10 bg-slate-900/30 px-4 py-5 text-sm text-slate-400">
+              Aucun avertissement enregistre.
+            </div>
+          <% } else { %>
+            <% dashboard.warnings.forEach((warning) => { %>
+              <article class="rounded-2xl border border-white/10 bg-slate-900/30 px-4 py-4">
+                <div class="flex flex-wrap items-center justify-between gap-3">
+                  <div>
+                    <p class="font-medium text-white"><%= warning.user_name %></p>
+                    <p class="mt-1 text-sm text-slate-400"><%= warning.message %></p>
+                  </div>
+                  <span class="rounded-full border border-orange-500/20 bg-orange-500/10 px-3 py-1 text-xs text-orange-200">
+                    <%= warning.sanction_applied %>
+                  </span>
+                </div>
+              </article>
+            <% }) %>
+          <% } %>
+        </div>
+      </div>
+
+      <div class="rounded-3xl border border-white/10 bg-white/5 p-6">
+        <div class="flex items-center justify-between gap-3">
+          <div>
+            <h2 class="text-xl font-semibold">Historique admin</h2>
+            <p class="mt-1 text-sm text-slate-400">Logs recents de moderation.</p>
+          </div>
+        </div>
+
+        <div class="mt-6 space-y-4">
+          <% if (!dashboard.actionLogs.length) { %>
+            <div class="rounded-2xl border border-white/10 bg-slate-900/30 px-4 py-5 text-sm text-slate-400">
+              Aucun log admin pour le moment.
+            </div>
+          <% } else { %>
+            <% dashboard.actionLogs.forEach((log) => { %>
+              <article class="rounded-2xl border border-white/10 bg-slate-900/30 px-4 py-4">
+                <p class="font-medium text-white"><%= log.action_type %></p>
+                <p class="mt-1 text-sm text-slate-400"><%= log.details %></p>
+                <p class="mt-2 text-xs uppercase tracking-[0.15em] text-slate-500">
+                  <%= log.admin_name || "Admin" %> - <%= new Date(log.created_at).toLocaleDateString("fr-FR") %>
+                </p>
+              </article>
+            <% }) %>
+          <% } %>
+        </div>
+      </div>
     </div>
   </div>
 
-  <div class="mt-10 p-6 rounded-2xl bg-white/5 border border-white/10">
-    <h2 class="text-lg font-semibold">Actions rapides</h2>
-    <div class="mt-4 flex flex-wrap gap-3">
-      <a href="/users/search" class="px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 transition">Rechercher un utilisateur</a>
-      <a href="/categories" class="px-4 py-2 rounded-lg bg-white/5 border border-white/10 hover:border-white/20 transition">Gérer catégories</a>
-      <a href="/services" class="px-4 py-2 rounded-lg bg-white/5 border border-white/10 hover:border-white/20 transition">Gérer services</a>
-      <a href="/bookings" class="px-4 py-2 rounded-lg bg-white/5 border border-white/10 hover:border-white/20 transition">Voir réservations</a>
+  <div class="grid grid-cols-1 xl:grid-cols-[1.05fr_0.95fr] gap-6">
+    <div id="users-section" class="rounded-3xl border border-white/10 bg-white/5 p-6">
+      <div class="flex items-center justify-between gap-3">
+        <div>
+          <h2 class="text-xl font-semibold">Utilisateurs a surveiller</h2>
+          <p class="mt-1 text-sm text-slate-400">Suspension, bannissement, suppression et avertissements.</p>
+        </div>
+      </div>
+
+      <div class="mt-6 space-y-5">
+        <% if (!dashboard.users.length) { %>
+          <div class="rounded-2xl border border-white/10 bg-slate-900/30 px-4 py-5 text-sm text-slate-400">
+            Aucun utilisateur avec les filtres actuels.
+          </div>
+        <% } else { %>
+          <% dashboard.users.forEach((userItem) => { %>
+            <article class="rounded-2xl border border-white/10 bg-slate-900/30 p-4">
+              <div class="flex flex-wrap items-start justify-between gap-3">
+                <div>
+                  <h3 class="font-medium text-white"><%= userItem.full_name %></h3>
+                  <p class="mt-1 text-sm text-slate-400"><%= userItem.email %></p>
+                  <div class="mt-3 flex flex-wrap gap-2 text-xs">
+                    <span class="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-slate-300 capitalize"><%= userItem.role %></span>
+                    <span class="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-slate-300 capitalize"><%= userItem.account_status %></span>
+                    <span class="rounded-full border border-orange-500/20 bg-orange-500/10 px-3 py-1 text-orange-200"><%= userItem.warning_count %> avertissement(s)</span>
+                  </div>
+                  <% if (userItem.status_reason) { %>
+                    <p class="mt-3 text-sm text-slate-400"><%= userItem.status_reason %></p>
+                  <% } %>
+                </div>
+              </div>
+
+              <% if (dashboard.moderationEnabled) { %>
+                <div class="mt-4 grid gap-3 xl:grid-cols-[1fr_1fr_auto]">
+                  <form action="/admin/users/<%= userItem.id %>/warnings" method="POST" class="space-y-3">
+                    <% if (csrfToken) { %>
+                      <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                    <% } %>
+                    <input
+                      type="text"
+                      name="message"
+                      placeholder="Message d'avertissement"
+                      class="w-full rounded-xl border border-white/10 bg-slate-950/70 px-4 py-3 text-slate-100 outline-none focus:border-amber-400 focus:ring-1 focus:ring-amber-400"
+                    >
+                    <button
+                      type="submit"
+                      class="rounded-xl bg-amber-500 px-4 py-3 font-medium text-slate-950 hover:bg-amber-400 transition"
+                    >
+                      Envoyer un avertissement
+                    </button>
+                  </form>
+
+                  <form action="/admin/users/<%= userItem.id %>/status" method="POST" class="space-y-3">
+                    <% if (csrfToken) { %>
+                      <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                    <% } %>
+                    <select
+                      name="status"
+                      class="w-full rounded-xl border border-white/10 bg-slate-950/70 px-4 py-3 text-slate-100 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                    >
+                      <option value="active">Activer</option>
+                      <option value="suspended">Suspendre</option>
+                      <option value="banned">Bannir</option>
+                    </select>
+                    <input
+                      type="text"
+                      name="reason"
+                      placeholder="Motif de la sanction"
+                      class="w-full rounded-xl border border-white/10 bg-slate-950/70 px-4 py-3 text-slate-100 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                    >
+                    <button
+                      type="submit"
+                      class="rounded-xl bg-blue-600 px-4 py-3 font-medium text-white hover:bg-blue-500 transition"
+                    >
+                      Appliquer le statut
+                    </button>
+                  </form>
+
+                  <form
+                    action="/admin/users/<%= userItem.id %>/delete"
+                    method="POST"
+                    data-confirm="Confirmez-vous la suppression definitive de ce compte utilisateur ?"
+                    class="self-end"
+                  >
+                    <% if (csrfToken) { %>
+                      <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                    <% } %>
+                  <button
+                      type="submit"
+                      class="rounded-xl bg-red-600 px-4 py-3 font-medium text-white hover:bg-red-500 transition"
+                    >
+                      Supprimer le compte
+                    </button>
+                  </form>
+                </div>
+              <% } else { %>
+                <div class="mt-4 rounded-2xl border border-amber-500/20 bg-amber-500/10 px-4 py-4 text-sm text-amber-100">
+                  Actions de moderation indisponibles tant que la migration <code>db:tables:moderation</code> n'a pas ete lancee.
+                </div>
+              <% } %>
+            </article>
+          <% }) %>
+        <% } %>
+      </div>
+    </div>
+
+    <div class="space-y-6">
+      <div id="services-section" class="rounded-3xl border border-white/10 bg-white/5 p-6">
+        <div class="flex items-center justify-between gap-3">
+          <div>
+            <h2 class="text-xl font-semibold">Services recents</h2>
+            <p class="mt-1 text-sm text-slate-400">Suppression rapide en cas de fraude ou d'abus.</p>
+          </div>
+        </div>
+
+        <div class="mt-6 space-y-4">
+          <% dashboard.recentServices.forEach((service) => { %>
+            <article class="rounded-2xl border border-white/10 bg-slate-900/30 p-4">
+              <div class="flex flex-wrap items-start justify-between gap-3">
+                <div>
+                  <h3 class="font-medium text-white"><%= service.title %></h3>
+                  <p class="mt-1 text-sm text-slate-400">Par <span class="text-slate-200"><%= service.provider_name %></span></p>
+                  <p class="mt-2 text-xs uppercase tracking-[0.18em] text-slate-500">
+                    <%= service.pending_reports %> signalement(s) en attente
+                  </p>
+                </div>
+
+                <% if (dashboard.moderationEnabled) { %>
+                  <form
+                    action="/admin/services/<%= service.id %>/delete"
+                    method="POST"
+                    data-confirm="Confirmez-vous la suppression de ce service ? Les reservations liees seront egalement retirees."
+                  >
+                    <% if (csrfToken) { %>
+                      <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                    <% } %>
+                    <button
+                      type="submit"
+                      class="rounded-xl bg-red-600 px-4 py-3 font-medium text-white hover:bg-red-500 transition"
+                    >
+                      Supprimer
+                    </button>
+                  </form>
+                <% } %>
+              </div>
+            </article>
+          <% }) %>
+        </div>
+      </div>
+
+      <div id="reviews-section" class="rounded-3xl border border-white/10 bg-white/5 p-6">
+        <div class="flex items-center justify-between gap-3">
+          <div>
+            <h2 class="text-xl font-semibold">Commentaires recents</h2>
+            <p class="mt-1 text-sm text-slate-400">Suppression des avis offensants, faux ou abusifs.</p>
+          </div>
+        </div>
+
+        <div class="mt-6 space-y-4">
+          <% dashboard.recentReviews.forEach((review) => { %>
+            <article class="rounded-2xl border border-white/10 bg-slate-900/30 p-4">
+              <div class="flex flex-wrap items-start justify-between gap-3">
+                <div>
+                  <p class="font-medium text-white"><%= review.client_name %> - <%= review.rating %>/5</p>
+                  <p class="mt-2 text-sm text-slate-400 whitespace-pre-line"><%= review.comment || "Avis sans commentaire." %></p>
+                  <p class="mt-2 text-xs uppercase tracking-[0.18em] text-slate-500">
+                    <%= review.pending_reports %> signalement(s) en attente
+                  </p>
+                </div>
+
+                <% if (dashboard.moderationEnabled) { %>
+                  <form
+                    action="/admin/reviews/<%= review.id %>/delete"
+                    method="POST"
+                    data-confirm="Confirmez-vous la suppression de cet avis ?"
+                  >
+                    <% if (csrfToken) { %>
+                      <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                    <% } %>
+                    <button
+                      type="submit"
+                      class="rounded-xl bg-red-600 px-4 py-3 font-medium text-white hover:bg-red-500 transition"
+                    >
+                      Supprimer
+                    </button>
+                  </form>
+                <% } %>
+              </div>
+            </article>
+          <% }) %>
+        </div>
+      </div>
     </div>
   </div>
-
 </section>

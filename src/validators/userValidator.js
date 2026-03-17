@@ -5,9 +5,9 @@ import { z } from "zod";
 // Validation des champs de connexion.
 
 /**
- * Sch�ma de validation pour la connexion.
+ * Schema de validation pour la connexion.
  *
- * R�gles:
+ * Regles:
  * - email doit �tre valide
  * - password non vide
  */
@@ -19,7 +19,7 @@ const loginSchema = z.object({
 /**
  * Sch�ma de validation pour l'inscription.
  *
- * R�gles:
+ * Regles:
  * - full_name entre 2 et 150 caract�res
  * - phone optionnel (max 50)
  * - email valide
@@ -52,7 +52,7 @@ const providerProfileSchema = z.object({
 });
 
 /**
- * Valide les donn�es de login.
+ * Valide les donnees de login.
  *
  * Contrat de retour (uniforme):
  * - success: boolean

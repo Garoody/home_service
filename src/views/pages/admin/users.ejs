@@ -1,0 +1,96 @@
+<!--
+  Liste admin des utilisateurs.
+  Cette page sert a filtrer et moderer les clients et prestataires.
+-->
+<section class="py-10 max-w-7xl mx-auto px-4 space-y-6">
+  <div class="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
+    <div>
+      <p class="text-xs uppercase tracking-[0.25em] text-blue-300">Administration</p>
+      <h1 class="mt-2 text-3xl font-semibold">Utilisateurs</h1>
+    </div>
+    <a href="/admin" class="rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm font-medium hover:border-white/20 transition">Retour dashboard</a>
+  </div>
+
+  <form action="/admin/users" method="GET" class="grid grid-cols-1 gap-3 md:grid-cols-4">
+    <input type="text" name="q" value="<%= page.filters.q %>" placeholder="Nom ou email" class="rounded-xl border border-white/10 bg-slate-900/70 px-4 py-3 text-slate-100 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500">
+    <select name="role" class="rounded-xl border border-white/10 bg-slate-900/70 px-4 py-3 text-slate-100 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500">
+      <option value="">Tous les roles</option>
+      <option value="client" <%= page.filters.role === "client" ? "selected" : "" %>>Clients</option>
+      <option value="provider" <%= page.filters.role === "provider" ? "selected" : "" %>>Prestataires</option>
+    </select>
+    <select name="user_status" class="rounded-xl border border-white/10 bg-slate-900/70 px-4 py-3 text-slate-100 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500">
+      <option value="">Tous les statuts</option>
+      <option value="active" <%= page.filters.userStatus === "active" ? "selected" : "" %>>Actif</option>
+      <option value="suspended" <%= page.filters.userStatus === "suspended" ? "selected" : "" %>>Suspendu</option>
+      <option value="banned" <%= page.filters.userStatus === "banned" ? "selected" : "" %>>Banni</option>
+    </select>
+    <div class="flex gap-3">
+      <label class="inline-flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-slate-300">
+        <input type="checkbox" name="warned_only" value="1" <%= page.filters.warnedOnly === "1" ? "checked" : "" %>>
+        <span>Avertis seulement</span>
+      </label>
+      <button type="submit" class="rounded-xl bg-blue-600 px-4 py-3 font-medium text-white hover:bg-blue-500 transition">Filtrer</button>
+    </div>
+  </form>
+
+  <div class="space-y-5">
+    <% if (!page.moderationEnabled) { %>
+      <div class="rounded-2xl border border-amber-500/20 bg-amber-500/10 px-5 py-4 text-sm text-amber-100">
+        Actions de moderation indisponibles tant que la migration <code>db:tables:moderation</code> n'a pas ete lancee.
+      </div>
+    <% } %>
+
+    <% if (!page.users.length) { %>
+      <div class="rounded-2xl border border-white/10 bg-white/5 px-5 py-6 text-sm text-slate-400">Aucun utilisateur a afficher.</div>
+    <% } else { %>
+      <% page.users.forEach((userItem) => { %>
+        <article class="rounded-2xl border border-white/10 bg-white/5 p-5">
+          <div class="flex flex-wrap items-start justify-between gap-3">
+            <div>
+              <h2 class="text-lg font-medium text-white"><%= userItem.full_name %></h2>
+              <p class="mt-1 text-sm text-slate-400"><%= userItem.email %></p>
+              <div class="mt-3 flex flex-wrap gap-2 text-xs">
+                <span class="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-slate-300 capitalize"><%= userItem.role %></span>
+                <span class="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-slate-300 capitalize"><%= userItem.account_status %></span>
+                <span class="rounded-full border border-orange-500/20 bg-orange-500/10 px-3 py-1 text-orange-200"><%= userItem.warning_count %> avertissement(s)</span>
+              </div>
+            </div>
+
+            <a
+              href="/admin/users/<%= userItem.id %>"
+              class="rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm font-medium text-slate-200 hover:border-white/20 transition"
+            >
+              Voir le profil
+            </a>
+          </div>
+
+          <% if (page.moderationEnabled) { %>
+            <div class="mt-4 grid gap-3 xl:grid-cols-[1fr_1fr_auto]">
+              <form action="/admin/users/<%= userItem.id %>/warnings" method="POST" class="space-y-3">
+                <% if (csrfToken) { %><input type="hidden" name="_csrf" value="<%= csrfToken %>"><% } %>
+                <input type="text" name="message" placeholder="Message d'avertissement" class="w-full rounded-xl border border-white/10 bg-slate-950/70 px-4 py-3 text-slate-100 outline-none focus:border-amber-400 focus:ring-1 focus:ring-amber-400">
+                <button type="submit" class="rounded-xl bg-amber-500 px-4 py-3 font-medium text-slate-950 hover:bg-amber-400 transition">Envoyer un avertissement</button>
+              </form>
+
+              <form action="/admin/users/<%= userItem.id %>/status" method="POST" class="space-y-3">
+                <% if (csrfToken) { %><input type="hidden" name="_csrf" value="<%= csrfToken %>"><% } %>
+                <select name="status" class="w-full rounded-xl border border-white/10 bg-slate-950/70 px-4 py-3 text-slate-100 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500">
+                  <option value="active">Activer</option>
+                  <option value="suspended">Suspendre</option>
+                  <option value="banned">Bannir</option>
+                </select>
+                <input type="text" name="reason" placeholder="Motif de la sanction" class="w-full rounded-xl border border-white/10 bg-slate-950/70 px-4 py-3 text-slate-100 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500">
+                <button type="submit" class="rounded-xl bg-blue-600 px-4 py-3 font-medium text-white hover:bg-blue-500 transition">Appliquer le statut</button>
+              </form>
+
+              <form action="/admin/users/<%= userItem.id %>/delete" method="POST" data-confirm="Confirmez-vous la suppression definitive de ce compte utilisateur ?" class="self-end">
+                <% if (csrfToken) { %><input type="hidden" name="_csrf" value="<%= csrfToken %>"><% } %>
+                <button type="submit" class="rounded-xl bg-red-600 px-4 py-3 font-medium text-white hover:bg-red-500 transition">Supprimer le compte</button>
+              </form>
+            </div>
+          <% } %>
+        </article>
+      <% }) %>
+    <% } %>
+  </div>
+</section>

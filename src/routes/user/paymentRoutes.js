@@ -1,8 +1,8 @@
 "use strict";
 
 import { Router } from "express";
-import PaymentController from "../controllers/PaymentController.js";
-import { requireClient } from "../middlewares/authMiddleware.js";
+import PaymentController from "../../controllers/PaymentController.js";
+import { requireClient } from "../../middlewares/authMiddleware.js";
 
 const router = Router();
 

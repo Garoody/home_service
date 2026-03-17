@@ -1,8 +1,8 @@
 "use strict";
 
 import { Router } from "express";
-import CategoryController from "../controllers/CategoryController.js";
-import { requireAdmin } from "../middlewares/authMiddleware.js";
+import CategoryController from "../../controllers/CategoryController.js";
+import { requireAdmin } from "../../middlewares/authMiddleware.js";
 
 const router = Router();
 

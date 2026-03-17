@@ -22,8 +22,8 @@
 "use strict";
 
 import { Router } from "express";
-import UserController from "../controllers/UserController.js";
-import { requireAuth } from "../middlewares/authMiddleware.js";
+import UserController from "../../controllers/UserController.js";
+import { requireAuth } from "../../middlewares/authMiddleware.js";
 
 const router = Router();
 
