@@ -32,6 +32,10 @@ class UserService {
   async updateProviderProfile(payload) {
     return UserRepository.updateProviderProfile(payload);
   }
+
+  async updateClientProfile(payload) {
+    return UserRepository.updateClientProfile(payload);
+  }
 }
 
 export default new UserService();

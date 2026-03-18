@@ -1,20 +1,9 @@
 -- 03_seed_services.sql
--- Cree des services pour "Provider Test" dans plusieurs categories
+-- Services de demonstration relies explicitement au prestataire
+-- et aux categories pour faciliter la lecture du rapport.
 
 SET CLIENT_ENCODING TO 'UTF8';
 
-WITH
-    provider AS (
-        SELECT id_user
-        FROM users
-        WHERE
-            email = 'provider@homeservices.local'
-        LIMIT 1
-    ),
-    cats AS (
-        SELECT id_category, name
-        FROM categories
-    )
 INSERT INTO
     services (
         id_service,
@@ -23,23 +12,72 @@ INSERT INTO
         title,
         description,
         price,
+        experience_years,
+        trainings,
+        has_driving_license,
+        service_area,
         created_at
     )
-SELECT
-    uuidv7 (),
-    (
-        SELECT id_user
-        FROM provider
+VALUES (
+        '018d5c8e-3000-7001-b001-000000000001',
+        '018d5c8e-1000-7001-9001-000000000003',
+        '018d5c8e-2000-7001-a001-000000000001',
+        U&'Service de m\00E9nage',
+        U&'Prestation professionnelle de m\00E9nage a domicile.',
+        45.00,
+        4,
+        'Formation hygiene et entretien des surfaces',
+        FALSE,
+        'Paris et petite couronne',
+        CURRENT_TIMESTAMP
     ),
-    c.id_category,
-    'Service de ' || c.name,
-    'Prestation professionnelle de ' || c.name,
-    CASE c.name
-        WHEN U&'Menage' THEN 45.00
-        WHEN 'Jardinage' THEN 55.00
-        WHEN 'Plomberie' THEN 70.00
-        ELSE 50.00
-    END,
-    CURRENT_TIMESTAMP
-FROM cats c
-ON CONFLICT DO NOTHING;
+    (
+        '018d5c8e-3000-7001-b001-000000000002',
+        '018d5c8e-1000-7001-9001-000000000003',
+        '018d5c8e-2000-7001-a001-000000000002',
+        'Service de jardinage',
+        'Entretien professionnel du jardin et des exterieurs.',
+        55.00,
+        6,
+        'Formation entretien des espaces verts et taille saisonniere',
+        TRUE,
+        'Marseille et alentours',
+        CURRENT_TIMESTAMP
+    ),
+    (
+        '018d5c8e-3000-7001-b001-000000000003',
+        '018d5c8e-1000-7001-9001-000000000003',
+        '018d5c8e-2000-7001-a001-000000000003',
+        'Service de plomberie',
+        'Intervention pour depannage et petites reparations de plomberie.',
+        70.00,
+        8,
+        'CAP installateur sanitaire et intervention de depannage',
+        TRUE,
+        'Marseille, Aix-en-Provence et alentours',
+        CURRENT_TIMESTAMP
+    ),
+    (
+        '018d5c8e-3000-7001-b001-000000000004',
+        '018d5c8e-1000-7001-9001-000000000003',
+        '018d5c8e-2000-7001-a001-000000000004',
+        'Service de reparation',
+        'Petits travaux de reparation a domicile.',
+        50.00,
+        5,
+        'Formation bricolage, maintenance et petits travaux',
+        TRUE,
+        'Marseille centre et communes voisines',
+        CURRENT_TIMESTAMP
+    )
+ON CONFLICT (id_service) DO UPDATE
+SET
+    provider_id = EXCLUDED.provider_id,
+    category_id = EXCLUDED.category_id,
+    title = EXCLUDED.title,
+    description = EXCLUDED.description,
+    price = EXCLUDED.price,
+    experience_years = EXCLUDED.experience_years,
+    trainings = EXCLUDED.trainings,
+    has_driving_license = EXCLUDED.has_driving_license,
+    service_area = EXCLUDED.service_area;

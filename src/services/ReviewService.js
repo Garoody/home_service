@@ -82,6 +82,56 @@ class ReviewService {
 
     return result.rows;
   }
+
+  // Liste les avis laisses par un client connecte.
+  static async listByClient(clientId) {
+    const result = await db.query(
+      `
+      SELECT
+        r.id_review::text AS id,
+        r.rating,
+        r.comment,
+        r.created_at,
+        s.id_service::text AS service_slug,
+        s.title AS service_title,
+        u.full_name AS provider_name
+      FROM public.reviews r
+      JOIN public.bookings b ON b.id_booking = r.booking_id
+      JOIN public.services s ON s.id_service = b.service_id
+      JOIN public.users u ON u.id_user = r.provider_id
+      WHERE r.client_id::text = $1
+      ORDER BY r.created_at DESC
+      `,
+      [clientId]
+    );
+
+    return result.rows;
+  }
+
+  // Liste les avis recus par un prestataire.
+  static async listByProvider(providerId) {
+    const result = await db.query(
+      `
+      SELECT
+        r.id_review::text AS id,
+        r.rating,
+        r.comment,
+        r.created_at,
+        s.id_service::text AS service_slug,
+        s.title AS service_title,
+        u.full_name AS client_name
+      FROM public.reviews r
+      JOIN public.bookings b ON b.id_booking = r.booking_id
+      JOIN public.services s ON s.id_service = b.service_id
+      JOIN public.users u ON u.id_user = r.client_id
+      WHERE r.provider_id::text = $1
+      ORDER BY r.created_at DESC
+      `,
+      [providerId]
+    );
+
+    return result.rows;
+  }
 }
 
 export default ReviewService;

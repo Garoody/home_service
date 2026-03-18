@@ -35,6 +35,21 @@
             </div>
             <h2 class="mt-2 text-lg font-semibold"><%= p.service_title || "Service" %></h2>
             <p class="mt-2 text-sm text-slate-300">Mode: <span class="text-slate-100"><%= paymentMethodLabels[p.payment_method] || p.payment_method %></span></p>
+            <% if (p.payment_details?.paypal_email) { %>
+              <p class="mt-1 text-sm text-slate-300">Compte PayPal: <span class="text-slate-100"><%= p.payment_details.paypal_email %></span></p>
+            <% } %>
+            <% if (p.payment_details?.bank_account_name) { %>
+              <p class="mt-1 text-sm text-slate-300">Titulaire: <span class="text-slate-100"><%= p.payment_details.bank_account_name %></span></p>
+            <% } %>
+            <% if (p.payment_details?.iban_last4) { %>
+              <p class="mt-1 text-sm text-slate-300">IBAN: <span class="text-slate-100">•••• <%= p.payment_details.iban_last4 %></span></p>
+            <% } %>
+            <% if (p.payment_details?.last4) { %>
+              <p class="mt-1 text-sm text-slate-300">Carte: <span class="text-slate-100">•••• <%= p.payment_details.last4 %></span></p>
+            <% } %>
+            <% if (p.payment_method === "cash") { %>
+              <p class="mt-1 text-sm text-slate-300">Reglement: <span class="text-slate-100">En especes lors de la prestation</span></p>
+            <% } %>
             <p class="mt-1 text-sm text-emerald-300"><%= (p.amount ?? 0).toString().replace(".", ",") %> EUR</p>
           </article>
         <% }) %>

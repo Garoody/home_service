@@ -1,5 +1,6 @@
 -- 01_seed_users.sql
--- Crée 1 admin + 2 customers (dont 1 servira de "provider")
+-- Donnees utilisateurs de demonstration avec identifiants fixes
+-- pour rendre les relations plus faciles a lire dans les seeders suivants.
 
 SET CLIENT_ENCODING TO 'UTF8';
 
@@ -16,7 +17,7 @@ INSERT INTO
         gdpr_consent_date
     )
 VALUES (
-        uuidv7 (),
+        '018d5c8e-1000-7001-9001-000000000001',
         'Admin HomeServices',
         'admin@homeservices.local',
         crypt ('Admin123!', gen_salt ('bf')),
@@ -27,7 +28,7 @@ VALUES (
         CURRENT_TIMESTAMP
     ),
     (
-        uuidv7 (),
+        '018d5c8e-1000-7001-9001-000000000002',
         'Client Test',
         'client@homeservices.local',
         crypt ('Client123!', gen_salt ('bf')),
@@ -38,17 +39,22 @@ VALUES (
         CURRENT_TIMESTAMP
     ),
     (
-        uuidv7 (),
+        '018d5c8e-1000-7001-9001-000000000003',
         'Garoody Chery',
         'provider@homeservices.local',
-        crypt (
-            'Provider123!',
-            gen_salt ('bf')
-        ),
+        crypt ('Provider123!', gen_salt ('bf')),
         '0622222222',
         'Marseille',
         'provider',
         TRUE,
         CURRENT_TIMESTAMP
     )
-ON CONFLICT (email) DO NOTHING;
+ON CONFLICT (email) DO UPDATE
+SET
+    full_name = EXCLUDED.full_name,
+    password_hash = EXCLUDED.password_hash,
+    phone = EXCLUDED.phone,
+    address = EXCLUDED.address,
+    role = EXCLUDED.role,
+    gdpr_consent = EXCLUDED.gdpr_consent,
+    gdpr_consent_date = EXCLUDED.gdpr_consent_date;

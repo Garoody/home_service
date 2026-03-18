@@ -1,16 +1,8 @@
 -- 06_seed_reviews.sql
--- Avis sur une réservation (si possible)
+-- Avis de demonstration sur une reservation terminee.
 
 SET CLIENT_ENCODING TO 'UTF8';
 
-WITH
-    one_booking AS (
-        SELECT b.id_booking, b.client_id, s.provider_id
-        FROM bookings b
-            JOIN services s ON s.id_service = b.service_id
-        ORDER BY b.created_at ASC
-        LIMIT 1
-    )
 INSERT INTO
     reviews (
         id_review,
@@ -21,13 +13,18 @@ INSERT INTO
         comment,
         created_at
     )
-SELECT
-    uuidv7 (),
-    id_booking,
-    client_id,
-    provider_id,
-    5,
-    'Très bon service, rapide et professionnel !',
-    CURRENT_TIMESTAMP
-FROM one_booking
-ON CONFLICT DO NOTHING;
+VALUES (
+        '018d5c8e-6000-7001-e001-000000000001',
+        '018d5c8e-4000-7001-c001-000000000001',
+        '018d5c8e-1000-7001-9001-000000000002',
+        '018d5c8e-1000-7001-9001-000000000003',
+        5,
+        'Tres bon service, rapide et professionnel !',
+        CURRENT_TIMESTAMP
+    )
+ON CONFLICT (booking_id) DO UPDATE
+SET
+    client_id = EXCLUDED.client_id,
+    provider_id = EXCLUDED.provider_id,
+    rating = EXCLUDED.rating,
+    comment = EXCLUDED.comment;

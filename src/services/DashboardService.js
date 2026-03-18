@@ -41,11 +41,12 @@ class DashboardService {
 
   // Prepare les indicateurs utiles au tableau de bord prestataire.
   static async getProviderDashboard(userId) {
-    const [servicesResult, bookingsResult, reviewsResult] = await Promise.all([
+    const [servicesResult, bookingsResult, reviewsResult, payments] = await Promise.all([
       db.query(
         `
         SELECT
           s.id_service::text AS id,
+          s.id_service::text AS slug,
           s.title,
           s.price,
           c.name AS category_name,
@@ -65,6 +66,7 @@ class DashboardService {
           b.booking_date,
           b.booking_time,
           b.total_price,
+          s.id_service::text AS service_slug,
           s.title AS service_title,
           u.full_name AS client_name
         FROM public.bookings b
@@ -85,11 +87,13 @@ class DashboardService {
         `,
         [userId]
       ),
+      PaymentService.listForProvider(userId),
     ]);
 
     const services = servicesResult.rows;
     const bookings = bookingsResult.rows;
     const reviews = reviewsResult.rows[0] || { total_reviews: 0, average_rating: 0 };
+    const revenue = payments.reduce((total, payment) => total + Number(payment.amount || 0), 0);
 
     return {
       role: "provider",
@@ -98,11 +102,14 @@ class DashboardService {
         bookings: bookings.length,
         activeBookings: bookings.filter((booking) => booking.status === "pending" || booking.status === "confirmed").length,
         completedBookings: bookings.filter((booking) => booking.status === "completed").length,
+        paidPayments: payments.length,
+        revenue,
         totalReviews: reviews.total_reviews || 0,
         averageRating: Number(reviews.average_rating || 0),
       },
       latestServices: services.slice(0, 4),
       latestBookings: bookings.slice(0, 4),
+      recentPayments: payments.slice(0, 4),
     };
   }
 }

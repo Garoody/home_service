@@ -1,6 +1,7 @@
 "use strict";
 
 import BookingService from "../services/BookingService.js";
+import PaymentService from "../services/PaymentService.js";
 import {
   validateBookingCreatePayload,
   validateBookingUpdatePayload,
@@ -82,10 +83,20 @@ class BookingController {
         address,
         booking_date,
         booking_time,
+        payment_method,
+        cardholder_name,
+        card_number,
+        expiry,
+        cvc,
+        save_card,
+        paypal_email,
+        bank_account_name,
+        iban,
+        cash_acknowledged,
       } = validation.data;
       const clientId = getUserId(req);
 
-      await BookingService.create({
+      const booking = await BookingService.create({
         client_id: clientId,
         service_id,
         first_name,
@@ -96,7 +107,54 @@ class BookingController {
         booking_time,
       });
 
-      req.flash("success", "Reservation creee.");
+      if (payment_method === "cb") {
+        const [expMonth = "", expYear = ""] = String(expiry || "").split("/");
+
+        await PaymentService.payBooking({
+          bookingId: booking.id,
+          clientId,
+          payment_method,
+          payment_source: "new",
+          saved_method_id: "",
+          save_card,
+          cardholder_name,
+          card_number,
+          exp_month: Number(expMonth),
+          exp_year: Number(`20${expYear}`),
+          cvc,
+          payment_details: {
+            cardholder_name,
+            last4: String(card_number || "").replace(/\s+/g, "").slice(-4),
+            exp_month: Number(expMonth),
+            exp_year: Number(`20${expYear}`),
+          },
+        });
+
+        req.flash("success", "Reservation creee et paiement par carte enregistre.");
+      } else {
+        const paymentDetails =
+          payment_method === "paypal"
+            ? { paypal_email }
+            : payment_method === "bank_transfer"
+              ? {
+                  bank_account_name,
+                  iban_last4: String(iban || "").replace(/\s+/g, "").slice(-4),
+                }
+              : {
+                  cash_acknowledged: Boolean(cash_acknowledged),
+                  note: "Paiement prevu lors de la prestation.",
+                };
+
+        await PaymentService.registerBookingPaymentSelection({
+          bookingId: booking.id,
+          clientId,
+          payment_method,
+          payment_details: paymentDetails,
+        });
+
+        req.flash("success", "Reservation creee avec le mode de paiement selectionne.");
+      }
+
       res.redirect("/bookings");
     } catch (error) {
       req.flash("error", error.message);

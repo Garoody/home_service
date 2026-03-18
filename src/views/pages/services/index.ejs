@@ -46,6 +46,20 @@
   </form>
 
   <div class="mt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+    <% if (category_id && categories && categories.length) { %>
+      <% const activeCategory = categories.find((c) => String(c.id) === String(category_id)); %>
+      <% if (activeCategory) { %>
+        <div class="col-span-full flex items-center justify-between gap-3 rounded-2xl border border-blue-500/20 bg-blue-500/10 px-4 py-3 text-sm text-blue-100">
+          <span>
+            Filtre actif : <strong><%= activeCategory.name %></strong>
+          </span>
+          <a href="/services" class="text-blue-200 hover:text-white hover:underline">
+            Reinitialiser le filtre
+          </a>
+        </div>
+      <% } %>
+    <% } %>
+
     <% if (!services || services.length === 0) { %>
       <div class="col-span-full p-10 rounded-2xl bg-white/5 border border-white/10 text-center">
         <p class="text-slate-300">Aucun service trouve.</p>
@@ -89,12 +103,14 @@
             </span>
 
             <div class="flex items-center gap-3">
-              <a
-                href="/bookings/new?service=<%= s.slug %>"
-                class="px-3 py-1.5 rounded-md bg-emerald-600/90 hover:bg-emerald-500 text-white transition"
-              >
-                Réserver
-              </a>
+              <% if (!currentUser || currentUser.role === "client") { %>
+                <a
+                  href="/bookings/new?service=<%= s.slug %>"
+                  class="px-3 py-1.5 rounded-md bg-emerald-600/90 hover:bg-emerald-500 text-white transition"
+                >
+                  Reserver
+                </a>
+              <% } %>
               <a href="/services/<%= s.slug %>" class="text-blue-400 hover:underline">
                 Voir
               </a>

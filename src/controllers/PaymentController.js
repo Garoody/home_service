@@ -60,6 +60,7 @@ class PaymentController {
         title: "Paiement - HomeService",
         booking,
         savedMethods,
+        preferredMethod: req.query.method || "cb",
         csrfToken: res.locals.csrfToken,
       });
     } catch (error) {

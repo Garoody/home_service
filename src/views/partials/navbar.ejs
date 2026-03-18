@@ -18,7 +18,9 @@
 
         <% if (currentUser) { %>
           <a href="/users/profile" class="hover:text-blue-400 transition">Mon espace</a>
-          <a href="/bookings" class="hover:text-blue-400 transition">Mes reservations</a>
+          <% if (currentUser.role === "client") { %>
+            <a href="/bookings" class="hover:text-blue-400 transition">Mes reservations</a>
+          <% } %>
           <span class="text-slate-300">
             Connecte en tant que
             <span class="text-white"><%= currentUser.name || "Utilisateur" %></span>
@@ -55,7 +57,9 @@
     <a href="/services" class="block hover:text-blue-400">Services</a>
     <% if (currentUser) { %>
       <a href="/users/profile" class="block hover:text-blue-400">Mon espace</a>
-      <a href="/bookings" class="block hover:text-blue-400">Mes reservations</a>
+      <% if (currentUser.role === "client") { %>
+        <a href="/bookings" class="block hover:text-blue-400">Mes reservations</a>
+      <% } %>
       <div class="pt-2 text-slate-300">
         Connecte en tant que <span class="text-white"><%= currentUser.name || "Utilisateur" %></span> (<%= currentUser.role || "client" %>)
       </div>

@@ -46,9 +46,20 @@ const registerSchema = z.object({
 // Validation du profil prestataire.
 const providerProfileSchema = z.object({
   experience_years: z.number().int().min(0, "L'annee d'experience est invalide.").max(60, "L'annee d'experience est invalide."),
-  trainings: z.string().trim().min(2, "La formation est obligatoire.").max(500, "Les formations sont trop longues."),
+  trainings: z.string().trim().max(500, "Les formations sont trop longues.").optional(),
   has_driving_license: z.boolean(),
   service_area: z.string().trim().min(2, "La zone d'intervention est obligatoire.").max(255, "La zone d'intervention est trop longue."),
+});
+
+// Validation du profil client.
+const clientProfileSchema = z.object({
+  full_name: z
+    .string()
+    .trim()
+    .min(2, "Le nom complet est obligatoire.")
+    .max(150, "Le nom complet est trop long."),
+  phone: z.string().trim().max(50, "Le telephone est trop long.").optional(),
+  address: z.string().trim().max(255, "L'adresse est trop longue.").optional(),
 });
 
 /**
@@ -119,7 +130,7 @@ export function validateRegisterPayload(payload = {}) {
 export function validateProviderProfilePayload(payload = {}) {
   const normalized = {
     experience_years: Number(payload.experience_years),
-    trainings: payload.trainings,
+    trainings: payload.trainings || "",
     has_driving_license:
       payload.has_driving_license === true ||
       payload.has_driving_license === "true" ||
@@ -128,6 +139,26 @@ export function validateProviderProfilePayload(payload = {}) {
   };
 
   const result = providerProfileSchema.safeParse(normalized);
+
+  if (!result.success) {
+    return {
+      success: false,
+      data: null,
+      message: result.error.issues.map((issue) => issue.message).join(" | "),
+    };
+  }
+
+  return { success: true, data: result.data, message: null };
+}
+
+export function validateClientProfilePayload(payload = {}) {
+  const normalized = {
+    full_name: payload.full_name,
+    phone: payload.phone || "",
+    address: payload.address || "",
+  };
+
+  const result = clientProfileSchema.safeParse(normalized);
 
   if (!result.success) {
     return {

@@ -17,10 +17,10 @@
       <input type="hidden" name="exp_month" id="exp_month">
       <input type="hidden" name="exp_year" id="exp_year">
 
-      <section class="checkout-option is-active" data-method-section data-method="cb">
+      <section class="checkout-option <%= (preferredMethod || 'cb') === 'cb' ? 'is-active' : '' %>" data-method-section data-method="cb">
         <div class="checkout-option__frame">
           <label class="checkout-option__header">
-            <input type="radio" name="payment_method" value="cb" checked>
+            <input type="radio" name="payment_method" value="cb" <%= (preferredMethod || 'cb') === 'cb' ? 'checked' : '' %>>
             <span class="checkout-option__radio"></span>
 
             <div class="checkout-option__content">
@@ -80,10 +80,10 @@
         </div>
       </section>
 
-      <section class="checkout-option" data-method-section data-method="paypal">
+      <section class="checkout-option <%= preferredMethod === 'paypal' ? 'is-active' : '' %>" data-method-section data-method="paypal">
         <div class="checkout-option__frame">
           <label class="checkout-option__header checkout-option__header--compact">
-            <input type="radio" name="payment_method" value="paypal">
+            <input type="radio" name="payment_method" value="paypal" <%= preferredMethod === 'paypal' ? 'checked' : '' %>>
             <span class="checkout-option__radio"></span>
 
             <div class="checkout-option__content">
@@ -103,10 +103,10 @@
         </div>
       </section>
 
-      <section class="checkout-option" data-method-section data-method="bank_transfer">
+      <section class="checkout-option <%= preferredMethod === 'bank_transfer' ? 'is-active' : '' %>" data-method-section data-method="bank_transfer">
         <div class="checkout-option__frame">
           <label class="checkout-option__header checkout-option__header--compact">
-            <input type="radio" name="payment_method" value="bank_transfer">
+            <input type="radio" name="payment_method" value="bank_transfer" <%= preferredMethod === 'bank_transfer' ? 'checked' : '' %>>
             <span class="checkout-option__radio"></span>
 
             <div class="checkout-option__content">
@@ -123,10 +123,10 @@
         </div>
       </section>
 
-      <section class="checkout-option" data-method-section data-method="cash">
+      <section class="checkout-option <%= preferredMethod === 'cash' ? 'is-active' : '' %>" data-method-section data-method="cash">
         <div class="checkout-option__frame">
           <label class="checkout-option__header checkout-option__header--compact">
-            <input type="radio" name="payment_method" value="cash">
+            <input type="radio" name="payment_method" value="cash" <%= preferredMethod === 'cash' ? 'checked' : '' %>>
             <span class="checkout-option__radio"></span>
 
             <div class="checkout-option__content">

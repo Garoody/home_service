@@ -29,6 +29,10 @@ const router = Router();
 
 // Profil utilisateur (page)
 router.get("/profile", requireAuth, UserController.profile);
+router.get("/profile/provider-bookings", requireAuth, UserController.providerBookings);
+router.get("/profile/client-reviews", requireAuth, UserController.clientReviews);
+router.get("/profile/provider-reviews", requireAuth, UserController.providerReviews);
+router.get("/profile/provider-payments", requireAuth, UserController.providerPayments);
 
 // Update profil (form POST)
 router.post("/profile", requireAuth, UserController.updateProfile);

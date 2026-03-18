@@ -127,6 +127,44 @@ class BookingService {
     return result.rows[0];
   }
 
+  // Retourne les demandes recues par un prestataire sur ses services.
+  static async listForProvider(providerId, { status } = {}) {
+    if (!providerId) {
+      throw new Error("Utilisateur non connecte.");
+    }
+
+    const values = [providerId];
+    let statusSql = "";
+
+    if (status) {
+      values.push(status);
+      statusSql = ` AND b.status = $${values.length}`;
+    }
+
+    const result = await db.query(
+      `
+      SELECT
+        b.id_booking::text AS id,
+        b.status,
+        b.booking_date,
+        b.booking_time,
+        b.total_price,
+        s.id_service::text AS service_slug,
+        s.title AS service_title,
+        u.full_name AS client_name
+      FROM public.bookings b
+      JOIN public.services s ON s.id_service = b.service_id
+      JOIN public.users u ON u.id_user = b.client_id
+      WHERE s.provider_id::text = $1
+      ${statusSql}
+      ORDER BY b.created_at DESC
+      `,
+      values
+    );
+
+    return result.rows;
+  }
+
   // Cree une reservation avec le prix recopie depuis le service.
   static async create({ client_id, service_id, first_name, last_name, city, address, booking_date, booking_time }) {
     if (!client_id) {

@@ -139,6 +139,23 @@ class UserRepository {
     const { rows } = await db.query(query, values);
     return rows[0] || null;
   }
+
+  static async updateClientProfile({ userId, full_name, phone, address }) {
+    const query = /*sql*/`
+      UPDATE public.users
+      SET
+        full_name = $1,
+        phone = NULLIF($2, ''),
+        address = NULLIF($3, ''),
+        updated_at = NOW()
+      WHERE id_user = $4
+      RETURNING id_user, full_name;
+    `;
+
+    const values = [full_name, phone, address, userId];
+    const { rows } = await db.query(query, values);
+    return rows[0] || null;
+  }
 }
 
 export default UserRepository;

@@ -5,6 +5,10 @@ import CategoryService from "../services/CategoryService.js";
 import ReviewService from "../services/ReviewService.js";
 import { validateServicePayload } from "../validators/serviceValidator.js";
 
+function getCategoryId(category) {
+  return category?.id || category?.id_category || null;
+}
+
 class ServiceController {
   async index(req, res) {
     try {
@@ -78,9 +82,20 @@ class ServiceController {
         return res.redirect("/services/new");
       }
 
+      const category =
+        validation.data.category_id === "other"
+          ? await CategoryService.findOrCreateByName(validation.data.custom_category_name)
+          : { id: validation.data.category_id };
+
+      const categoryId = getCategoryId(category);
+      if (!categoryId) {
+        req.flash("error", "La categorie du service est introuvable.");
+        return res.redirect("/services/new");
+      }
+
       await ServiceService.create({
         provider_id: providerId,
-        category_id: validation.data.category_id,
+        category_id: categoryId,
         title: validation.data.title,
         description: validation.data.description,
         price: validation.data.price,
@@ -127,8 +142,19 @@ class ServiceController {
         return res.redirect(`/services/${slug}/edit`);
       }
 
+      const category =
+        validation.data.category_id === "other"
+          ? await CategoryService.findOrCreateByName(validation.data.custom_category_name)
+          : { id: validation.data.category_id };
+
+      const categoryId = getCategoryId(category);
+      if (!categoryId) {
+        req.flash("error", "La categorie du service est introuvable.");
+        return res.redirect(`/services/${slug}/edit`);
+      }
+
       await ServiceService.updateBySlug(slug, {
-        category_id: validation.data.category_id,
+        category_id: categoryId,
         title: validation.data.title,
         description: validation.data.description,
         price: validation.data.price,

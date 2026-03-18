@@ -2,7 +2,7 @@
   Dashboard utilisateur principal.
   Cette vue affiche deux experiences differentes selon le role :
   - client : reservations, paiements, avis
-  - provider : services, activite, note moyenne
+  - provider : services, demandes recues, note moyenne
 -->
 <section class="py-10">
   <div class="max-w-6xl mx-auto px-4">
@@ -32,31 +32,35 @@
 
     <% if (dashboard.role === "provider") { %>
       <!-- Vue orientee activite prestataire -->
-      <div class="mt-8 grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-5 gap-5">
-        <div class="rounded-2xl border border-cyan-400/15 bg-cyan-500/10 p-5">
+      <div class="mt-8 grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-6 gap-5">
+        <a href="/services" class="block rounded-2xl border border-cyan-400/15 bg-cyan-500/10 p-5 transition hover:-translate-y-0.5 hover:border-cyan-300/30">
           <p class="text-sm text-cyan-100/70">Services publies</p>
           <p class="mt-3 text-3xl font-semibold text-white"><%= dashboard.stats.services %></p>
-        </div>
-        <div class="rounded-2xl border border-blue-400/15 bg-blue-500/10 p-5">
-          <p class="text-sm text-blue-100/70">Reservations</p>
+        </a>
+        <a href="/users/profile/provider-bookings" class="block rounded-2xl border border-blue-400/15 bg-blue-500/10 p-5 transition hover:-translate-y-0.5 hover:border-blue-300/30">
+          <p class="text-sm text-blue-100/70">Demandes recues</p>
           <p class="mt-3 text-3xl font-semibold text-white"><%= dashboard.stats.bookings %></p>
-        </div>
-        <div class="rounded-2xl border border-amber-400/15 bg-amber-500/10 p-5">
-          <p class="text-sm text-amber-100/70">En cours</p>
+        </a>
+        <a href="/users/profile/provider-bookings?status=pending" class="block rounded-2xl border border-amber-400/15 bg-amber-500/10 p-5 transition hover:-translate-y-0.5 hover:border-amber-300/30">
+          <p class="text-sm text-amber-100/70">Interventions en cours</p>
           <p class="mt-3 text-3xl font-semibold text-white"><%= dashboard.stats.activeBookings %></p>
-        </div>
-        <div class="rounded-2xl border border-emerald-400/15 bg-emerald-500/10 p-5">
-          <p class="text-sm text-emerald-100/70">Terminees</p>
+        </a>
+        <a href="/users/profile/provider-bookings?status=completed" class="block rounded-2xl border border-emerald-400/15 bg-emerald-500/10 p-5 transition hover:-translate-y-0.5 hover:border-emerald-300/30">
+          <p class="text-sm text-emerald-100/70">Prestations terminees</p>
           <p class="mt-3 text-3xl font-semibold text-white"><%= dashboard.stats.completedBookings %></p>
-        </div>
-        <div class="rounded-2xl border border-fuchsia-400/15 bg-fuchsia-500/10 p-5">
+        </a>
+        <a href="/users/profile/provider-reviews" class="block rounded-2xl border border-fuchsia-400/15 bg-fuchsia-500/10 p-5 transition hover:-translate-y-0.5 hover:border-fuchsia-300/30">
           <p class="text-sm text-fuchsia-100/70">Note moyenne</p>
           <p class="mt-3 text-3xl font-semibold text-white"><%= dashboard.stats.averageRating %>/5</p>
-        </div>
+        </a>
+        <a href="/users/profile/provider-payments" class="block rounded-2xl border border-emerald-400/15 bg-emerald-500/10 p-5 transition hover:-translate-y-0.5 hover:border-emerald-300/30">
+          <p class="text-sm text-emerald-100/70">Paiements recus</p>
+          <p class="mt-3 text-3xl font-semibold text-white"><%= dashboard.stats.paidPayments %></p>
+        </a>
       </div>
 
       <div class="mt-8 grid grid-cols-1 xl:grid-cols-[1.1fr_0.9fr] gap-6">
-        <div class="rounded-3xl border border-white/10 bg-white/5 p-6">
+        <div id="provider-services" class="rounded-3xl border border-white/10 bg-white/5 p-6">
           <div class="flex items-center justify-between gap-3">
             <div>
               <h2 class="text-xl font-semibold">Mes services</h2>
@@ -72,7 +76,7 @@
               </div>
             <% } else { %>
               <% dashboard.latestServices.forEach((service) => { %>
-                <article class="rounded-2xl border border-white/10 bg-slate-900/30 px-4 py-4">
+                <a href="/services/<%= service.slug %>" class="block rounded-2xl border border-white/10 bg-slate-900/30 px-4 py-4 transition hover:border-white/20">
                   <div class="flex flex-wrap items-start justify-between gap-3">
                     <div>
                       <h3 class="font-medium text-white"><%= service.title %></h3>
@@ -84,29 +88,29 @@
                       <p class="text-emerald-300 font-medium"><%= (service.price ?? 0).toString().replace(".", ",") %> EUR</p>
                     </div>
                   </div>
-                </article>
+                </a>
               <% }) %>
             <% } %>
           </div>
         </div>
 
-        <div class="rounded-3xl border border-white/10 bg-white/5 p-6">
+        <div id="provider-bookings" class="rounded-3xl border border-white/10 bg-white/5 p-6">
           <div class="flex items-center justify-between gap-3">
             <div>
-              <h2 class="text-xl font-semibold">Dernieres reservations</h2>
+              <h2 class="text-xl font-semibold">Dernieres demandes</h2>
               <p class="mt-1 text-sm text-slate-400">Les demandes recues sur vos services.</p>
             </div>
-            <a href="/services" class="text-sm text-blue-300 hover:text-blue-200 transition">Voir mes services</a>
+            <a href="/users/profile/provider-bookings" class="text-sm text-blue-300 hover:text-blue-200 transition">Voir les demandes</a>
           </div>
 
           <div class="mt-6 space-y-4">
             <% if (!dashboard.latestBookings.length) { %>
               <div class="rounded-2xl border border-white/10 bg-slate-900/30 px-4 py-5 text-sm text-slate-400">
-                Aucune reservation pour le moment.
+                Aucune demande pour le moment.
               </div>
             <% } else { %>
               <% dashboard.latestBookings.forEach((booking) => { %>
-                <article class="rounded-2xl border border-white/10 bg-slate-900/30 px-4 py-4">
+                <a href="/services/<%= booking.service_slug || '' %>" class="block rounded-2xl border border-white/10 bg-slate-900/30 px-4 py-4 transition hover:border-white/20">
                   <div class="flex flex-wrap items-center justify-between gap-3">
                     <div>
                       <h3 class="font-medium text-white"><%= booking.service_title %></h3>
@@ -116,7 +120,7 @@
                       <%= booking.status %>
                     </span>
                   </div>
-                </article>
+                </a>
               <% }) %>
             <% } %>
           </div>
@@ -134,11 +138,19 @@
             <a href="/services" class="rounded-2xl border border-white/10 bg-white/5 px-4 py-3 font-medium hover:border-white/20 transition">
               Gerer mes services
             </a>
+            <a href="/users/profile/provider-payments" class="rounded-2xl border border-white/10 bg-white/5 px-4 py-3 font-medium hover:border-white/20 transition">
+              Voir mes paiements recus
+            </a>
           </div>
 
-          <div class="mt-6 rounded-2xl border border-white/10 bg-slate-950/30 p-4">
+          <div id="provider-reviews" class="mt-6 rounded-2xl border border-white/10 bg-slate-950/30 p-4">
             <p class="text-sm text-slate-400">Avis recus</p>
             <p class="mt-2 text-2xl font-semibold text-white"><%= dashboard.stats.totalReviews %></p>
+          </div>
+
+          <div class="mt-4 rounded-2xl border border-emerald-500/20 bg-emerald-500/10 p-4">
+            <p class="text-sm text-emerald-100/70">Total encaisse</p>
+            <p class="mt-2 text-2xl font-semibold text-white"><%= dashboard.stats.revenue.toString().replace(".", ",") %> EUR</p>
           </div>
         </div>
 
@@ -170,11 +182,24 @@
             </a>
           </div>
 
-          <form
-            action="/users/profile"
-            method="POST"
-            class="mt-6 space-y-4 rounded-2xl border border-white/10 bg-slate-900/30 p-4"
-          >
+          <div class="mt-6 rounded-2xl border border-white/10 bg-slate-900/30 p-4">
+            <div class="flex items-center justify-between gap-3">
+              <div>
+                <h3 class="text-lg font-semibold text-white">Modifier mon profil</h3>
+                <p class="mt-1 text-sm text-slate-400">
+                  Mettez a jour vos informations professionnelles depuis votre espace prestataire.
+                </p>
+              </div>
+              <span class="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs text-slate-300">
+                Profil
+              </span>
+            </div>
+
+            <form
+              action="/users/profile"
+              method="POST"
+              class="mt-5 space-y-4"
+            >
             <% if (csrfToken) { %>
               <input type="hidden" name="_csrf" value="<%= csrfToken %>">
             <% } %>
@@ -198,6 +223,7 @@
                 id="trainings"
                 name="trainings"
                 rows="3"
+                placeholder="Indiquez vos formations suivies"
                 class="w-full px-4 py-2.5 rounded-lg bg-white/5 border border-white/10 text-slate-100 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
               ><%= user?.trainings || '' %></textarea>
             </div>
@@ -229,35 +255,54 @@
               Enregistrer mon profil prestataire
             </button>
           </form>
+
+          <div class="mt-6 rounded-2xl border border-white/10 bg-slate-900/30 p-4">
+            <div class="flex items-center justify-between gap-3">
+              <p class="text-sm text-slate-400">Derniers paiements recus</p>
+              <a href="/users/profile/provider-payments" class="text-sm text-blue-300 hover:text-blue-200 transition">Tout voir</a>
+            </div>
+            <div class="mt-3 space-y-3">
+              <% if (!dashboard.recentPayments?.length) { %>
+                <p class="text-sm text-slate-400">Aucun paiement recu pour le moment.</p>
+              <% } else { %>
+                <% dashboard.recentPayments.forEach((payment) => { %>
+                  <a href="/users/profile/provider-payments" class="flex items-center justify-between gap-3 text-sm transition hover:text-white">
+                    <span class="text-slate-300 truncate"><%= payment.service_title %></span>
+                    <span class="text-emerald-300"><%= (payment.amount ?? 0).toString().replace(".", ",") %> EUR</span>
+                  </a>
+                <% }) %>
+              <% } %>
+            </div>
+          </div>
         </div>
       </div>
     <% } else { %>
       <!-- Vue orientee suivi client -->
       <div class="mt-8 grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-5 gap-5">
-        <div class="rounded-2xl border border-blue-400/15 bg-blue-500/10 p-5">
+        <a href="/bookings" class="block rounded-2xl border border-blue-400/15 bg-blue-500/10 p-5 transition hover:-translate-y-0.5 hover:border-blue-300/30">
           <p class="text-sm text-blue-100/70">Reservations</p>
           <p class="mt-3 text-3xl font-semibold text-white"><%= dashboard.stats.bookings %></p>
-        </div>
-        <div class="rounded-2xl border border-amber-400/15 bg-amber-500/10 p-5">
+        </a>
+        <a href="/bookings" class="block rounded-2xl border border-amber-400/15 bg-amber-500/10 p-5 transition hover:-translate-y-0.5 hover:border-amber-300/30">
           <p class="text-sm text-amber-100/70">En attente</p>
           <p class="mt-3 text-3xl font-semibold text-white"><%= dashboard.stats.pending %></p>
-        </div>
-        <div class="rounded-2xl border border-emerald-400/15 bg-emerald-500/10 p-5">
+        </a>
+        <a href="/bookings" class="block rounded-2xl border border-emerald-400/15 bg-emerald-500/10 p-5 transition hover:-translate-y-0.5 hover:border-emerald-300/30">
           <p class="text-sm text-emerald-100/70">Terminees</p>
           <p class="mt-3 text-3xl font-semibold text-white"><%= dashboard.stats.completed %></p>
-        </div>
-        <div class="rounded-2xl border border-cyan-400/15 bg-cyan-500/10 p-5">
+        </a>
+        <a href="/payments" class="block rounded-2xl border border-cyan-400/15 bg-cyan-500/10 p-5 transition hover:-translate-y-0.5 hover:border-cyan-300/30">
           <p class="text-sm text-cyan-100/70">Paiements</p>
           <p class="mt-3 text-3xl font-semibold text-white"><%= dashboard.stats.payments %></p>
-        </div>
-        <div class="rounded-2xl border border-fuchsia-400/15 bg-fuchsia-500/10 p-5">
+        </a>
+        <a href="/users/profile/client-reviews" class="block rounded-2xl border border-fuchsia-400/15 bg-fuchsia-500/10 p-5 transition hover:-translate-y-0.5 hover:border-fuchsia-300/30">
           <p class="text-sm text-fuchsia-100/70">Avis laisses</p>
           <p class="mt-3 text-3xl font-semibold text-white"><%= dashboard.stats.reviews %></p>
-        </div>
+        </a>
       </div>
 
       <div class="mt-8 grid grid-cols-1 xl:grid-cols-[1.1fr_0.9fr] gap-6">
-        <div class="rounded-3xl border border-white/10 bg-white/5 p-6">
+        <div id="client-bookings" class="rounded-3xl border border-white/10 bg-white/5 p-6">
           <div class="flex items-center justify-between gap-3">
             <div>
               <h2 class="text-xl font-semibold">Reservations recentes</h2>
@@ -273,7 +318,7 @@
               </div>
             <% } else { %>
               <% dashboard.recentBookings.forEach((booking) => { %>
-                <article class="rounded-2xl border border-white/10 bg-slate-900/30 px-4 py-4">
+                <a href="/bookings/<%= booking.id %>/edit" class="block rounded-2xl border border-white/10 bg-slate-900/30 px-4 py-4 transition hover:border-white/20">
                   <div class="flex flex-wrap items-center justify-between gap-3">
                     <div>
                       <h3 class="font-medium text-white"><%= booking.service_title %></h3>
@@ -281,7 +326,7 @@
                     </div>
                     <span class="text-emerald-300 font-medium"><%= (booking.total_price ?? 0).toString().replace(".", ",") %> EUR</span>
                   </div>
-                </article>
+                </a>
               <% }) %>
             <% } %>
           </div>
@@ -296,6 +341,9 @@
             <a href="/bookings" class="rounded-2xl border border-white/10 bg-white/5 px-4 py-3 font-medium hover:border-white/20 transition">
               Gerer mes reservations
             </a>
+            <a href="#client-profile" class="rounded-2xl border border-white/10 bg-white/5 px-4 py-3 font-medium hover:border-white/20 transition">
+              Modifier mon profil
+            </a>
             <a href="/payments/cards" class="rounded-2xl border border-white/10 bg-white/5 px-4 py-3 font-medium hover:border-white/20 transition">
               Mes cartes enregistrees
             </a>
@@ -305,12 +353,12 @@
           </div>
 
           <div class="mt-6 rounded-2xl border border-red-500/20 bg-red-500/10 p-4">
-            <form
-              action="/users/profile/delete"
-              method="POST"
-              class=""
-              data-confirm="Confirmez-vous la suppression definitive de votre compte client ? Toutes vos donnees associees seront effacees et cette action est irreversible."
-            >
+          <form
+            action="/users/profile/delete"
+            method="POST"
+            class=""
+            data-confirm="Voulez-vous vraiment supprimer votre compte client ? Toutes vos donnees associees seront effacees et cette action est irreversible."
+          >
               <% if (csrfToken) { %>
                 <input type="hidden" name="_csrf" value="<%= csrfToken %>">
               <% } %>
@@ -324,20 +372,86 @@
             </form>
           </div>
 
-          <div class="mt-6 rounded-2xl border border-white/10 bg-slate-950/30 p-4">
+          <div id="client-payments" class="mt-6 rounded-2xl border border-white/10 bg-slate-950/30 p-4">
             <p class="text-sm text-slate-400">Derniers paiements</p>
             <div class="mt-3 space-y-3">
               <% if (!dashboard.recentPayments.length) { %>
                 <p class="text-sm text-slate-400">Aucun paiement enregistre.</p>
               <% } else { %>
                 <% dashboard.recentPayments.forEach((payment) => { %>
-                  <div class="flex items-center justify-between gap-3 text-sm">
+                  <a href="/payments" class="flex items-center justify-between gap-3 text-sm transition hover:text-white">
                     <span class="text-slate-300 truncate"><%= payment.service_title %></span>
                     <span class="text-emerald-300"><%= (payment.amount ?? 0).toString().replace(".", ",") %> EUR</span>
-                  </div>
+                  </a>
                 <% }) %>
               <% } %>
             </div>
+          </div>
+
+          <div id="client-profile" class="mt-6 rounded-2xl border border-white/10 bg-slate-900/30 p-4">
+            <div class="flex items-center justify-between gap-3">
+              <div>
+                <h3 class="text-lg font-semibold text-white">Modifier mon profil</h3>
+                <p class="mt-1 text-sm text-slate-400">
+                  Mettez a jour vos informations personnelles depuis votre espace client.
+                </p>
+              </div>
+              <span class="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs text-slate-300">
+                Profil
+              </span>
+            </div>
+
+          <form
+            action="/users/profile"
+            method="POST"
+            class="mt-5 space-y-4"
+            data-confirm="Voulez-vous vraiment enregistrer les modifications de votre profil ?"
+          >
+            <% if (csrfToken) { %>
+              <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+            <% } %>
+
+            <div>
+              <label class="block text-sm text-slate-300 mb-2" for="full_name">Nom complet</label>
+              <input
+                id="full_name"
+                name="full_name"
+                type="text"
+                value="<%= user?.fullName || '' %>"
+                required
+                class="w-full px-4 py-2.5 rounded-lg bg-white/5 border border-white/10 text-slate-100 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+              >
+            </div>
+
+            <div>
+              <label class="block text-sm text-slate-300 mb-2" for="phone">Telephone</label>
+              <input
+                id="phone"
+                name="phone"
+                type="text"
+                value="<%= user?.phone || '' %>"
+                class="w-full px-4 py-2.5 rounded-lg bg-white/5 border border-white/10 text-slate-100 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+              >
+            </div>
+
+            <div>
+              <label class="block text-sm text-slate-300 mb-2" for="address">Adresse</label>
+              <textarea
+                id="address"
+                name="address"
+                rows="3"
+                class="w-full px-4 py-2.5 rounded-lg bg-white/5 border border-white/10 text-slate-100 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+              ><%= user?.address || '' %></textarea>
+            </div>
+
+            <button
+              type="submit"
+              class="rounded-2xl bg-blue-600 px-4 py-3 font-medium text-white hover:bg-blue-500 transition"
+            >
+              Enregistrer mon profil
+            </button>
+            </form>
+          </div>
           </div>
         </div>
       </div>

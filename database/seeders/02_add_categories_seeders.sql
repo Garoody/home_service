@@ -1,4 +1,5 @@
 -- 02_seed_categories.sql
+-- Categories de demonstration avec identifiants stables.
 
 SET CLIENT_ENCODING TO 'UTF8';
 
@@ -9,23 +10,25 @@ INSERT INTO
         description
     )
 VALUES (
-        uuidv7 (),
+        '018d5c8e-2000-7001-a001-000000000001',
         U&'M\00E9nage',
         'Nettoyage et entretien'
     ),
     (
-        uuidv7 (),
+        '018d5c8e-2000-7001-a001-000000000002',
         'Jardinage',
-        U&'Entretien des espaces verts'
+        'Entretien des espaces verts'
     ),
     (
-        uuidv7 (),
+        '018d5c8e-2000-7001-a001-000000000003',
         'Plomberie',
-        U&'Dépannage plomberie'
+        'Depannage plomberie'
     ),
     (
-        uuidv7 (),
-        U&'Reparation',
-        U&'Petits travaux et reparations'
+        '018d5c8e-2000-7001-a001-000000000004',
+        'Reparation',
+        'Petits travaux et reparations'
     )
-ON CONFLICT (name) DO NOTHING;
+ON CONFLICT (name) DO UPDATE
+SET
+    description = EXCLUDED.description;
