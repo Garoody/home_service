@@ -1,0 +1,66 @@
+<section class="py-10 max-w-7xl mx-auto px-4">
+  <div class="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+    <div>
+      <p class="text-xs uppercase tracking-[0.3em] text-blue-300">Administration</p>
+      <h1 class="mt-2 text-3xl font-semibold tracking-tight">Historique admin</h1>
+      <p class="mt-2 text-slate-400">Toutes les actions importantes de moderation et de consultation dans une seule page.</p>
+    </div>
+    <a href="/admin" class="rounded-lg border border-white/10 bg-white/5 px-4 py-2 hover:border-white/20 transition">
+      Retour au dashboard
+    </a>
+  </div>
+
+  <form method="GET" action="/admin/logs" class="mt-8 grid gap-4 rounded-2xl border border-white/10 bg-white/5 p-5 lg:grid-cols-[1fr_240px_auto]">
+    <input
+      type="text"
+      name="q"
+      value="<%= q || '' %>"
+      placeholder="Rechercher par nom, service, conversation ou reservation"
+      class="rounded-xl border border-white/10 bg-slate-900/40 px-4 py-3 text-slate-100 placeholder:text-slate-500"
+    >
+    <select name="actionType" class="rounded-xl border border-white/10 bg-slate-900/40 px-4 py-3 text-slate-100">
+      <option value="">Toutes les actions</option>
+      <option value="read_conversation" <%= actionType === 'read_conversation' ? 'selected' : '' %>>Lecture conversation</option>
+      <option value="read_booking" <%= actionType === 'read_booking' ? 'selected' : '' %>>Lecture reservation</option>
+      <option value="read_payment" <%= actionType === 'read_payment' ? 'selected' : '' %>>Lecture paiement</option>
+      <option value="warn_user" <%= actionType === 'warn_user' ? 'selected' : '' %>>Avertissement</option>
+      <option value="suspend_user" <%= actionType === 'suspend_user' ? 'selected' : '' %>>Suspension compte</option>
+      <option value="ban_user" <%= actionType === 'ban_user' ? 'selected' : '' %>>Bannissement compte</option>
+      <option value="create_report" <%= actionType === 'create_report' ? 'selected' : '' %>>Creation signalement</option>
+      <option value="update_report_status" <%= actionType === 'update_report_status' ? 'selected' : '' %>>Mise a jour signalement</option>
+    </select>
+    <button type="submit" class="rounded-xl bg-blue-600 px-4 py-3 font-medium text-white hover:bg-blue-500 transition">
+      Filtrer
+    </button>
+  </form>
+
+  <div class="mt-8 space-y-4">
+    <% if (!logs.length) { %>
+      <div class="rounded-2xl border border-white/10 bg-white/5 px-5 py-6 text-slate-400">
+        Aucune action admin ne correspond a cette recherche.
+      </div>
+    <% } else { %>
+      <% logs.forEach((log) => { %>
+        <article
+          class="rounded-2xl border border-white/10 bg-white/5 px-5 py-5 <%= log.display_link ? 'service-card--interactive' : '' %>"
+          <% if (log.display_link) { %>
+            tabindex="0"
+            data-card-link="<%= log.display_link %>"
+          <% } %>
+        >
+          <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+            <div class="min-w-0">
+              <p class="text-base font-semibold text-white"><%= log.display_title %></p>
+              <p class="mt-1 text-sm text-slate-200"><%= log.display_subject %></p>
+              <p class="mt-2 text-sm text-slate-400"><%= log.display_detail %></p>
+            </div>
+            <div class="text-left sm:min-w-[12rem] sm:text-right">
+              <p class="text-xs font-semibold uppercase tracking-[0.18em] text-blue-200"><%= log.admin_name %></p>
+              <p class="mt-2 text-xs text-slate-500"><%= new Date(log.created_at).toLocaleString('fr-FR') %></p>
+            </div>
+          </div>
+        </article>
+      <% }) %>
+    <% } %>
+  </div>
+</section>

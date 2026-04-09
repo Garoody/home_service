@@ -1,11 +1,10 @@
 "use strict";
 
 import { Router } from "express";
-import HomeController from "../controllers/HomeController.js";
 
 const router = Router();
 
 // GET /
-router.get("/", HomeController.home);
+router.get("/", (_req, res) => res.redirect("/services"));
 
 export default router;

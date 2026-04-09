@@ -21,6 +21,9 @@ CREATE TABLE IF NOT EXISTS saved_payment_methods (
     CONSTRAINT fk_saved_payment_methods_user FOREIGN KEY (user_id) REFERENCES users(id_user) ON DELETE CASCADE
 );
 
+-- La table peut deja exister apres une relance partielle de l'initialisation.
+-- On recree proprement le trigger pour rendre la migration idempotente.
+DROP TRIGGER IF EXISTS set_timestamp_saved_payment_methods ON saved_payment_methods;
 CREATE TRIGGER set_timestamp_saved_payment_methods
 BEFORE UPDATE ON saved_payment_methods
 FOR EACH ROW

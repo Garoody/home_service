@@ -1,3 +1,4 @@
+-- Active: 1767954162611@@127.0.0.1@5432@service_db_dev
 -- =====================================================================
 -- TABLE: categories
 -- =====================================================================
@@ -13,6 +14,7 @@ CREATE TABLE IF NOT EXISTS categories (
 );
 
 -- Trigger updated_at
+DROP TRIGGER IF EXISTS set_timestamp_categories ON categories;
 CREATE TRIGGER set_timestamp_categories
 BEFORE UPDATE ON categories
 FOR EACH ROW

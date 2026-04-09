@@ -1,34 +1,85 @@
-<section class="py-8">
-  <div class="flex flex-col gap-6 md:flex-row md:items-end md:justify-between mb-8">
+<% const isAdmin = currentUser?.role === "admin"; %>
+
+<section class="page-shell page-shell--compact">
+  <%
+    const buildServiceQuery = (nextCategoryId = "") => {
+      const params = new URLSearchParams();
+      if (q) params.set("q", q);
+      if (city) params.set("city", city);
+      if (nextCategoryId) params.set("category_id", nextCategoryId);
+      const queryString = params.toString();
+      return queryString ? `/services?${queryString}` : "/services";
+    };
+    const totalServicesInDirectory = (categories || []).reduce(
+      (sum, category) => sum + Number(category.total_services || 0),
+      0
+    );
+  %>
+
+  <div class="section-head section-head--stack">
     <div>
-      <h1 class="text-3xl font-semibold tracking-tight">Services</h1>
-      <p class="text-slate-400 mt-2">
-        Decouvre les services disponibles sur HomeService.
+      <p class="section-kicker">Catalogue</p>
+      <h1>Services</h1>
+      <p class="section-copy">
+        Decouvre les services disponibles sur HomeService et affine rapidement ta recherche.
       </p>
     </div>
 
-    <% if (currentUser && (currentUser.role === "provider" || currentUser.role === "admin")) { %>
-      <a
-        href="/services/new"
-        class="px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 transition font-medium shadow-lg shadow-blue-600/20"
-      >
-        + Nouveau service
-      </a>
+    <% if (currentUser && !isAdmin) { %>
+      <a href="/services/new" class="btn-primary">+ Nouveau service</a>
     <% } %>
   </div>
 
-  <form method="GET" action="/services" class="grid grid-cols-1 md:grid-cols-3 gap-3">
+  <div class="surface-card service-categories-panel">
+    <div class="service-categories-panel__copy">
+      <p class="section-kicker">Categories</p>
+      <h2>Retrouve rapidement un service par categorie</h2>
+      <p>
+        Chaque service publie est ajoute automatiquement dans sa categorie pour faciliter la recherche.
+      </p>
+    </div>
+
+    <div class="service-category-grid">
+      <a
+        href="<%= buildServiceQuery() %>"
+        class="service-category-card <%= !category_id ? 'service-category-card--active' : '' %>"
+      >
+        <span class="service-category-card__title">Toutes les categories</span>
+        <span class="service-category-card__meta"><%= totalServicesInDirectory %> service<%= totalServicesInDirectory > 1 ? 's' : '' %> dans le catalogue</span>
+      </a>
+
+      <% (categories || []).forEach((category) => { %>
+        <a
+          href="<%= buildServiceQuery(category.id) %>"
+          class="service-category-card <%= String(category_id) === String(category.id) ? 'service-category-card--active' : '' %>"
+        >
+          <span class="service-category-card__title"><%= category.name %></span>
+          <span class="service-category-card__meta"><%= category.total_services || 0 %> service<%= Number(category.total_services || 0) > 1 ? 's' : '' %></span>
+        </a>
+      <% }) %>
+    </div>
+  </div>
+
+  <form method="GET" action="/services" class="surface-card service-filters">
     <input
       type="text"
       name="q"
       value="<%= q %>"
       placeholder="Rechercher (ex: menage, plomberie...)"
-      class="px-4 py-2 rounded-lg bg-white/5 border border-white/10 text-slate-100 placeholder:text-slate-500 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+      class="service-field"
+    >
+
+    <input
+      type="text"
+      name="city"
+      value="<%= city || '' %>"
+      placeholder="Ville (ex: Paris)"
+      class="service-field"
     >
 
     <select
       name="category_id"
-      class="px-4 py-2 rounded-lg bg-white/5 border border-white/10 text-slate-100 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+      class="service-field"
     >
       <option value="">Toutes les categories</option>
       <% if (categories && categories.length) { %>
@@ -40,98 +91,115 @@
       <% } %>
     </select>
 
-    <button class="px-4 py-2 rounded-lg bg-slate-700 hover:bg-slate-600 transition font-medium">
+    <button class="btn-primary" type="submit">
       Filtrer
     </button>
   </form>
 
-  <div class="mt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-    <% if (category_id && categories && categories.length) { %>
-      <% const activeCategory = categories.find((c) => String(c.id) === String(category_id)); %>
-      <% if (activeCategory) { %>
-        <div class="col-span-full flex items-center justify-between gap-3 rounded-2xl border border-blue-500/20 bg-blue-500/10 px-4 py-3 text-sm text-blue-100">
-          <span>
-            Filtre actif : <strong><%= activeCategory.name %></strong>
-          </span>
-          <a href="/services" class="text-blue-200 hover:text-white hover:underline">
-            Reinitialiser le filtre
-          </a>
-        </div>
-      <% } %>
-    <% } %>
+  <%
+    const activeCategory = categories?.find((c) => String(c.id) === String(category_id));
+    const hasActiveCity = Boolean(city && String(city).trim());
+    const hasActiveFilters = Boolean(activeCategory || hasActiveCity);
+  %>
+  <% if (hasActiveFilters) { %>
+    <div class="filter-banner">
+      <span>
+        Filtres actifs :
+        <% if (activeCategory) { %>
+          <strong>Categorie : <%= activeCategory.name %></strong>
+        <% } %>
+        <% if (activeCategory && hasActiveCity) { %>
+          <span> | </span>
+        <% } %>
+        <% if (hasActiveCity) { %>
+          <strong>Ville : <%= city %></strong>
+        <% } %>
+      </span>
+      <a href="/services" class="text-link">Reinitialiser le filtre</a>
+    </div>
+  <% } %>
 
+  <div class="service-grid">
     <% if (!services || services.length === 0) { %>
-      <div class="col-span-full p-10 rounded-2xl bg-white/5 border border-white/10 text-center">
-        <p class="text-slate-300">Aucun service trouve.</p>
-        <% if (currentUser && (currentUser.role === "provider" || currentUser.role === "admin")) { %>
-          <a href="/services/new" class="inline-block mt-4 text-blue-400 hover:underline">
-            Creer le premier service
-          </a>
+      <div class="empty-state">
+        <p>Aucun service trouve.</p>
+        <% if (currentUser && !isAdmin) { %>
+          <a href="/services/new" class="text-link">Creer le premier service</a>
         <% } %>
       </div>
     <% } else { %>
       <% services.forEach((s) => { %>
-        <div class="group p-6 rounded-2xl bg-white/5 border border-white/10 hover:border-white/20 transition shadow-xl shadow-black/20">
-          <div class="flex items-center justify-between gap-3">
-            <span class="inline-flex items-center gap-2 text-xs font-semibold px-3 py-1 rounded-full bg-blue-500/10 text-blue-300 border border-blue-500/20">
-              <span class="h-1.5 w-1.5 rounded-full bg-blue-400"></span>
-              <%= s.category_name || "Service" %>
-            </span>
-
-            <span class="text-xs font-semibold px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-300 border border-emerald-500/20">
-              <%= (s.price ?? 0).toString().replace(".", ",") %> EUR
-            </span>
+        <% const isOwnService = currentUser && String(currentUser.id) === String(s.provider_id); %>
+        <article
+          class="service-card service-card--interactive"
+          data-card-link="/services/<%= s.slug %>"
+          tabindex="0"
+          role="link"
+          aria-label="Voir le service <%= s.title %>"
+        >
+          <div class="service-card__top">
+            <div class="service-card__top-tags">
+              <span class="tag tag--category"><%= s.category_name || "Service" %></span>
+              <% if (s.viewer_state) { %>
+                <span class="tag tag--booking-state tag--booking-state-<%= s.viewer_state.tone %>"><%= s.viewer_state.label %></span>
+              <% } %>
+            </div>
+            <span class="tag tag--price"><%= (s.price ?? 0).toString().replace(".", ",") %> EUR</span>
           </div>
 
-          <h3 class="mt-4 text-lg font-semibold">
-            <a href="/services/<%= s.slug %>" class="hover:text-white hover:underline transition">
+          <h3>
+            <a href="/services/<%= s.slug %>" class="text-link">
               <%= s.title %>
             </a>
           </h3>
 
-          <p class="mt-2 text-sm text-slate-400 line-clamp-3">
+          <p class="service-card__copy line-clamp-3">
             <%= s.description %>
           </p>
 
-          <div class="mt-5 flex items-center justify-between gap-3 text-xs text-slate-500">
-            <span>
-              <% if (s.provider_name) { %>
-                Par <span class="text-slate-300"><%= s.provider_name %></span>
+          <% if (s.viewer_state) { %>
+            <p class="service-card__state">
+              <strong>Votre statut :</strong> <%= s.viewer_state.helper %>
+            </p>
+          <% } %>
+
+          <div class="service-card__actions">
+            <span class="service-card__meta">
+              <% if (isOwnService) { %>
+                Publie par <span>moi</span>
+              <% } else if (s.provider_name) { %>
+                Par <span><%= s.provider_name %></span>
               <% } else { %>
                 Prestataire
               <% } %>
             </span>
 
-            <div class="flex items-center gap-3">
-              <% if (!currentUser || currentUser.role === "client") { %>
-                <a
-                  href="/bookings/new?service=<%= s.slug %>"
-                  class="px-3 py-1.5 rounded-md bg-emerald-600/90 hover:bg-emerald-500 text-white transition"
-                >
-                  Reserver
-                </a>
+            <div class="service-card__action-list">
+              <% if (!isAdmin && !isOwnService) { %>
+                <% if (s.viewer_state) { %>
+                  <a href="<%= s.viewer_state.actionHref %>" class="btn-quiet">
+                    <%= s.viewer_state.actionLabel %>
+                  </a>
+                <% } else { %>
+                  <a href="/bookings/new?service=<%= s.slug %>" class="btn-quiet">
+                    Reserver
+                  </a>
+                <% } %>
+              <% } else if (isOwnService) { %>
+                <span class="service-card__meta">Votre service</span>
               <% } %>
-              <a href="/services/<%= s.slug %>" class="text-blue-400 hover:underline">
+              <a href="/services/<%= s.slug %>" class="text-link">
                 Voir
               </a>
-              <% if (currentUser && (currentUser.role === "admin" || String(currentUser.id) === String(s.provider_id))) { %>
-                <a href="/services/<%= s.slug %>/edit" class="text-slate-300 hover:text-white hover:underline">
+              <% if (currentUser && String(currentUser.id) === String(s.provider_id)) { %>
+                <a href="/services/<%= s.slug %>/edit" class="text-link text-link--muted">
                   Modifier
                 </a>
               <% } %>
             </div>
           </div>
-        </div>
+        </article>
       <% }) %>
     <% } %>
   </div>
 </section>
-
-<style>
-  .line-clamp-3 {
-    display: -webkit-box;
-    -webkit-line-clamp: 3;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-  }
-</style>

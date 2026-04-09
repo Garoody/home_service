@@ -1,5 +1,6 @@
 "use strict";
 
+import { randomBytes } from "crypto";
 import helmet from "helmet";
 import cors from "cors";
 import rateLimit from "express-rate-limit";
@@ -24,11 +25,11 @@ if (!isTestEnv && !process.env.CSRF_SECRET) {
 // HEADERS DE SÉCURITÉ (Helmet)
 // ═══════════════════════════════════════════════════════════════
 
-export const securityHeaders = helmet({
-  contentSecurityPolicy: {
+function buildContentSecurityPolicy(nonce) {
+  return {
     directives: {
       defaultSrc: ["'self'"],
-      scriptSrc: ["'self'", "'unsafe-inline'", "https://cdn.jsdelivr.net"],
+      scriptSrc: ["'self'", `'nonce-${nonce}'`, "https://cdn.jsdelivr.net"],
       styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
       fontSrc: ["'self'", "https://fonts.gstatic.com"],
       imgSrc: ["'self'", "data:", "https:"],
@@ -37,10 +38,22 @@ export const securityHeaders = helmet({
       baseUri: ["'self'"],
       frameAncestors: ["'none'"],
     },
-  },
-  referrerPolicy: { policy: "no-referrer" },
-  hidePoweredBy: true,
-});
+  };
+}
+
+export const securityHeaders = (req, res, next) => {
+  const nonce =
+    res.locals.cspNonce ||
+    randomBytes(16).toString("base64");
+
+  res.locals.cspNonce = nonce;
+
+  return helmet({
+    contentSecurityPolicy: buildContentSecurityPolicy(nonce),
+    referrerPolicy: { policy: "no-referrer" },
+    hidePoweredBy: true,
+  })(req, res, next);
+};
 
 // ═══════════════════════════════════════════════════════════════
 // CORS
@@ -86,8 +99,21 @@ export const cookieParserMiddleware = cookieParser();
 
 let generateCsrfToken;
 let doubleCsrfProtection;
+let validateCsrfRequest;
 
 if (!isTestEnv) {
+  const isMultipartRequest = (req) =>
+    req.headers["content-type"]?.startsWith("multipart/form-data");
+
+  const isMultipartRouteHandledManually = (req) =>
+    req.method === "POST" &&
+    isMultipartRequest(req) &&
+    (
+      req.originalUrl?.startsWith("/users/profile") ||
+      req.originalUrl === "/services" ||
+      /^\/services\/[^/]+\/update$/.test(req.originalUrl || "")
+    );
+
   const csrf = doubleCsrf({
     getSecret: () => process.env.CSRF_SECRET,
     // Read CSRF token from classic HTML form hidden input (`_csrf`) and headers.
@@ -112,13 +138,8 @@ if (!isTestEnv) {
       secure: isProd,
       path: "/", // important (surtout pour __Host-)
     },
-    // Temporary pragmatic bypass: auth forms are currently blocked by CSRF/session
-    // sync issues in this project. Re-enable after session flow is stabilized.
     skipCsrfProtection: (req) =>
-      req.originalUrl?.startsWith("/auth/") ||
-      req.path === "/login" ||
-      req.path === "/register" ||
-      req.path === "/logout",
+      isMultipartRouteHandledManually(req),
 
     onError: (req, res) => {
       logger.warn(
@@ -136,10 +157,12 @@ if (!isTestEnv) {
 
   generateCsrfToken = csrf.generateCsrfToken;
   doubleCsrfProtection = csrf.doubleCsrfProtection;
+  validateCsrfRequest = csrf.validateRequest;
 } else {
   // ✅ En test → bypass complet
   generateCsrfToken = () => "test-token";
   doubleCsrfProtection = (req, res, next) => next();
+  validateCsrfRequest = () => true;
 }
 
 /**
@@ -153,5 +176,5 @@ export function generateToken(req, res) {
   return generateCsrfToken(req, res);
 }
 
-export { doubleCsrfProtection };
+export { doubleCsrfProtection, validateCsrfRequest };
 

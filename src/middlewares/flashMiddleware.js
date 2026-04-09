@@ -1,5 +1,7 @@
 "use strict";
 
+import { sanitizeOldInput } from "../utils/formState.js";
+
 /**
  * HomeServices - Flash Middleware
  * Gère :
@@ -48,7 +50,7 @@ export const flashMiddleware = (req, res, next) => {
    * Pour les renvoyer en cas d'erreur
    */
   req.saveOldInput = (data) => {
-    req.session.oldInput = data;
+    req.session.oldInput = sanitizeOldInput(data);
   };
 
   next();

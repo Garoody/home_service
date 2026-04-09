@@ -18,6 +18,7 @@ CREATE TABLE IF NOT EXISTS services (
 );
 
 -- Trigger updated_at
+DROP TRIGGER IF EXISTS set_timestamp_services ON services;
 CREATE TRIGGER set_timestamp_services
 BEFORE UPDATE ON services
 FOR EACH ROW

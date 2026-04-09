@@ -1,0 +1,171 @@
+<section class="py-10 max-w-7xl mx-auto px-4">
+  <%
+    const getInitials = (name) =>
+      String(name || "")
+        .trim()
+        .split(/\s+/)
+        .slice(0, 2)
+        .map((part) => part.charAt(0).toUpperCase())
+        .join("") || "?";
+    const formatMoney = (value) => Number(value || 0).toString().replace(".", ",");
+    const buildReportLink = (targetType, targetId, title) =>
+      `/admin/reports?target_type=${encodeURIComponent(targetType)}&target_id=${encodeURIComponent(targetId)}&title=${encodeURIComponent(title)}`;
+  %>
+
+  <div class="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+    <div>
+      <p class="text-xs uppercase tracking-[0.3em] text-blue-300">Administration</p>
+      <h1 class="mt-2 text-3xl font-semibold tracking-tight">Detail du service</h1>
+      <p class="mt-2 text-slate-400">Informations du service, photos, reservations, avis et moderation admin.</p>
+    </div>
+    <div class="flex flex-wrap gap-3">
+      <a href="/admin/services" class="rounded-lg border border-white/10 bg-white/5 px-4 py-2 hover:border-white/20 transition">
+        Retour aux services
+      </a>
+      <a href="<%= buildReportLink('service', service.id, `Service ${service.title}`) %>" class="rounded-lg bg-blue-600 px-4 py-2 text-white hover:bg-blue-500 transition">
+        Creer un signalement
+      </a>
+    </div>
+  </div>
+
+  <div class="mt-8 grid gap-6 lg:grid-cols-[minmax(0,1fr)_24rem]">
+    <section class="space-y-6">
+      <article class="rounded-3xl border border-white/10 bg-white/5 p-6 shadow-xl shadow-black/10">
+        <div class="flex flex-wrap items-center gap-3">
+          <h2 class="text-2xl font-semibold text-white"><%= service.title %></h2>
+          <span class="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-medium text-slate-200"><%= service.admin_status %></span>
+          <a href="/services/<%= service.id %>" class="text-sm text-blue-300 hover:text-blue-200 transition">Voir la fiche publique</a>
+        </div>
+
+        <p class="mt-4 whitespace-pre-wrap text-sm leading-6 text-slate-300"><%= service.description %></p>
+
+        <div class="mt-5 grid gap-3 text-sm text-slate-300 md:grid-cols-2 xl:grid-cols-4">
+          <p><span class="text-slate-500">Categorie :</span> <%= service.category_name %></p>
+          <p><span class="text-slate-500">Prix :</span> <%= formatMoney(service.price) %> EUR</p>
+          <p><span class="text-slate-500">Reservations :</span> <%= service.booking_count %></p>
+          <p><span class="text-slate-500">Paiements valides :</span> <%= service.paid_count %></p>
+          <p><span class="text-slate-500">Montant recu :</span> <%= formatMoney(service.paid_amount) %> EUR</p>
+          <p><span class="text-slate-500">Avis :</span> <%= service.review_count %></p>
+          <p><span class="text-slate-500">Note moyenne :</span> <%= Number(service.average_rating || 0).toString().replace(".", ",") %>/5</p>
+          <p><span class="text-slate-500">Cree le :</span> <%= new Date(service.created_at).toLocaleDateString('fr-FR') %></p>
+        </div>
+
+        <% if (service.admin_status_reason) { %>
+          <div class="mt-5 rounded-2xl border border-white/10 bg-slate-900/30 px-4 py-4 text-sm text-slate-300">
+            <p class="text-xs uppercase tracking-[0.18em] text-slate-500">Motif admin</p>
+            <p class="mt-2"><%= service.admin_status_reason %></p>
+          </div>
+        <% } %>
+      </article>
+
+      <% if (service.photos?.length) { %>
+        <article class="rounded-3xl border border-white/10 bg-white/5 p-6 shadow-xl shadow-black/10">
+          <h2 class="text-xl font-semibold text-white">Photos du service</h2>
+          <div class="mt-5 grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+            <% service.photos.forEach((photo) => { %>
+              <div class="overflow-hidden rounded-2xl border border-white/10 bg-slate-900/30">
+                <img src="<%= photo.image_path %>" alt="Photo du service <%= service.title %>" class="h-56 w-full object-cover">
+              </div>
+            <% }) %>
+          </div>
+        </article>
+      <% } %>
+
+      <div class="grid gap-6 xl:grid-cols-2">
+        <article class="rounded-3xl border border-white/10 bg-white/5 p-6 shadow-xl shadow-black/10">
+          <h2 class="text-xl font-semibold text-white">Reservations recentes</h2>
+          <% if (!service.recentBookings?.length) { %>
+            <p class="mt-4 text-sm text-slate-400">Aucune reservation recente.</p>
+          <% } else { %>
+            <div class="mt-4 space-y-3">
+              <% service.recentBookings.forEach((booking) => { %>
+                <a href="/admin/bookings/<%= booking.id %>" class="block rounded-2xl border border-white/10 bg-slate-900/30 px-4 py-4 hover:border-white/20 transition">
+                  <div class="flex items-center justify-between gap-3">
+                    <p class="text-sm font-semibold text-white"><%= booking.client_name %></p>
+                    <span class="text-xs text-slate-500"><%= booking.status %></span>
+                  </div>
+                  <p class="mt-2 text-sm text-slate-400"><%= new Date(booking.booking_date).toLocaleDateString('fr-FR') %> · <%= String(booking.booking_time).slice(0, 5) %></p>
+                  <p class="mt-1 text-sm text-slate-500"><%= booking.payment_status %> · <%= formatMoney(booking.total_price) %> EUR</p>
+                </a>
+              <% }) %>
+            </div>
+          <% } %>
+        </article>
+
+        <article class="rounded-3xl border border-white/10 bg-white/5 p-6 shadow-xl shadow-black/10">
+          <h2 class="text-xl font-semibold text-white">Avis recents</h2>
+          <% if (!service.recentReviews?.length) { %>
+            <p class="mt-4 text-sm text-slate-400">Aucun avis recent.</p>
+          <% } else { %>
+            <div class="mt-4 space-y-3">
+              <% service.recentReviews.forEach((review) => { %>
+                <a href="/admin/reviews/<%= review.id %>" class="block rounded-2xl border border-white/10 bg-slate-900/30 px-4 py-4 hover:border-white/20 transition">
+                  <div class="flex items-center justify-between gap-3">
+                    <p class="text-sm font-semibold text-white"><%= review.client_name %></p>
+                    <span class="text-xs text-slate-500"><%= review.rating %>/5</span>
+                  </div>
+                  <% if (review.comment) { %>
+                    <p class="mt-2 line-clamp-3 text-sm text-slate-400"><%= review.comment %></p>
+                  <% } %>
+                  <p class="mt-2 text-xs text-slate-500">
+                    <%= review.hidden_by_admin ? 'Masque admin' : review.deleted_by_admin_at ? 'Supprime admin' : 'Visible' %>
+                  </p>
+                </a>
+              <% }) %>
+            </div>
+          <% } %>
+        </article>
+      </div>
+    </section>
+
+    <aside class="space-y-6">
+      <article class="rounded-3xl border border-white/10 bg-white/5 p-6 shadow-xl shadow-black/10">
+        <h2 class="text-xl font-semibold text-white">Prestataire</h2>
+        <div class="mt-4 flex items-center gap-4 rounded-2xl border border-white/10 bg-slate-900/30 px-4 py-4">
+          <div class="admin-avatar admin-avatar--lg">
+            <% if (service.provider_profile_photo) { %>
+              <img src="<%= service.provider_profile_photo %>" alt="Photo de profil de <%= service.provider_name %>" class="admin-avatar__image">
+            <% } else { %>
+              <span class="admin-avatar__fallback"><%= getInitials(service.provider_name) %></span>
+            <% } %>
+          </div>
+          <div class="min-w-0">
+            <p class="text-base font-medium text-white"><%= service.provider_name %></p>
+            <p class="mt-1 text-sm text-slate-400"><%= service.provider_email %></p>
+            <p class="mt-1 text-sm text-slate-400"><%= service.provider_phone || 'Telephone non renseigne' %></p>
+          </div>
+        </div>
+        <a href="/admin/users/<%= service.provider_id %>" class="mt-4 inline-flex rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-sm hover:border-white/20 transition">
+          Ouvrir le compte admin
+        </a>
+      </article>
+
+      <article class="rounded-3xl border border-white/10 bg-white/5 p-6 shadow-xl shadow-black/10">
+        <div class="flex items-center justify-between gap-3">
+          <div>
+            <h2 class="text-xl font-semibold text-white">Trace admin</h2>
+            <p class="mt-1 text-sm text-slate-400">Actions recentes sur ce service.</p>
+          </div>
+          <a href="/admin/logs?q=<%= encodeURIComponent(service.title) %>" class="text-sm text-blue-300 hover:text-blue-200 transition">Tout voir</a>
+        </div>
+
+        <% if (!service.adminLogs?.length) { %>
+          <div class="mt-5 rounded-2xl border border-white/10 bg-slate-900/30 px-4 py-5 text-sm text-slate-400">
+            Aucune trace admin pour ce service.
+          </div>
+        <% } else { %>
+          <div class="mt-5 space-y-3">
+            <% service.adminLogs.forEach((log) => { %>
+              <article class="rounded-2xl border border-white/10 bg-slate-900/30 px-4 py-4">
+                <p class="text-sm font-semibold text-white"><%= log.display_title %></p>
+                <p class="mt-1 text-sm text-slate-300"><%= log.display_subject %></p>
+                <p class="mt-2 text-sm text-slate-400"><%= log.display_detail %></p>
+                <p class="mt-2 text-xs text-slate-500"><%= new Date(log.created_at).toLocaleString('fr-FR') %></p>
+              </article>
+            <% }) %>
+          </div>
+        <% } %>
+      </article>
+    </aside>
+  </div>
+</section>

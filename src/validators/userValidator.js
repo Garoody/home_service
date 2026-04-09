@@ -1,104 +1,118 @@
 "use strict";
 
 import { z } from "zod";
+import { PROVIDER_STATUS_VALUES } from "../constants/providerStatuses.js";
 
-// Validation des champs de connexion.
+const EMAIL_FORMAT_REGEX = /^[^@\s]+@[^@\s]+\.[^@\s]+$/u;
+const PHONE_DIGITS_REGEX = /^\d+$/;
+const PHONE_FRENCH_FORMAT_REGEX = /^0\d{9}$/;
 
-/**
- * Sch�ma de validation pour la connexion.
- *
- * R�gles:
- * - email doit �tre valide
- * - password non vide
- */
+const unicodeEmailSchema = z
+  .string()
+  .trim()
+  .min(3, "L'email est obligatoire.")
+  .max(255, "L'email est trop long.")
+  .refine((value) => EMAIL_FORMAT_REGEX.test(value), "Email invalide.");
+
+const phoneSchema = z
+  .string()
+  .trim()
+  .max(50, "Le telephone est trop long.")
+  .superRefine((value, context) => {
+    if (value === "") {
+      return;
+    }
+
+    if (!PHONE_DIGITS_REGEX.test(value)) {
+      context.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Seuls les chiffres sont autorises pour le telephone.",
+      });
+      return;
+    }
+
+    if (!PHONE_FRENCH_FORMAT_REGEX.test(value)) {
+      context.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Le telephone doit contenir exactement 10 chiffres et commencer par 0.",
+      });
+    }
+  });
+
 const loginSchema = z.object({
-  email: z.string().trim().email("Email invalide."),
+  email: unicodeEmailSchema,
   password: z.string().min(1, "Le mot de passe est obligatoire."),
 });
 
-/**
- * Sch�ma de validation pour l'inscription.
- *
- * R�gles:
- * - full_name entre 2 et 150 caract�res
- * - phone optionnel (max 50)
- * - email valide
- * - password minimum 8 caract�res
- * - role limit� � client/provider
- * - gdpr_consent bool�en
- */
-// Validation des champs d'inscription.
 const registerSchema = z.object({
   full_name: z
     .string()
     .trim()
     .min(2, "Le nom complet est obligatoire.")
     .max(150, "Le nom complet est trop long."),
-  phone: z.string().trim().max(50, "Le telephone est trop long.").optional(),
-  email: z.string().trim().email("Email invalide."),
+  phone: phoneSchema.optional(),
+  email: unicodeEmailSchema,
   password: z
     .string()
     .min(8, "Le mot de passe doit contenir au moins 8 caracteres."),
-  role: z.enum(["client", "provider"]).default("client"),
   gdpr_consent: z.boolean(),
 });
 
-// Validation du profil prestataire.
-const providerProfileSchema = z.object({
-  experience_years: z.number().int().min(0, "L'annee d'experience est invalide.").max(60, "L'annee d'experience est invalide."),
-  trainings: z.string().trim().max(500, "Les formations sont trop longues.").optional(),
+// Ces informations servent uniquement quand l'utilisateur souhaite
+// publier des services. Elles restent facultatives pour le compte normal.
+const serviceProfileSchema = z.object({
+  provider_status: z
+    .string()
+    .trim()
+    .nullable()
+    .refine(
+      (value) => value === null || PROVIDER_STATUS_VALUES.includes(value),
+      "Le statut du prestataire est invalide."
+    ),
+  experience_years: z
+    .number()
+    .int()
+    .min(0, "L'annee d'experience est invalide.")
+    .max(60, "L'annee d'experience est invalide.")
+    .nullable(),
+  trainings: z.string().trim().max(500, "Les formations sont trop longues."),
   has_driving_license: z.boolean(),
-  service_area: z.string().trim().min(2, "La zone d'intervention est obligatoire.").max(255, "La zone d'intervention est trop longue."),
+  service_area: z.string().trim().max(255, "La zone d'intervention est trop longue."),
 });
 
-// Validation du profil client.
-const clientProfileSchema = z.object({
+const userProfileSchema = z.object({
   full_name: z
     .string()
     .trim()
     .min(2, "Le nom complet est obligatoire.")
     .max(150, "Le nom complet est trop long."),
-  phone: z.string().trim().max(50, "Le telephone est trop long.").optional(),
+  phone: phoneSchema.optional(),
   address: z.string().trim().max(255, "L'adresse est trop longue.").optional(),
 });
 
-/**
- * Valide les donn�es de login.
- *
- * Contrat de retour (uniforme):
- * - success: boolean
- * - data: payload valid� (si success=true)
- * - message: message concat�n� lisible UI (si success=false)
- */
-// Valide le payload de connexion et retourne un format uniforme.
-export function validateLoginPayload(payload = {}) {
-  const result = loginSchema.safeParse(payload);
-
+function toResult(result) {
   if (result.success) {
-    return { success: true, data: result.data, message: null };
+    return { success: true, data: result.data, issues: [], message: null };
   }
 
   return {
     success: false,
     data: null,
+    issues: result.error.issues,
     message: result.error.issues.map((issue) => issue.message).join(" | "),
   };
 }
 
-/**
- * Normalise puis valide les donn�es d'inscription.
- *
- * Normalisation n�cessaire:
- * - gdpr_consent arrive souvent depuis HTML sous forme "on"/"true".
- */
-// Normalise (notamment RGPD) puis valide le payload d'inscription.
+export function validateLoginPayload(payload = {}) {
+  return toResult(loginSchema.safeParse(payload));
+}
+
 export function validateRegisterPayload(payload = {}) {
   const normalized = {
     full_name: payload.full_name,
     phone: payload.phone,
     email: payload.email,
     password: payload.password,
-    role: payload.role,
     gdpr_consent:
       payload.gdpr_consent === true ||
       payload.gdpr_consent === "true" ||
@@ -108,65 +122,76 @@ export function validateRegisterPayload(payload = {}) {
   const result = registerSchema.safeParse(normalized);
 
   if (!result.success) {
-    return {
-      success: false,
-      data: null,
-      message: result.error.issues.map((issue) => issue.message).join(" | "),
-    };
+    return toResult(result);
   }
 
-  // Regle metier complementaire explicite: consentement RGPD obligatoire.
   if (!result.data.gdpr_consent) {
     return {
       success: false,
       data: null,
+      issues: [{ message: "Le consentement RGPD est obligatoire." }],
       message: "Le consentement RGPD est obligatoire.",
     };
   }
 
-  return { success: true, data: result.data, message: null };
+  return { success: true, data: result.data, issues: [], message: null };
 }
 
-export function validateProviderProfilePayload(payload = {}) {
+export function validateServiceProfilePayload(payload = {}) {
   const normalized = {
-    experience_years: Number(payload.experience_years),
-    trainings: payload.trainings || "",
+    provider_status: payload.provider_status ? String(payload.provider_status).trim() : null,
+    experience_years:
+      payload.experience_years === "" ||
+      payload.experience_years === undefined ||
+      payload.experience_years === null
+        ? null
+        : Number(payload.experience_years),
+    trainings: String(payload.trainings || ""),
     has_driving_license:
       payload.has_driving_license === true ||
       payload.has_driving_license === "true" ||
       payload.has_driving_license === "on",
-    service_area: payload.service_area,
+    service_area: String(payload.service_area || "").trim(),
   };
 
-  const result = providerProfileSchema.safeParse(normalized);
+  const result = serviceProfileSchema.safeParse(normalized);
 
   if (!result.success) {
+    return toResult(result);
+  }
+
+  if (
+    result.data.service_area &&
+    result.data.service_area.length > 0 &&
+    result.data.service_area.length < 2
+  ) {
     return {
       success: false,
       data: null,
-      message: result.error.issues.map((issue) => issue.message).join(" | "),
+      issues: [{ message: "La zone d'intervention est trop courte." }],
+      message: "La zone d'intervention est trop courte.",
     };
   }
 
-  return { success: true, data: result.data, message: null };
+  return {
+    success: true,
+    data: {
+      ...result.data,
+      provider_status: result.data.provider_status || null,
+      trainings: result.data.trainings || null,
+      service_area: result.data.service_area || null,
+    },
+    issues: [],
+    message: null,
+  };
 }
 
-export function validateClientProfilePayload(payload = {}) {
+export function validateUserProfilePayload(payload = {}) {
   const normalized = {
     full_name: payload.full_name,
     phone: payload.phone || "",
     address: payload.address || "",
   };
 
-  const result = clientProfileSchema.safeParse(normalized);
-
-  if (!result.success) {
-    return {
-      success: false,
-      data: null,
-      message: result.error.issues.map((issue) => issue.message).join(" | "),
-    };
-  }
-
-  return { success: true, data: result.data, message: null };
+  return toResult(userProfileSchema.safeParse(normalized));
 }

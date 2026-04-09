@@ -1,5 +1,5 @@
 -- 06_seed_reviews.sql
--- Avis de demonstration sur une reservation terminee.
+-- Avis de demonstration sur une reservation terminée.
 
 SET CLIENT_ENCODING TO 'UTF8';
 

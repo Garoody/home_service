@@ -1,0 +1,365 @@
+<%
+  const currentUserId = String(currentUser?.id || currentUser?.id_user || currentUser?.userId || "");
+  const isBlocked = Boolean(conversation.is_blocked);
+  const isProviderViewer = String(conversation.provider_id || "") === currentUserId;
+  const isClientViewer = String(conversation.client_id || "") === currentUserId;
+  const canProviderDecide = isProviderViewer && conversation.booking_status === "pending";
+  const canClientPay = isClientViewer && conversation.booking_status === "confirmed" && conversation.payment_status !== "paid";
+  const bookingStatusLabels = {
+    pending: "En attente",
+    confirmed: "Confirmee",
+    completed: "Terminee",
+    cancelled: "Annulee",
+  };
+  const bookingStatusBoxClasses = {
+    pending: "border-blue-500/20 bg-blue-500/10 text-slate-200",
+    confirmed: "border-emerald-500/20 bg-emerald-500/10 text-slate-200",
+    completed: "border-emerald-500/20 bg-emerald-500/10 text-slate-200",
+    cancelled: "border-rose-400/20 bg-rose-500/10 text-slate-200",
+  };
+  const bookingStatusNote = (() => {
+    if (conversation.booking_status === "pending") {
+      if (isProviderViewer) {
+        return "La demande est encore en attente. Vous pouvez continuer l'echange puis confirmer ou refuser ce creneau.";
+      }
+
+      if (isClientViewer) {
+        return "Votre demande a bien ete envoyee. Vous pouvez deja echanger avec le prestataire pendant qu'il etudie votre reservation.";
+      }
+
+      return "La demande est encore en attente. Les echanges peuvent continuer avant la decision finale.";
+    }
+
+    if (conversation.booking_status === "confirmed") {
+      if (conversation.payment_status === "paid") {
+        if (isProviderViewer) {
+          return "Le paiement est valide. Vous etes maintenant engage sur ce creneau et la discussion reste disponible.";
+        }
+
+        if (isClientViewer) {
+          return "Votre paiement est valide. Le creneau est maintenant bloque et votre discussion reste disponible.";
+        }
+
+        return "Le paiement est valide et la reservation est maintenant engagee.";
+      }
+
+      if (isProviderViewer) {
+        return "La reservation est confirmee. Le client peut maintenant proceder au paiement du service.";
+      }
+
+      if (isClientViewer) {
+        return "Votre reservation est confirmee. Vous pouvez maintenant passer au paiement.";
+      }
+
+      return "La reservation est confirmee. Le paiement peut maintenant etre effectue.";
+    }
+
+    if (conversation.booking_status === "completed") {
+      if (isClientViewer) {
+        return "La prestation est terminee. Vous pouvez retrouver ici les echanges avec le prestataire.";
+      }
+
+      return "La prestation est terminee. La conversation reste disponible si vous avez besoin de retrouver les echanges.";
+    }
+
+    if (conversation.booking_status === "cancelled") {
+      if (isClientViewer) {
+        return "Cette reservation a ete refusee ou annulee. Vous pouvez reprendre contact ou choisir une autre prestation si besoin.";
+      }
+
+      return "Cette reservation a ete refusee ou annulee. Ce creneau n'engage plus le prestataire.";
+    }
+
+    return "Suivez ici l'avancement de cette reservation.";
+  })();
+%>
+
+<section class="py-10">
+  <div class="mx-auto grid max-w-6xl gap-6 px-4 lg:grid-cols-[minmax(0,1fr)_20rem]">
+    <div class="rounded-3xl border border-white/10 bg-white/5 shadow-xl shadow-black/10">
+      <div class="border-b border-white/10 px-6 py-6">
+        <div class="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
+          <div>
+            <a href="/conversations" class="text-sm text-blue-300 transition hover:text-blue-200">
+              Retour aux conversations
+            </a>
+            <h1 class="mt-3 text-2xl font-semibold text-white">
+              Discussion avec <%= conversation.counterpart_name %>
+            </h1>
+            <p class="mt-2 text-sm text-slate-400">
+              Service : <span class="text-slate-200"><%= conversation.service_title %></span>
+            </p>
+          </div>
+
+          <div class="flex flex-wrap gap-2">
+            <span class="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs text-slate-300">
+              Reservation <%= bookingStatusLabels[conversation.booking_status] || conversation.booking_status %>
+            </span>
+            <% if (conversation.blocked_by_me) { %>
+              <span class="rounded-full border border-rose-400/20 bg-rose-500/10 px-3 py-1 text-xs text-rose-200">
+                Vous avez bloque cette conversation
+              </span>
+            <% } else if (conversation.blocked_by_other) { %>
+              <span class="rounded-full border border-rose-400/20 bg-rose-500/10 px-3 py-1 text-xs text-rose-200">
+                Conversation bloquee par l'autre personne
+              </span>
+            <% } %>
+          </div>
+        </div>
+      </div>
+
+      <div class="conversation-thread-shell">
+        <div
+          class="conversation-thread space-y-4 px-6 py-6"
+          data-conversation-messages
+          data-conversation-refresh-url="/conversations/<%= conversation.id %>"
+        >
+          <% if (!conversation.messages.length) { %>
+            <div class="rounded-2xl border border-dashed border-white/10 bg-slate-900/30 px-4 py-5 text-sm text-slate-400" data-conversation-empty-state>
+              La conversation est ouverte. Vous pouvez maintenant discuter du rendez-vous, de l'adresse, du materiel ou des horaires.
+            </div>
+          <% } else { %>
+            <% conversation.messages.forEach((message) => { %>
+              <% const isMine = String(message.sender_id) === currentUserId; %>
+              <div
+                class="flex <%= isMine ? 'justify-end' : 'justify-start' %>"
+                data-conversation-message-id="<%= message.id %>"
+              >
+                <div class="<%= isMine ? 'bg-blue-600/90 text-white' : 'bg-slate-900/60 text-slate-100 border border-white/10' %> max-w-xl rounded-2xl px-4 py-3 shadow-lg">
+                  <div class="flex items-center justify-between gap-3">
+                    <p class="text-xs font-medium <%= isMine ? 'text-blue-100' : 'text-slate-400' %>">
+                      <%= isMine ? 'Vous' : message.sender_name %>
+                    </p>
+                    <p class="text-[11px] <%= isMine ? 'text-blue-100/80' : 'text-slate-500' %>">
+                      <%= new Date(message.created_at).toLocaleString("fr-FR") %>
+                    </p>
+                  </div>
+                  <p class="mt-2 whitespace-pre-wrap text-sm leading-6"><%= message.content %></p>
+                </div>
+              </div>
+            <% }) %>
+          <% } %>
+        </div>
+
+        <button
+          type="button"
+          class="conversation-thread-indicator hidden"
+          data-conversation-new-indicator
+        >
+          Nouveau message
+        </button>
+      </div>
+
+      <div class="border-t border-white/10 px-6 py-6">
+        <% if (isBlocked) { %>
+          <div class="rounded-2xl border border-rose-400/20 bg-rose-500/10 px-4 py-4 text-sm text-rose-100">
+            Cette conversation est bloquee. Aucun nouveau message ne peut etre envoye.
+          </div>
+        <% } else { %>
+          <form
+            action="/conversations/<%= conversation.id %>/messages"
+            method="POST"
+            class="space-y-4"
+            data-conversation-message-form
+            data-current-user-id="<%= currentUserId %>"
+          >
+            <% if (csrfToken) { %>
+              <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+            <% } %>
+
+            <div>
+              <label for="message" class="mb-2 block text-sm text-slate-300">Votre message</label>
+              <textarea
+                id="message"
+                name="message"
+                rows="4"
+                required
+                data-conversation-message-input
+                placeholder="Ecrivez ici pour organiser le rendez-vous ou poser une question..."
+                class="w-full rounded-2xl border border-white/10 bg-slate-950/50 px-4 py-3 text-slate-100 outline-none transition focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+              ></textarea>
+              <p
+                class="mt-2 hidden text-sm text-rose-300"
+                data-conversation-form-feedback
+                aria-live="polite"
+              ></p>
+            </div>
+
+            <div class="flex flex-wrap items-center justify-between gap-3">
+              <p class="text-xs text-slate-500">
+                Restez sur les informations utiles a la prestation.
+              </p>
+              <button
+                type="submit"
+                data-conversation-message-submit
+                class="inline-flex min-h-11 items-center justify-center rounded-xl bg-blue-600 px-5 py-2.5 text-sm font-medium text-white transition hover:bg-blue-500"
+              >
+                Envoyer le message
+              </button>
+            </div>
+          </form>
+        <% } %>
+      </div>
+    </div>
+
+    <aside class="space-y-4">
+      <div class="rounded-3xl border border-white/10 bg-white/5 px-5 py-5 shadow-xl shadow-black/10">
+        <p class="text-xs uppercase tracking-[0.25em] text-blue-300">Reservation</p>
+        <h2 class="mt-3 text-lg font-semibold text-white"><%= conversation.service_title %></h2>
+        <p class="mt-3 text-sm text-slate-300">
+          Date :
+          <span class="text-slate-100">
+            <%= conversation.booking_date ? new Date(conversation.booking_date).toLocaleDateString("fr-FR") : "A definir" %>
+          </span>
+        </p>
+        <p class="mt-2 text-sm text-slate-300">
+          Heure :
+          <span class="text-slate-100"><%= conversation.booking_time ? String(conversation.booking_time).slice(0, 5) : "A definir" %></span>
+        </p>
+        <p class="mt-2 text-sm text-slate-300">
+          Montant :
+          <span class="text-emerald-300"><%= (conversation.total_price ?? 0).toString().replace(".", ",") %> EUR</span>
+        </p>
+        <a
+          href="/services/<%= conversation.service_slug %>"
+          class="mt-4 inline-flex text-sm text-blue-300 transition hover:text-blue-200"
+        >
+          Voir le service
+        </a>
+
+        <div class="mt-4 rounded-2xl border px-4 py-4 <%= bookingStatusBoxClasses[conversation.booking_status] || 'border-white/10 bg-white/5 text-slate-200' %>">
+          <p class="text-xs font-semibold uppercase tracking-[0.18em] text-blue-300">Statut actuel</p>
+          <p class="mt-2 text-sm font-medium text-slate-100">
+            <%= bookingStatusLabels[conversation.booking_status] || conversation.booking_status %>
+          </p>
+          <p class="mt-2 text-sm leading-6 text-slate-400">
+            <%= bookingStatusNote %>
+          </p>
+        </div>
+      </div>
+
+      <% if (canClientPay) { %>
+        <div class="rounded-3xl border border-white/10 bg-white/5 px-5 py-5 shadow-xl shadow-black/10">
+          <p class="text-xs uppercase tracking-[0.25em] text-blue-300">Paiement</p>
+          <h2 class="mt-3 text-lg font-semibold text-white">Reservation confirmee</h2>
+          <p class="mt-2 text-sm text-slate-400">
+            Votre reservation est confirmee. Vous pouvez maintenant passer au paiement.
+          </p>
+          <a
+            href="/payments/<%= conversation.booking_id %>"
+            class="mt-4 inline-flex w-full items-center justify-center rounded-xl bg-blue-600 px-4 py-2.5 text-sm font-medium text-white transition hover:bg-blue-500"
+          >
+            Passer au paiement
+          </a>
+        </div>
+      <% } %>
+
+      <% if (canProviderDecide) { %>
+        <div class="rounded-3xl border border-white/10 bg-white/5 px-5 py-5 shadow-xl shadow-black/10">
+          <p class="text-xs uppercase tracking-[0.25em] text-blue-300">Decision</p>
+          <h2 class="mt-3 text-lg font-semibold text-white">Reponse au client</h2>
+          <p class="mt-2 text-sm text-slate-400">
+            Apres vos echanges, vous pouvez maintenant confirmer ou refuser ce creneau.
+          </p>
+
+          <div class="mt-4 grid gap-3 sm:grid-cols-2">
+            <form action="/bookings/<%= conversation.booking_id %>/confirm" method="POST">
+              <% if (csrfToken) { %>
+                <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+              <% } %>
+              <input type="hidden" name="returnTo" value="/conversations/<%= conversation.id %>">
+              <button
+                type="submit"
+                class="w-full rounded-xl bg-blue-600 px-4 py-2.5 text-sm font-medium text-white transition hover:bg-blue-500"
+              >
+                Confirmer
+              </button>
+            </form>
+
+            <form
+              action="/bookings/<%= conversation.booking_id %>/refuse"
+              method="POST"
+              data-confirm="Voulez-vous vraiment refuser cette reservation ?"
+            >
+              <% if (csrfToken) { %>
+                <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+              <% } %>
+              <input type="hidden" name="returnTo" value="/conversations/<%= conversation.id %>">
+              <button
+                type="submit"
+                class="w-full rounded-xl bg-red-600 px-4 py-2.5 text-sm font-medium text-white transition hover:bg-red-500"
+              >
+                Refuser
+              </button>
+            </form>
+          </div>
+        </div>
+      <% } %>
+
+      <div class="rounded-3xl border border-white/10 bg-white/5 px-5 py-5 shadow-xl shadow-black/10">
+        <p class="text-xs uppercase tracking-[0.25em] text-blue-300">Gestion</p>
+        <div class="mt-4 space-y-3">
+          <% if (conversation.archived_at) { %>
+            <form action="/conversations/<%= conversation.id %>/unarchive" method="POST">
+              <% if (csrfToken) { %>
+                <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+              <% } %>
+              <button
+                type="submit"
+                class="w-full rounded-xl bg-blue-600 px-4 py-2.5 text-left text-sm font-medium text-white transition hover:bg-blue-500"
+              >
+                Reprendre la conversation
+              </button>
+            </form>
+          <% } else { %>
+            <form action="/conversations/<%= conversation.id %>/archive" method="POST">
+              <% if (csrfToken) { %>
+                <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+              <% } %>
+              <button
+                type="submit"
+                class="w-full rounded-xl bg-blue-600 px-4 py-2.5 text-left text-sm font-medium text-white transition hover:bg-blue-500"
+              >
+                Archiver la conversation
+              </button>
+            </form>
+          <% } %>
+
+          <% if (!conversation.blocked_by_me) { %>
+            <form
+              action="/conversations/<%= conversation.id %>/block"
+              method="POST"
+              data-confirm="Voulez-vous vraiment bloquer cette conversation ? Aucun nouveau message ne pourra etre envoye."
+            >
+              <% if (csrfToken) { %>
+                <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+              <% } %>
+              <button
+                type="submit"
+                class="w-full rounded-xl bg-blue-600 px-4 py-2.5 text-left text-sm font-medium text-white transition hover:bg-blue-500"
+              >
+                Bloquer la conversation
+              </button>
+            </form>
+          <% } %>
+
+          <form
+            action="/conversations/<%= conversation.id %>/delete"
+            method="POST"
+            data-confirm="Voulez-vous vraiment supprimer cette conversation de votre espace ?"
+          >
+            <% if (csrfToken) { %>
+              <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+            <% } %>
+            <button
+              type="submit"
+              class="w-full rounded-xl bg-red-600 px-4 py-2.5 text-left text-sm font-medium text-white transition hover:bg-red-500"
+            >
+              Supprimer la conversation
+            </button>
+          </form>
+        </div>
+      </div>
+    </aside>
+  </div>
+</section>

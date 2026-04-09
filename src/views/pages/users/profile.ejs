@@ -1,460 +1,406 @@
-<!--
-  Dashboard utilisateur principal.
-  Cette vue affiche deux experiences differentes selon le role :
-  - client : reservations, paiements, avis
-  - provider : services, demandes recues, note moyenne
--->
-<section class="py-10">
-  <div class="max-w-6xl mx-auto px-4">
-    <div class="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
-      <div>
-        <p class="text-xs uppercase tracking-[0.25em] text-blue-300">
-          <%= dashboard.role === "provider" ? "Espace prestataire" : "Espace client" %>
-        </p>
-        <h1 class="mt-2 text-3xl font-semibold tracking-tight">
-          Bonjour <%= user?.fullName || "Utilisateur" %>
-        </h1>
-        <p class="mt-2 text-slate-400 max-w-2xl">
-          <%= dashboard.role === "provider"
-            ? "Pilotez vos services, suivez votre activite et gardez une vue claire sur vos demandes."
-            : "Retrouvez vos reservations, paiements et avis dans un espace clair, simple et professionnel." %>
+<%
+  const initials = (user?.fullName || "Utilisateur")
+    .split(/\s+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((part) => part[0]?.toUpperCase())
+    .join("") || "UT";
+  const bookingStatusLabels = {
+    pending: "En attente",
+    confirmed: "Confirmee",
+    completed: "Terminee",
+    cancelled: "Annulee",
+  };
+  const providerNotifications = (dashboard?.latestRequests || [])
+    .filter((booking) => booking.status === "pending" || booking.status === "confirmed")
+    .slice(0, 4);
+%>
+
+<section class="profile-dashboard">
+  <div class="profile-dashboard__inner">
+    <div class="profile-dashboard__header">
+      <div class="profile-dashboard__intro">
+        <h1>Bonjour <%= user?.fullName || "Utilisateur" %></h1>
+        <p class="profile-dashboard__lead">
+          Depuis ce compte, vous pouvez reserver des services, publier vos propres annonces
+          et suivre toute votre activite au meme endroit.
         </p>
       </div>
 
-      <div class="rounded-2xl border border-white/10 bg-white/5 px-5 py-4">
-        <p class="text-xs uppercase tracking-[0.2em] text-slate-500">Compte</p>
-        <p class="mt-2 text-lg font-medium text-white"><%= user?.email || "" %></p>
-        <p class="mt-1 text-sm text-slate-400">
-          Role : <span class="text-slate-200 capitalize"><%= user?.role || dashboard.role %></span>
-        </p>
+      <div
+        class="profile-account-card service-card--interactive"
+        tabindex="0"
+        data-card-focus="user-profile"
+      >
+        <p class="profile-card__eyebrow">Compte</p>
+        <p class="profile-account-card__email"><%= user?.email || "" %></p>
       </div>
     </div>
 
-    <% if (dashboard.role === "provider") { %>
-      <!-- Vue orientee activite prestataire -->
-      <div class="mt-8 grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-6 gap-5">
-        <a href="/services" class="block rounded-2xl border border-cyan-400/15 bg-cyan-500/10 p-5 transition hover:-translate-y-0.5 hover:border-cyan-300/30">
-          <p class="text-sm text-cyan-100/70">Services publies</p>
-          <p class="mt-3 text-3xl font-semibold text-white"><%= dashboard.stats.services %></p>
-        </a>
-        <a href="/users/profile/provider-bookings" class="block rounded-2xl border border-blue-400/15 bg-blue-500/10 p-5 transition hover:-translate-y-0.5 hover:border-blue-300/30">
-          <p class="text-sm text-blue-100/70">Demandes recues</p>
-          <p class="mt-3 text-3xl font-semibold text-white"><%= dashboard.stats.bookings %></p>
-        </a>
-        <a href="/users/profile/provider-bookings?status=pending" class="block rounded-2xl border border-amber-400/15 bg-amber-500/10 p-5 transition hover:-translate-y-0.5 hover:border-amber-300/30">
-          <p class="text-sm text-amber-100/70">Interventions en cours</p>
-          <p class="mt-3 text-3xl font-semibold text-white"><%= dashboard.stats.activeBookings %></p>
-        </a>
-        <a href="/users/profile/provider-bookings?status=completed" class="block rounded-2xl border border-emerald-400/15 bg-emerald-500/10 p-5 transition hover:-translate-y-0.5 hover:border-emerald-300/30">
-          <p class="text-sm text-emerald-100/70">Prestations terminees</p>
-          <p class="mt-3 text-3xl font-semibold text-white"><%= dashboard.stats.completedBookings %></p>
-        </a>
-        <a href="/users/profile/provider-reviews" class="block rounded-2xl border border-fuchsia-400/15 bg-fuchsia-500/10 p-5 transition hover:-translate-y-0.5 hover:border-fuchsia-300/30">
-          <p class="text-sm text-fuchsia-100/70">Note moyenne</p>
-          <p class="mt-3 text-3xl font-semibold text-white"><%= dashboard.stats.averageRating %>/5</p>
-        </a>
-        <a href="/users/profile/provider-payments" class="block rounded-2xl border border-emerald-400/15 bg-emerald-500/10 p-5 transition hover:-translate-y-0.5 hover:border-emerald-300/30">
-          <p class="text-sm text-emerald-100/70">Paiements recus</p>
-          <p class="mt-3 text-3xl font-semibold text-white"><%= dashboard.stats.paidPayments %></p>
-        </a>
-      </div>
+    <div class="profile-stat-grid">
+      <a href="/bookings" class="profile-stat-card profile-stat-card--blue">
+        <p class="profile-stat-card__label">Reservations</p>
+        <p class="profile-stat-card__value"><%= dashboard.stats.bookings %></p>
+      </a>
+      <a href="/payments" class="profile-stat-card profile-stat-card--cyan">
+        <p class="profile-stat-card__label">Paiements effectues</p>
+        <p class="profile-stat-card__value"><%= dashboard.stats.payments %></p>
+      </a>
+      <a href="/services" class="profile-stat-card profile-stat-card--green">
+        <p class="profile-stat-card__label">Services publies</p>
+        <p class="profile-stat-card__value"><%= dashboard.stats.services %></p>
+      </a>
+      <a href="/users/profile/service-bookings" class="profile-stat-card profile-stat-card--pink">
+        <p class="profile-stat-card__label">Reservations recues</p>
+        <p class="profile-stat-card__value"><%= dashboard.stats.requests %></p>
+      </a>
+      <a href="/bookings" class="profile-stat-card profile-stat-card--orange">
+        <p class="profile-stat-card__label">Reservations en attente</p>
+        <p class="profile-stat-card__value"><%= dashboard.stats.pending %></p>
+      </a>
+      <a href="/users/profile/reviews-given" class="profile-stat-card profile-stat-card--sky">
+        <p class="profile-stat-card__label">Avis laisses</p>
+        <p class="profile-stat-card__value"><%= dashboard.stats.reviewsLeft %></p>
+      </a>
+      <a href="/users/profile/reviews-received" class="profile-stat-card profile-stat-card--violet">
+        <p class="profile-stat-card__label">Avis recus</p>
+        <p class="profile-stat-card__value"><%= dashboard.stats.reviewsReceived %></p>
+      </a>
+      <a href="/users/profile/service-payments" class="profile-stat-card profile-stat-card--emerald">
+        <p class="profile-stat-card__label">Total encaisse</p>
+        <p class="profile-stat-card__value profile-stat-card__value--money"><%= dashboard.stats.revenue.toString().replace(".", ",") %> EUR</p>
+        <p class="profile-stat-card__helper">Paiements recus sur vos services</p>
+      </a>
+    </div>
 
-      <div class="mt-8 grid grid-cols-1 xl:grid-cols-[1.1fr_0.9fr] gap-6">
-        <div id="provider-services" class="rounded-3xl border border-white/10 bg-white/5 p-6">
-          <div class="flex items-center justify-between gap-3">
-            <div>
-              <h2 class="text-xl font-semibold">Mes services</h2>
-              <p class="mt-1 text-sm text-slate-400">Retrouvez vos prestations publiees et leur categorie.</p>
-            </div>
-            <a href="/services/new" class="text-sm text-blue-300 hover:text-blue-200 transition">Publier</a>
+    <div class="profile-dashboard__columns">
+      <section class="profile-panel">
+        <div class="profile-panel__head">
+          <div>
+            <h2>Reservations recentes</h2>
+            <p class="profile-panel__copy">Suivez vos prestations et leur statut.</p>
           </div>
+          <a href="/bookings" class="text-link">Tout voir</a>
+        </div>
 
-          <div class="mt-6 space-y-4">
-            <% if (!dashboard.latestServices.length) { %>
-              <div class="rounded-2xl border border-white/10 bg-slate-900/30 px-4 py-5 text-sm text-slate-400">
-                Aucun service publie pour le moment.
-              </div>
+        <div class="profile-list">
+          <% if (!dashboard.recentBookings.length) { %>
+            <div class="profile-empty-card">
+              Aucune reservation pour le moment.
+            </div>
+          <% } else { %>
+            <% dashboard.recentBookings.forEach((booking) => { %>
+              <a href="/bookings" class="profile-list-card">
+                <div>
+                  <h3><%= booking.service_title || "Service" %></h3>
+                  <p class="profile-list-card__meta">
+                    Statut : <span><%= bookingStatusLabels[booking.status] || booking.status %></span>
+                  </p>
+                </div>
+                <span class="tag tag--price"><%= (booking.total_price ?? 0).toString().replace(".", ",") %> EUR</span>
+              </a>
+            <% }) %>
+          <% } %>
+        </div>
+      </section>
+
+      <section class="profile-panel">
+        <div class="profile-panel__head">
+          <div>
+            <h2>Services publies</h2>
+            <p class="profile-panel__copy">Les annonces que vous avez deja mises en ligne.</p>
+          </div>
+          <a href="/services/new" class="text-link">Publier</a>
+        </div>
+
+        <div class="profile-list">
+          <% if (!dashboard.latestServices.length) { %>
+            <div class="profile-empty-card">
+              Aucun service publie pour le moment.
+            </div>
+          <% } else { %>
+            <% dashboard.latestServices.forEach((service) => { %>
+              <a href="/services/<%= service.slug %>" class="profile-list-card">
+                <div>
+                  <h3><%= service.title %></h3>
+                  <p class="profile-list-card__meta">
+                    Categorie : <span><%= service.category_name %></span>
+                  </p>
+                </div>
+                <span class="tag tag--price"><%= (service.price ?? 0).toString().replace(".", ",") %> EUR</span>
+              </a>
+            <% }) %>
+          <% } %>
+        </div>
+      </section>
+    </div>
+
+    <div class="profile-dashboard__columns profile-dashboard__columns--profile">
+      <section class="profile-panel profile-panel--accent">
+        <div class="profile-panel__head">
+          <div>
+            <h2>Actions rapides</h2>
+            <p class="profile-panel__copy">Accede rapidement aux actions les plus utiles de ton compte.</p>
+          </div>
+        </div>
+
+        <div class="profile-quick-links">
+          <a href="/services" class="profile-quick-link profile-quick-link--primary">
+            Explorer les services
+          </a>
+          <a href="/services/new" class="profile-quick-link">
+            Proposer un service
+          </a>
+          <a href="/users/profile/service-bookings" class="profile-quick-link">
+            Voir mes reservations recues
+          </a>
+          <a href="/users/profile/conversations" class="profile-quick-link">
+            Mes conversations
+          </a>
+          <a href="/payments/cards" class="profile-quick-link">
+            Mes cartes enregistrees
+          </a>
+          <a href="/users/profile/service-payments" class="profile-quick-link">
+            Voir mes paiements recus
+          </a>
+        </div>
+
+        <div
+          class="profile-activity-card service-card--interactive"
+          tabindex="0"
+          data-card-link="/users/profile/service-bookings"
+        >
+          <p class="profile-card__eyebrow">Notifications et messages recus</p>
+          <div class="profile-activity-list">
+            <% if (!providerNotifications.length) { %>
+              <p class="profile-activity-empty">Aucune nouvelle demande ou message pour le moment.</p>
             <% } else { %>
-              <% dashboard.latestServices.forEach((service) => { %>
-                <a href="/services/<%= service.slug %>" class="block rounded-2xl border border-white/10 bg-slate-900/30 px-4 py-4 transition hover:border-white/20">
-                  <div class="flex flex-wrap items-start justify-between gap-3">
-                    <div>
-                      <h3 class="font-medium text-white"><%= service.title %></h3>
-                      <p class="mt-1 text-sm text-slate-400">
-                        Categorie : <span class="text-slate-200"><%= service.category_name %></span>
-                      </p>
-                    </div>
-                    <div class="text-right">
-                      <p class="text-emerald-300 font-medium"><%= (service.price ?? 0).toString().replace(".", ",") %> EUR</p>
-                    </div>
-                  </div>
+              <% providerNotifications.forEach((booking) => { %>
+                <% const bookingDateValue = booking.booking_date instanceof Date ? booking.booking_date.toISOString().slice(0, 10) : String(booking.booking_date || "").slice(0, 10); %>
+                <% const bookingTimeValue = String(booking.booking_time || "").slice(0, 5); %>
+                <a href="<%= booking.conversation_id ? `/conversations/${booking.conversation_id}` : '/users/profile/service-bookings' %>" class="profile-activity-item">
+                  <span class="profile-activity-item__content">
+                    <span class="profile-activity-item__title"><%= booking.client_name %> souhaite reserver <%= booking.service_title %></span>
+                    <span class="profile-activity-item__meta"><%= bookingDateValue || "N/A" %> a <%= bookingTimeValue || "N/A" %></span>
+                  </span>
+                  <span class="profile-status-pill"><%= booking.status === "confirmed" ? "Paiement du client attendu" : "A confirmer" %></span>
                 </a>
               <% }) %>
             <% } %>
           </div>
         </div>
 
-        <div id="provider-bookings" class="rounded-3xl border border-white/10 bg-white/5 p-6">
-          <div class="flex items-center justify-between gap-3">
-            <div>
-              <h2 class="text-xl font-semibold">Dernieres demandes</h2>
-              <p class="mt-1 text-sm text-slate-400">Les demandes recues sur vos services.</p>
-            </div>
-            <a href="/users/profile/provider-bookings" class="text-sm text-blue-300 hover:text-blue-200 transition">Voir les demandes</a>
-          </div>
+        <div
+          class="profile-rating-card service-card--interactive"
+          tabindex="0"
+          data-card-link="/users/profile/reviews-received"
+        >
+          <p class="profile-card__eyebrow">Note moyenne sur vos services</p>
+          <p class="profile-rating-card__value"><%= dashboard.stats.averageRating %>/5</p>
+        </div>
+      </section>
 
-          <div class="mt-6 space-y-4">
-            <% if (!dashboard.latestBookings.length) { %>
-              <div class="rounded-2xl border border-white/10 bg-slate-900/30 px-4 py-5 text-sm text-slate-400">
-                Aucune demande pour le moment.
-              </div>
-            <% } else { %>
-              <% dashboard.latestBookings.forEach((booking) => { %>
-                <a href="/services/<%= booking.service_slug || '' %>" class="block rounded-2xl border border-white/10 bg-slate-900/30 px-4 py-4 transition hover:border-white/20">
-                  <div class="flex flex-wrap items-center justify-between gap-3">
-                    <div>
-                      <h3 class="font-medium text-white"><%= booking.service_title %></h3>
-                      <p class="mt-1 text-sm text-slate-400">Client : <span class="text-slate-200"><%= booking.client_name %></span></p>
-                    </div>
-                    <span class="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs text-slate-300 capitalize">
-                      <%= booking.status %>
-                    </span>
+      <section id="user-profile" class="profile-panel profile-form-panel">
+        <form
+          action="/users/profile"
+          method="POST"
+          enctype="multipart/form-data"
+          class="profile-form"
+          data-confirm="Voulez-vous vraiment enregistrer les modifications de votre profil ?"
+        >
+          <% if (csrfToken) { %>
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+          <% } %>
+
+          <div class="profile-form-layout">
+            <aside class="profile-photo-sidebar">
+              <div class="profile-photo-card">
+                <label class="profile-form-label" for="profile_photo">Photo de profil</label>
+                <% if (user?.profilePhotoPath) { %>
+                  <button
+                    type="button"
+                    class="profile-avatar-button image-preview-trigger image-preview-trigger--round"
+                    data-image-preview
+                    data-image-src="<%= user.profilePhotoPath %>"
+                    data-image-alt="Photo de profil de <%= user?.fullName || 'Utilisateur' %>"
+                    aria-label="Voir la photo de profil"
+                  >
+                    <img
+                      src="<%= user.profilePhotoPath %>"
+                      alt="Photo de profil"
+                      class="profile-avatar"
+                    >
+                  </button>
+                <% } else { %>
+                  <div class="profile-avatar profile-avatar--fallback">
+                    <%= initials %>
                   </div>
-                </a>
-              <% }) %>
-            <% } %>
-          </div>
-        </div>
+                <% } %>
 
-      </div>
+                <div class="profile-photo-actions">
+                  <button
+                    type="button"
+                    class="profile-photo-button"
+                    data-file-trigger="profile_photo"
+                  >
+                    Modifier la photo
+                  </button>
 
-      <div class="mt-6 grid grid-cols-1 xl:grid-cols-[0.95fr_1.05fr] gap-6">
-        <div class="rounded-3xl border border-white/10 bg-gradient-to-br from-blue-500/10 to-cyan-500/5 p-6">
-          <h2 class="text-xl font-semibold">Actions rapides</h2>
-          <div class="mt-5 grid gap-3">
-            <a href="/services/new" class="rounded-2xl bg-blue-600 px-4 py-3 font-medium text-white hover:bg-blue-500 transition">
-              Publier un service
-            </a>
-            <a href="/services" class="rounded-2xl border border-white/10 bg-white/5 px-4 py-3 font-medium hover:border-white/20 transition">
-              Gerer mes services
-            </a>
-            <a href="/users/profile/provider-payments" class="rounded-2xl border border-white/10 bg-white/5 px-4 py-3 font-medium hover:border-white/20 transition">
-              Voir mes paiements recus
-            </a>
-          </div>
+                  <span class="profile-photo-status" data-file-status="profile_photo" aria-live="polite"></span>
+                </div>
 
-          <div id="provider-reviews" class="mt-6 rounded-2xl border border-white/10 bg-slate-950/30 p-4">
-            <p class="text-sm text-slate-400">Avis recus</p>
-            <p class="mt-2 text-2xl font-semibold text-white"><%= dashboard.stats.totalReviews %></p>
-          </div>
+                <input
+                  id="profile_photo"
+                  name="profile_photo"
+                  type="file"
+                  accept="image/png,image/jpeg,image/webp,image/gif"
+                  class="profile-file-input profile-file-input--hidden"
+                  data-file-input
+                >
+              </div>
+            </aside>
 
-          <div class="mt-4 rounded-2xl border border-emerald-500/20 bg-emerald-500/10 p-4">
-            <p class="text-sm text-emerald-100/70">Total encaisse</p>
-            <p class="mt-2 text-2xl font-semibold text-white"><%= dashboard.stats.revenue.toString().replace(".", ",") %> EUR</p>
-          </div>
-        </div>
+            <div class="profile-form-main">
+              <div class="profile-panel__head">
+                <div>
+                  <h2>Modifier mon profil</h2>
+                  <p class="profile-panel__copy">
+                    Mettez a jour vos informations personnelles et celles utiles pour publier des services.
+                  </p>
+                </div>
+                <span class="profile-status-pill profile-status-pill--light">Profil</span>
+              </div>
+              <div class="profile-form-grid">
+                <div>
+                  <label class="profile-form-label" for="full_name">Nom complet</label>
+                  <input
+                    id="full_name"
+                    name="full_name"
+                    type="text"
+                    value="<%= user?.fullName || '' %>"
+                    required
+                  >
+                </div>
 
-        <div class="rounded-3xl border border-white/10 bg-white/5 p-6">
-          <div class="flex items-center justify-between gap-3">
-            <div>
-              <h2 class="text-xl font-semibold">Espace prestataire</h2>
-              <p class="mt-1 text-sm text-slate-400">Un tableau de bord dedie a la publication et au suivi de vos services.</p>
-            </div>
-            <span class="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs text-slate-300">
-              Prestataire
-            </span>
-          </div>
+                <div>
+                  <label class="profile-form-label" for="phone">Telephone</label>
+                  <input
+                    id="phone"
+                    name="phone"
+                    type="text"
+                    value="<%= user?.phone || '' %>"
+                  >
+                </div>
+              </div>
 
-          <div class="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <a
-              href="/services/new"
-              class="rounded-2xl border border-blue-400/20 bg-blue-500/10 px-4 py-4 hover:border-blue-400/40 transition"
-            >
-              <p class="text-sm text-blue-200/70">Publication</p>
-              <p class="mt-2 font-medium text-white">Ajouter un nouveau service</p>
-            </a>
-            <a
-              href="/services"
-              class="rounded-2xl border border-white/10 bg-slate-900/30 px-4 py-4 hover:border-white/20 transition"
-            >
-              <p class="text-sm text-slate-400">Catalogue</p>
-              <p class="mt-2 font-medium text-white">Voir et gerer mes services</p>
-            </a>
-          </div>
-
-          <div class="mt-6 rounded-2xl border border-white/10 bg-slate-900/30 p-4">
-            <div class="flex items-center justify-between gap-3">
               <div>
-                <h3 class="text-lg font-semibold text-white">Modifier mon profil</h3>
-                <p class="mt-1 text-sm text-slate-400">
-                  Mettez a jour vos informations professionnelles depuis votre espace prestataire.
+                <label class="profile-form-label" for="address">Adresse</label>
+                <textarea
+                  id="address"
+                  name="address"
+                  rows="3"
+                ><%= user?.address || '' %></textarea>
+              </div>
+
+              <div class="profile-helper-box">
+                <p class="profile-helper-box__title">Informations utiles si vous proposez des services</p>
+                <p class="profile-helper-box__copy">
+                  Ces champs restent facultatifs tant que vous ne publiez pas de service.
                 </p>
               </div>
-              <span class="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs text-slate-300">
-                Profil
-              </span>
-            </div>
 
-            <form
-              action="/users/profile"
-              method="POST"
-              class="mt-5 space-y-4"
-            >
-            <% if (csrfToken) { %>
-              <input type="hidden" name="_csrf" value="<%= csrfToken %>">
-            <% } %>
+              <div class="profile-form-grid">
+                <div>
+                  <label class="profile-form-label" for="provider_status">Statut du prestataire</label>
+                  <select
+                    id="provider_status"
+                    name="provider_status"
+                  >
+                    <option value="">Choisir un statut</option>
+                    <% (providerStatusOptions || []).forEach((option) => { %>
+                      <option
+                        value="<%= option.value %>"
+                        <%= option.value === user?.providerStatus ? "selected" : "" %>
+                      >
+                        <%= option.label %>
+                      </option>
+                    <% }) %>
+                  </select>
+                </div>
 
-            <div>
-              <label class="block text-sm text-slate-300 mb-2" for="experience_years">Annee d'experience</label>
-              <input
-                id="experience_years"
-                name="experience_years"
-                type="number"
-                min="0"
-                max="60"
-                value="<%= user?.experienceYears ?? '' %>"
-                class="w-full px-4 py-2.5 rounded-lg bg-white/5 border border-white/10 text-slate-100 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
-              >
-            </div>
+                <div>
+                  <label class="profile-form-label" for="experience_years">Annees d'experience</label>
+                  <input
+                    id="experience_years"
+                    name="experience_years"
+                    type="number"
+                    min="0"
+                    max="60"
+                    value="<%= user?.experienceYears ?? '' %>"
+                  >
+                </div>
 
-            <div>
-              <label class="block text-sm text-slate-300 mb-2" for="trainings">Formations suivies</label>
-              <textarea
-                id="trainings"
-                name="trainings"
-                rows="3"
-                placeholder="Indiquez vos formations suivies"
-                class="w-full px-4 py-2.5 rounded-lg bg-white/5 border border-white/10 text-slate-100 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
-              ><%= user?.trainings || '' %></textarea>
-            </div>
-
-            <div>
-              <label class="block text-sm text-slate-300 mb-2" for="service_area">Zone d'intervention</label>
-              <input
-                id="service_area"
-                name="service_area"
-                type="text"
-                value="<%= user?.serviceArea || '' %>"
-                class="w-full px-4 py-2.5 rounded-lg bg-white/5 border border-white/10 text-slate-100 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
-              >
-            </div>
-
-            <label class="inline-flex items-center gap-3 text-sm text-slate-300">
-              <input
-                type="checkbox"
-                name="has_driving_license"
-                <%= user?.hasDrivingLicense ? "checked" : "" %>
-              >
-              <span>Permis de conduire</span>
-            </label>
-
-            <button
-              type="submit"
-              class="rounded-2xl bg-blue-600 px-4 py-3 font-medium text-white hover:bg-blue-500 transition"
-            >
-              Enregistrer mon profil prestataire
-            </button>
-          </form>
-
-          <div class="mt-6 rounded-2xl border border-white/10 bg-slate-900/30 p-4">
-            <div class="flex items-center justify-between gap-3">
-              <p class="text-sm text-slate-400">Derniers paiements recus</p>
-              <a href="/users/profile/provider-payments" class="text-sm text-blue-300 hover:text-blue-200 transition">Tout voir</a>
-            </div>
-            <div class="mt-3 space-y-3">
-              <% if (!dashboard.recentPayments?.length) { %>
-                <p class="text-sm text-slate-400">Aucun paiement recu pour le moment.</p>
-              <% } else { %>
-                <% dashboard.recentPayments.forEach((payment) => { %>
-                  <a href="/users/profile/provider-payments" class="flex items-center justify-between gap-3 text-sm transition hover:text-white">
-                    <span class="text-slate-300 truncate"><%= payment.service_title %></span>
-                    <span class="text-emerald-300"><%= (payment.amount ?? 0).toString().replace(".", ",") %> EUR</span>
-                  </a>
-                <% }) %>
-              <% } %>
-            </div>
-          </div>
-        </div>
-      </div>
-    <% } else { %>
-      <!-- Vue orientee suivi client -->
-      <div class="mt-8 grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-5 gap-5">
-        <a href="/bookings" class="block rounded-2xl border border-blue-400/15 bg-blue-500/10 p-5 transition hover:-translate-y-0.5 hover:border-blue-300/30">
-          <p class="text-sm text-blue-100/70">Reservations</p>
-          <p class="mt-3 text-3xl font-semibold text-white"><%= dashboard.stats.bookings %></p>
-        </a>
-        <a href="/bookings" class="block rounded-2xl border border-amber-400/15 bg-amber-500/10 p-5 transition hover:-translate-y-0.5 hover:border-amber-300/30">
-          <p class="text-sm text-amber-100/70">En attente</p>
-          <p class="mt-3 text-3xl font-semibold text-white"><%= dashboard.stats.pending %></p>
-        </a>
-        <a href="/bookings" class="block rounded-2xl border border-emerald-400/15 bg-emerald-500/10 p-5 transition hover:-translate-y-0.5 hover:border-emerald-300/30">
-          <p class="text-sm text-emerald-100/70">Terminees</p>
-          <p class="mt-3 text-3xl font-semibold text-white"><%= dashboard.stats.completed %></p>
-        </a>
-        <a href="/payments" class="block rounded-2xl border border-cyan-400/15 bg-cyan-500/10 p-5 transition hover:-translate-y-0.5 hover:border-cyan-300/30">
-          <p class="text-sm text-cyan-100/70">Paiements</p>
-          <p class="mt-3 text-3xl font-semibold text-white"><%= dashboard.stats.payments %></p>
-        </a>
-        <a href="/users/profile/client-reviews" class="block rounded-2xl border border-fuchsia-400/15 bg-fuchsia-500/10 p-5 transition hover:-translate-y-0.5 hover:border-fuchsia-300/30">
-          <p class="text-sm text-fuchsia-100/70">Avis laisses</p>
-          <p class="mt-3 text-3xl font-semibold text-white"><%= dashboard.stats.reviews %></p>
-        </a>
-      </div>
-
-      <div class="mt-8 grid grid-cols-1 xl:grid-cols-[1.1fr_0.9fr] gap-6">
-        <div id="client-bookings" class="rounded-3xl border border-white/10 bg-white/5 p-6">
-          <div class="flex items-center justify-between gap-3">
-            <div>
-              <h2 class="text-xl font-semibold">Reservations recentes</h2>
-              <p class="mt-1 text-sm text-slate-400">Suivez vos prestations et leur statut.</p>
-            </div>
-            <a href="/bookings" class="text-sm text-blue-300 hover:text-blue-200 transition">Tout voir</a>
-          </div>
-
-          <div class="mt-6 space-y-4">
-            <% if (!dashboard.recentBookings.length) { %>
-              <div class="rounded-2xl border border-white/10 bg-slate-900/30 px-4 py-5 text-sm text-slate-400">
-                Aucune reservation pour le moment.
               </div>
-            <% } else { %>
-              <% dashboard.recentBookings.forEach((booking) => { %>
-                <a href="/bookings/<%= booking.id %>/edit" class="block rounded-2xl border border-white/10 bg-slate-900/30 px-4 py-4 transition hover:border-white/20">
-                  <div class="flex flex-wrap items-center justify-between gap-3">
-                    <div>
-                      <h3 class="font-medium text-white"><%= booking.service_title %></h3>
-                      <p class="mt-1 text-sm text-slate-400">Statut : <span class="text-slate-200 capitalize"><%= booking.status %></span></p>
-                    </div>
-                    <span class="text-emerald-300 font-medium"><%= (booking.total_price ?? 0).toString().replace(".", ",") %> EUR</span>
-                  </div>
-                </a>
-              <% }) %>
-            <% } %>
-          </div>
-        </div>
 
-        <div class="rounded-3xl border border-white/10 bg-gradient-to-br from-emerald-500/10 to-blue-500/5 p-6">
-          <h2 class="text-xl font-semibold">Actions rapides</h2>
-          <div class="mt-5 grid gap-3">
-            <a href="/services" class="rounded-2xl bg-emerald-600 px-4 py-3 font-medium text-white hover:bg-emerald-500 transition">
-              Explorer les services
-            </a>
-            <a href="/bookings" class="rounded-2xl border border-white/10 bg-white/5 px-4 py-3 font-medium hover:border-white/20 transition">
-              Gerer mes reservations
-            </a>
-            <a href="#client-profile" class="rounded-2xl border border-white/10 bg-white/5 px-4 py-3 font-medium hover:border-white/20 transition">
-              Modifier mon profil
-            </a>
-            <a href="/payments/cards" class="rounded-2xl border border-white/10 bg-white/5 px-4 py-3 font-medium hover:border-white/20 transition">
-              Mes cartes enregistrees
-            </a>
-            <a href="/payments" class="rounded-2xl border border-white/10 bg-white/5 px-4 py-3 font-medium hover:border-white/20 transition">
-              Voir mes paiements
-            </a>
-          </div>
-
-          <div class="mt-6 rounded-2xl border border-red-500/20 bg-red-500/10 p-4">
-          <form
-            action="/users/profile/delete"
-            method="POST"
-            class=""
-            data-confirm="Voulez-vous vraiment supprimer votre compte client ? Toutes vos donnees associees seront effacees et cette action est irreversible."
-          >
-              <% if (csrfToken) { %>
-                <input type="hidden" name="_csrf" value="<%= csrfToken %>">
-              <% } %>
-
-              <button
-                type="submit"
-                class="rounded-2xl bg-red-600 px-4 py-3 font-medium text-white hover:bg-red-500 transition"
-              >
-                Supprimer mon compte
-              </button>
-            </form>
-          </div>
-
-          <div id="client-payments" class="mt-6 rounded-2xl border border-white/10 bg-slate-950/30 p-4">
-            <p class="text-sm text-slate-400">Derniers paiements</p>
-            <div class="mt-3 space-y-3">
-              <% if (!dashboard.recentPayments.length) { %>
-                <p class="text-sm text-slate-400">Aucun paiement enregistre.</p>
-              <% } else { %>
-                <% dashboard.recentPayments.forEach((payment) => { %>
-                  <a href="/payments" class="flex items-center justify-between gap-3 text-sm transition hover:text-white">
-                    <span class="text-slate-300 truncate"><%= payment.service_title %></span>
-                    <span class="text-emerald-300"><%= (payment.amount ?? 0).toString().replace(".", ",") %> EUR</span>
-                  </a>
-                <% }) %>
-              <% } %>
-            </div>
-          </div>
-
-          <div id="client-profile" class="mt-6 rounded-2xl border border-white/10 bg-slate-900/30 p-4">
-            <div class="flex items-center justify-between gap-3">
               <div>
-                <h3 class="text-lg font-semibold text-white">Modifier mon profil</h3>
-                <p class="mt-1 text-sm text-slate-400">
-                  Mettez a jour vos informations personnelles depuis votre espace client.
-                </p>
+                <label class="profile-form-label" for="service_area">Zone d'intervention</label>
+                <input
+                  id="service_area"
+                  name="service_area"
+                  type="text"
+                  value="<%= user?.serviceArea || '' %>"
+                >
               </div>
-              <span class="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs text-slate-300">
-                Profil
-              </span>
-            </div>
 
-          <form
-            action="/users/profile"
-            method="POST"
-            class="mt-5 space-y-4"
-            data-confirm="Voulez-vous vraiment enregistrer les modifications de votre profil ?"
+              <div>
+                <label class="profile-form-label" for="trainings">Formations suivies</label>
+                <textarea
+                  id="trainings"
+                  name="trainings"
+                  rows="3"
+                  placeholder="Indiquez vos formations si vous en avez"
+                ><%= user?.trainings || '' %></textarea>
+              </div>
+
+              <label class="profile-checkbox">
+                <input
+                  type="checkbox"
+                  name="has_driving_license"
+                  <%= user?.hasDrivingLicense ? "checked" : "" %>
+                >
+                <span>Permis de conduire</span>
+              </label>
+
+              <div class="profile-form-actions">
+                <button
+                  type="submit"
+                  class="btn-primary"
+                >
+                  Enregistrer mon profil
+                </button>
+              </div>
+            </div>
+          </div>
+        </form>
+
+        <form
+          action="/users/profile/delete"
+          method="POST"
+          class="profile-delete-form"
+          data-confirm="Voulez-vous vraiment supprimer votre compte utilisateur ? Toutes vos donnees associees seront effacees et cette action est irreversible."
+        >
+          <% if (csrfToken) { %>
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+          <% } %>
+
+          <button
+            type="submit"
+            class="profile-danger-button"
           >
-            <% if (csrfToken) { %>
-              <input type="hidden" name="_csrf" value="<%= csrfToken %>">
-            <% } %>
-
-            <div>
-              <label class="block text-sm text-slate-300 mb-2" for="full_name">Nom complet</label>
-              <input
-                id="full_name"
-                name="full_name"
-                type="text"
-                value="<%= user?.fullName || '' %>"
-                required
-                class="w-full px-4 py-2.5 rounded-lg bg-white/5 border border-white/10 text-slate-100 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
-              >
-            </div>
-
-            <div>
-              <label class="block text-sm text-slate-300 mb-2" for="phone">Telephone</label>
-              <input
-                id="phone"
-                name="phone"
-                type="text"
-                value="<%= user?.phone || '' %>"
-                class="w-full px-4 py-2.5 rounded-lg bg-white/5 border border-white/10 text-slate-100 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
-              >
-            </div>
-
-            <div>
-              <label class="block text-sm text-slate-300 mb-2" for="address">Adresse</label>
-              <textarea
-                id="address"
-                name="address"
-                rows="3"
-                class="w-full px-4 py-2.5 rounded-lg bg-white/5 border border-white/10 text-slate-100 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
-              ><%= user?.address || '' %></textarea>
-            </div>
-
-            <button
-              type="submit"
-              class="rounded-2xl bg-blue-600 px-4 py-3 font-medium text-white hover:bg-blue-500 transition"
-            >
-              Enregistrer mon profil
-            </button>
-            </form>
-          </div>
-          </div>
-        </div>
-      </div>
-    <% } %>
+            Supprimer mon compte
+          </button>
+        </form>
+      </section>
+    </div>
   </div>
 </section>

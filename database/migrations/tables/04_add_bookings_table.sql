@@ -23,6 +23,7 @@ CREATE TABLE IF NOT EXISTS bookings (
 );
 
 -- Trigger updated_at
+DROP TRIGGER IF EXISTS set_timestamp_bookings ON bookings;
 CREATE TRIGGER set_timestamp_bookings
 BEFORE UPDATE ON bookings
 FOR EACH ROW

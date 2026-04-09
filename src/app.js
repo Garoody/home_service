@@ -221,8 +221,10 @@ app.use(express.urlencoded({ extended: true }));
 // Static (public)
 app.use(express.static(path.join(__dirname, "..", "public")));
 
-// Avoid 404 favicon requests interfering with CSRF token/session cookies
-app.get("/favicon.ico", (_req, res) => res.status(204).end());
+// Serve the project logo as favicon to avoid browser fallback icons.
+app.get("/favicon.ico", (_req, res) => {
+  return res.sendFile(path.join(__dirname, "..", "public", "images", "logo.svg"));
+});
 
 // ─────────────────────────────────────────────────────────────
 // SÉCURITÉ GLOBALE

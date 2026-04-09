@@ -1,5 +1,8 @@
 -- =====================================================================
 -- TABLE: bookings (ajout informations client de reservation)
+-- Migration legacy de rattrapage pour une base ancienne.
+-- Ne pas rejouer dans une initialisation complete : la table bookings
+-- contient deja ces colonnes dans 04_add_bookings_table.sql.
 -- =====================================================================
 
 SET CLIENT_ENCODING TO 'UTF8';

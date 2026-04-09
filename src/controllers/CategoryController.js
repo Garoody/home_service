@@ -2,6 +2,7 @@
 
 import CategoryService from "../services/CategoryService.js";
 import { validateCategoryPayload } from "../validators/categoryValidator.js";
+import { getFirstValidationMessage } from "../utils/formState.js";
 
 class CategoryController {
   // Affiche la liste des categories.
@@ -32,7 +33,8 @@ class CategoryController {
     try {
       const validation = validateCategoryPayload(req.body);
       if (!validation.success) {
-        req.flash?.("error", validation.message);
+        req.saveOldInput?.(req.body);
+        req.flash?.("error", getFirstValidationMessage(validation));
         return res.redirect("/categories/new");
       }
 
@@ -40,6 +42,7 @@ class CategoryController {
       req.flash?.("success", "Categorie creee.");
       res.redirect("/categories");
     } catch (error) {
+      req.saveOldInput?.(req.body);
       req.flash?.("error", error.message);
       res.redirect("/categories/new");
     }

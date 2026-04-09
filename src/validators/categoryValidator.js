@@ -38,8 +38,9 @@ export function validateCategoryPayload(payload = {}) {
     return {
       success: false,
       data: null,
+      issues: result.error.issues,
       message: result.error.issues.map((issue) => issue.message).join(" | "),
     };
   }
-  return { success: true, data: result.data, message: null };
+  return { success: true, data: result.data, issues: [], message: null };
 }

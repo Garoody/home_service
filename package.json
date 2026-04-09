@@ -9,7 +9,7 @@
     "db:drop:types": "node scripts/run-sql.js database/migrations/drop/02_drop_all_types.sql",
     "db:extensions": "node scripts/run-sql.js database/migrations/config/03_add_extensions.sql",
     "db:types": "node scripts/run-sql.js database/migrations/config/04_add_types.sql",
-    "db:triggers": "node scripts/run-sql.js database/migrations/triggers/00_add_triggers.sql",
+    "db:triggers": "node scripts/run-sql.js database/triggers/01_add_trigger_set_timestamp.sql",
     "db:tables:users": "node scripts/run-sql.js database/migrations/tables/01_add_users_table.sql",
     "db:tables:categories": "node scripts/run-sql.js database/migrations/tables/02_add_categories_table.sql",
     "db:tables:services": "node scripts/run-sql.js database/migrations/tables/03_add_services_table.sql",
@@ -21,10 +21,20 @@
     "db:tables:provider-profile": "node scripts/run-sql.js database/migrations/tables/12_add_provider_profile_fields.sql",
     "db:tables:service-provider-details": "node scripts/run-sql.js database/migrations/tables/13_add_service_provider_details.sql",
     "db:tables:payment-details": "node scripts/run-sql.js database/migrations/tables/15_add_payment_details.sql",
-    "db:up": "npm run db:extensions && npm run db:types && npm run db:triggers && npm run db:tables:users && npm run db:tables:categories && npm run db:tables:services && npm run db:tables:bookings && npm run db:tables:payments && npm run db:tables:reviews && npm run db:tables:user-sessions && npm run db:tables:saved-payment-methods && npm run db:tables:provider-profile && npm run db:tables:service-provider-details && npm run db:tables:payment-details",
+    "db:tables:user-profile-photo": "node scripts/run-sql.js database/migrations/tables/16_add_user_profile_photo.sql",
+    "db:tables:provider-status": "node scripts/run-sql.js database/migrations/tables/17_add_provider_status.sql",
+    "db:tables:service-photos": "node scripts/run-sql.js database/migrations/tables/18_add_service_photos_table.sql",
+    "db:tables:conversations": "node scripts/run-sql.js database/migrations/tables/19_add_booking_conversations_table.sql",
+    "db:tables:review-replies": "node scripts/run-sql.js database/migrations/tables/20_add_review_provider_reply.sql",
+    "db:tables:admin-moderation": "node scripts/run-sql.js database/migrations/tables/21_add_admin_moderation.sql",
+    "db:tables:admin-reports": "node scripts/run-sql.js database/migrations/tables/22_add_admin_reports.sql",
+    "db:up": "npm run db:extensions && npm run db:types && npm run db:triggers && npm run db:tables:users && npm run db:tables:categories && npm run db:tables:services && npm run db:tables:bookings && npm run db:tables:payments && npm run db:tables:reviews && npm run db:tables:user-sessions && npm run db:tables:saved-payment-methods && npm run db:tables:provider-profile && npm run db:tables:service-provider-details && npm run db:tables:payment-details && npm run db:tables:user-profile-photo && npm run db:tables:provider-status && npm run db:tables:service-photos && npm run db:tables:conversations && npm run db:tables:review-replies && npm run db:tables:admin-moderation && npm run db:tables:admin-reports",
     "db:reset": "npm run db:drop:tables && npm run db:drop:types && npm run db:up",
     "start": "node src/app.js",
-    "dev": "node --env-file=.env --watch src/app.js"
+    "dev": "node --env-file=.env --watch src/app.js",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:unit": "vitest run tests/unit"
   },
   "dependencies": {
     "bcrypt": "^6.0.0",
@@ -39,6 +49,7 @@
     "express-rate-limit": "^8.2.1",
     "express-session": "^1.19.0",
     "helmet": "^8.1.0",
+    "multer": "^2.1.1",
     "passport": "^0.7.0",
     "passport-google-oauth20": "^2.0.0",
     "pg": "^8.12.0",
@@ -48,6 +59,7 @@
     "zod": "^4.3.6"
   },
   "devDependencies": {
-    "nodemon": "^3.1.4"
+    "nodemon": "^3.1.4",
+    "vitest": "^4.0.18"
   }
 }

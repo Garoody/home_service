@@ -1,93 +1,205 @@
-<nav class="bg-slate-950/90 backdrop-blur border-b border-white/10">
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-    <div class="flex justify-between items-center h-16">
-      <div class="flex items-center">
-        <a href="/" class="inline-flex items-center gap-3 text-xl font-bold text-white hover:text-blue-400 transition">
-          <img
-            src="/images/logo.svg"
-            alt="HomeService"
-            class="h-10 w-10 rounded-xl border border-white/10 bg-white/5 p-1.5 shadow-lg shadow-blue-950/20"
-          >
-          <span>HomeService</span>
-        </a>
-      </div>
+<%
+  const isAdmin = currentUser?.role === "admin";
+  const accountHome = isAdmin ? "/admin" : "/users/profile";
+  const requestPath = typeof currentPath === "string" ? currentPath : "/";
+  const matchesPrefix = (prefix) =>
+    requestPath === prefix || requestPath.startsWith(`${prefix}/`);
+  const isHomeActive = requestPath === "/";
+  const isCreateServiceActive = requestPath === "/services/new";
+  const isServicesActive =
+    matchesPrefix("/services") && !isCreateServiceActive;
+  const isMessagesActive = !isAdmin && matchesPrefix("/conversations");
+  const isAccountActive = isAdmin
+    ? matchesPrefix("/admin")
+    : matchesPrefix("/users/profile") ||
+      matchesPrefix("/bookings") ||
+      matchesPrefix("/payments");
+  const isLoginActive = matchesPrefix("/auth/login");
+  const unreadMessages = Number(unreadConversationCount || 0);
+  const unreadMessagesLabel = unreadMessages > 99 ? "99+" : String(unreadMessages);
+  const navLinkClass = (isActive, hasBadge = false) =>
+    `service-nav__link${isActive ? " service-nav__link--active" : ""}${hasBadge ? " service-nav__link--with-badge" : ""}`;
+%>
 
-      <div class="hidden md:flex items-center gap-6 text-sm font-medium">
-        <a href="/" class="hover:text-blue-400 transition">Accueil</a>
-        <a href="/services" class="hover:text-blue-400 transition">Services</a>
+<nav class="service-nav" aria-label="Navigation principale">
+  <div class="service-nav__inner">
+    <div class="service-nav__bar">
+      <a href="/services" class="service-brand">
+        <img
+          src="/images/logo.svg"
+          alt="HomeService"
+          class="service-brand__logo"
+        >
+
+        <span class="service-brand__content">
+          <span class="service-brand__eyebrow">Plateforme de services</span>
+          <span class="service-brand__title">HomeService</span>
+          <span class="service-brand__baseline">Reservation, paiement et suivi des prestations a domicile</span>
+        </span>
+      </a>
+
+      <div class="service-nav__links">
+        <a
+          href="/services"
+          class="<%= navLinkClass(isServicesActive) %>"
+          <%- isServicesActive ? 'aria-current="page"' : "" %>
+        >Services</a>
 
         <% if (currentUser) { %>
-          <a href="/users/profile" class="hover:text-blue-400 transition">Mon espace</a>
-          <% if (currentUser.role === "client") { %>
-            <a href="/bookings" class="hover:text-blue-400 transition">Mes reservations</a>
+          <a
+            href="<%= accountHome %>"
+            class="<%= navLinkClass(isAccountActive) %>"
+            <%- isAccountActive ? 'aria-current="page"' : "" %>
+          >
+            <%= isAdmin ? "Administration" : "Mon espace" %>
+          </a>
+          <% if (!isAdmin) { %>
+            <a
+              href="/conversations"
+              class="<%= navLinkClass(isMessagesActive, unreadMessages > 0) %>"
+              <%- isMessagesActive ? 'aria-current="page"' : "" %>
+            >
+              <span>Messageries</span>
+              <% if (unreadMessages > 0) { %>
+                <span
+                  class="service-nav__badge"
+                  aria-label="<%= unreadMessages %> message<%= unreadMessages > 1 ? 's' : '' %> non lu<%= unreadMessages > 1 ? 's' : '' %>"
+                ><%= unreadMessagesLabel %></span>
+              <% } %>
+            </a>
+            <a
+              href="/services/new"
+              class="<%= navLinkClass(isCreateServiceActive) %>"
+              <%- isCreateServiceActive ? 'aria-current="page"' : "" %>
+            >Proposer un service</a>
+
+            <button
+              type="button"
+              class="service-nav__theme"
+              data-theme-toggle
+              aria-pressed="false"
+            >
+              <span class="service-nav__theme-indicator" aria-hidden="true"></span>
+              <span data-theme-toggle-label>Mode sombre</span>
+            </button>
           <% } %>
-          <span class="text-slate-300">
-            Connecte en tant que
-            <span class="text-white"><%= currentUser.name || "Utilisateur" %></span>
-            (<%= currentUser.role || "client" %>)
-          </span>
+
           <form
             action="/auth/logout"
             method="POST"
             class="inline"
             data-confirm="Voulez-vous vraiment vous deconnecter ?"
           >
+            <% if (csrfToken) { %>
+              <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+            <% } %>
             <button
               type="submit"
-              class="bg-transparent p-0 text-sm font-medium text-slate-100 hover:text-red-300 transition"
+              class="service-nav__logout bg-transparent"
             >
               Deconnexion
             </button>
           </form>
         <% } else { %>
-          <a href="/auth/login" class="hover:text-blue-400 transition">Connexion</a>
+          <button
+            type="button"
+            class="service-nav__theme"
+            data-theme-toggle
+            aria-pressed="false"
+          >
+            <span class="service-nav__theme-indicator" aria-hidden="true"></span>
+            <span data-theme-toggle-label>Mode sombre</span>
+          </button>
+          <a
+            href="/auth/login"
+            class="<%= navLinkClass(isLoginActive) %>"
+            <%- isLoginActive ? 'aria-current="page"' : "" %>
+          >Connexion</a>
         <% } %>
       </div>
 
-      <div class="md:hidden">
-        <button id="menu-btn" class="text-white focus:outline-none" type="button">
-          Menu
+      <button id="menu-btn" class="service-nav__toggle" type="button" aria-expanded="false" aria-controls="mobile-menu">
+        Menu
+      </button>
+    </div>
+
+    <div id="mobile-menu" class="service-nav__mobile hidden">
+      <a
+        href="/services"
+        class="<%= navLinkClass(isServicesActive) %>"
+        <%- isServicesActive ? 'aria-current="page"' : "" %>
+      >Services</a>
+
+      <% if (currentUser) { %>
+        <a
+          href="<%= accountHome %>"
+          class="<%= navLinkClass(isAccountActive) %>"
+          <%- isAccountActive ? 'aria-current="page"' : "" %>
+        >
+          <%= isAdmin ? "Administration" : "Mon espace" %>
+        </a>
+        <% if (!isAdmin) { %>
+          <a
+            href="/conversations"
+            class="<%= navLinkClass(isMessagesActive, unreadMessages > 0) %>"
+            <%- isMessagesActive ? 'aria-current="page"' : "" %>
+          >
+            <span>Messageries</span>
+            <% if (unreadMessages > 0) { %>
+              <span
+                class="service-nav__badge"
+                aria-label="<%= unreadMessages %> message<%= unreadMessages > 1 ? 's' : '' %> non lu<%= unreadMessages > 1 ? 's' : '' %>"
+              ><%= unreadMessagesLabel %></span>
+            <% } %>
+          </a>
+          <a
+            href="/services/new"
+            class="<%= navLinkClass(isCreateServiceActive) %>"
+            <%- isCreateServiceActive ? 'aria-current="page"' : "" %>
+          >Proposer un service</a>
+
+          <button
+            type="button"
+            class="service-nav__theme service-nav__theme--mobile"
+            data-theme-toggle
+            aria-pressed="false"
+          >
+            <span class="service-nav__theme-indicator" aria-hidden="true"></span>
+            <span data-theme-toggle-label>Mode sombre</span>
+          </button>
+        <% } %>
+
+        <form
+          action="/auth/logout"
+          method="POST"
+          data-confirm="Voulez-vous vraiment vous deconnecter ?"
+        >
+          <% if (csrfToken) { %>
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+          <% } %>
+          <button
+            type="submit"
+            class="service-nav__logout bg-transparent"
+          >
+            Deconnexion
+          </button>
+        </form>
+      <% } else { %>
+        <button
+          type="button"
+          class="service-nav__theme service-nav__theme--mobile"
+          data-theme-toggle
+          aria-pressed="false"
+        >
+          <span class="service-nav__theme-indicator" aria-hidden="true"></span>
+          <span data-theme-toggle-label>Mode sombre</span>
         </button>
-      </div>
+        <a
+          href="/auth/login"
+          class="<%= navLinkClass(isLoginActive) %>"
+          <%- isLoginActive ? 'aria-current="page"' : "" %>
+        >Connexion</a>
+      <% } %>
     </div>
   </div>
-
-  <div id="mobile-menu" class="hidden md:hidden px-4 pb-4 space-y-2 text-sm">
-    <a href="/" class="block hover:text-blue-400">Accueil</a>
-    <a href="/services" class="block hover:text-blue-400">Services</a>
-    <% if (currentUser) { %>
-      <a href="/users/profile" class="block hover:text-blue-400">Mon espace</a>
-      <% if (currentUser.role === "client") { %>
-        <a href="/bookings" class="block hover:text-blue-400">Mes reservations</a>
-      <% } %>
-      <div class="pt-2 text-slate-300">
-        Connecte en tant que <span class="text-white"><%= currentUser.name || "Utilisateur" %></span> (<%= currentUser.role || "client" %>)
-      </div>
-      <form
-        action="/auth/logout"
-        method="POST"
-        data-confirm="Voulez-vous vraiment vous deconnecter ?"
-      >
-        <button
-          type="submit"
-          class="block bg-transparent p-0 text-sm text-slate-100 hover:text-red-300 transition"
-        >
-          Deconnexion
-        </button>
-      </form>
-    <% } else { %>
-      <a href="/auth/login" class="block hover:text-blue-400">Connexion</a>
-    <% } %>
-  </div>
 </nav>
-
-<script>
-  const btn = document.getElementById("menu-btn");
-  const menu = document.getElementById("mobile-menu");
-
-  if (btn && menu) {
-    btn.addEventListener("click", () => {
-      menu.classList.toggle("hidden");
-    });
-  }
-</script>

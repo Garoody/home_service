@@ -57,6 +57,18 @@ execute_directory() {
 
   echo -e "${GREEN}📂 Folder: $dir${NC}"
   for file in $(find "$dir" -maxdepth 1 -name "*.sql" | sort); do
+    # Les helpers/extensions/types sont deja executes dans les phases precedentes.
+    # Les migrations 09/10 sont conservees pour les mises a jour incrementales
+    # d'anciennes bases, mais ne doivent pas etre rejouees sur une base neuve
+    # car 04_add_bookings_table.sql et 05_add_payments_table.sql incluent deja
+    # ces colonnes.
+    if [ "$dir" = "database/migrations/tables" ]; then
+      case "$(basename "$file")" in
+        00_add_extensions_and_helpers.sql|09_add_booking_contact_fields.sql|10_add_payment_method.sql)
+          continue
+          ;;
+      esac
+    fi
     execute_sql "$file" "Executing $(basename "$file")" "$db" "$user"
   done
 }

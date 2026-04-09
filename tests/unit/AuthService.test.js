@@ -44,13 +44,13 @@ describe("AuthService.authenticate", () => {
     expect(result).toEqual({
       success: false,
       status: 401,
-      message: "Email ou mot de passe incorrect.",
+      message: "Email ou mot de passe invalide.",
     });
   });
 
-  it("bloque un compte suspendu avant la verification du mot de passe", async () => {
+  it("retourne un message generique pour un compte suspendu", async () => {
     findByEmailMock.mockResolvedValueOnce({
-      accountStatus: "suspended",
+      suspendedAt: new Date("2026-03-27T10:00:00Z"),
       passwordHash: "hash",
     });
 
@@ -62,8 +62,27 @@ describe("AuthService.authenticate", () => {
     expect(compareMock).not.toHaveBeenCalled();
     expect(result).toEqual({
       success: false,
-      status: 403,
-      message: "Votre compte est suspendu. Contactez l'administration si besoin.",
+      status: 401,
+      message: "Email ou mot de passe invalide.",
+    });
+  });
+
+  it("retourne une erreur generique si le mot de passe est faux", async () => {
+    findByEmailMock.mockResolvedValueOnce({
+      passwordHash: "hash",
+    });
+    compareMock.mockResolvedValueOnce(false);
+
+    const result = await AuthService.authenticate({
+      email: "user@example.com",
+      password: "mauvais-mot-de-passe",
+    });
+
+    expect(compareMock).toHaveBeenCalledTimes(1);
+    expect(result).toEqual({
+      success: false,
+      status: 401,
+      message: "Email ou mot de passe invalide.",
     });
   });
 });

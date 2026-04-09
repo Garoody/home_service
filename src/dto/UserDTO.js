@@ -43,7 +43,9 @@ export function toRegisterDTO(payload = {}) {
     phone: String(payload.phone || "").trim() || null,
     email: String(payload.email || "").trim().toLowerCase(),
     password: String(payload.password || ""),
-    role: payload.role === "provider" ? "provider" : "client",
+    // Valeur technique par defaut pour un compte utilisateur standard.
+    // Le meme compte pourra ensuite reserver et publier des services.
+    role: "client",
     gdpr_consent: payload.gdpr_consent === true,
   };
 }

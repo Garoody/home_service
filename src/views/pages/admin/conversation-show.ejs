@@ -1,0 +1,200 @@
+<section class="py-10 max-w-7xl mx-auto px-4">
+  <%
+    const getInitials = (name) =>
+      String(name || "")
+        .trim()
+        .split(/\s+/)
+        .slice(0, 2)
+        .map((part) => part.charAt(0).toUpperCase())
+        .join("") || "?";
+    const getMessageRoleLabel = (message) => {
+      if (message.sender_role === "client") return "Message client";
+      if (message.sender_role === "provider") return "Message prestataire";
+      return "Participant";
+    };
+    const getMessageTone = (message) => {
+      if (message.sender_role === "client") {
+        return {
+          card: "border-blue-400/20 bg-blue-500/10",
+          badge: "border-blue-400/20 bg-blue-500/15 text-blue-100",
+        };
+      }
+
+      if (message.sender_role === "provider") {
+        return {
+          card: "border-slate-700 bg-slate-950/80",
+          badge: "border-slate-500 bg-slate-100 text-slate-950",
+        };
+      }
+
+      return {
+        card: "border-white/10 bg-slate-900/30",
+        badge: "border-white/10 bg-white/5 text-slate-200",
+      };
+    };
+  %>
+  <div class="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+    <div>
+      <p class="text-xs uppercase tracking-[0.3em] text-blue-300">Administration</p>
+      <h1 class="mt-2 text-3xl font-semibold tracking-tight">Lecture admin de la conversation</h1>
+      <p class="mt-2 text-slate-400">
+        Consultation en lecture seule des echanges conserves par l'administration.
+      </p>
+    </div>
+    <div class="flex flex-wrap gap-3">
+      <a href="/admin/conversations" class="rounded-lg border border-white/10 bg-white/5 px-4 py-2 hover:border-white/20 transition">
+        Retour aux conversations
+      </a>
+      <a href="/admin" class="rounded-lg border border-white/10 bg-white/5 px-4 py-2 hover:border-white/20 transition">
+        Dashboard
+      </a>
+    </div>
+  </div>
+
+  <div class="mt-8 grid gap-6 lg:grid-cols-[minmax(0,1fr)_22rem]">
+    <section class="rounded-3xl border border-white/10 bg-white/5 shadow-xl shadow-black/10">
+      <div class="border-b border-white/10 px-6 py-5">
+        <div class="flex flex-wrap items-center gap-3">
+          <h2 class="text-2xl font-semibold text-white"><%= conversation.service_title %></h2>
+          <span class="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-medium text-slate-200">
+            <%= conversation.booking_status %>
+          </span>
+        </div>
+        <p class="mt-2 text-sm text-slate-400">
+          Les messages indiquent clairement qui ecrit, qui repond et a quel moment.
+        </p>
+      </div>
+
+      <div class="px-6 pt-6">
+        <div class="grid gap-4 lg:grid-cols-2">
+          <article class="admin-party-card admin-party-card--client">
+            <div class="flex flex-wrap items-center gap-2">
+              <span class="admin-party-card__role admin-party-card__role--client">
+                Compte client
+              </span>
+            </div>
+            <div class="admin-party-card__content mt-4">
+              <div class="admin-avatar admin-avatar--xl">
+                <% if (conversation.client_profile_photo) { %>
+                  <img
+                    src="<%= conversation.client_profile_photo %>"
+                    alt="Photo de profil de <%= conversation.client_name %>"
+                    class="admin-avatar__image"
+                  >
+                <% } else { %>
+                  <span class="admin-avatar__fallback"><%= getInitials(conversation.client_name) %></span>
+                <% } %>
+              </div>
+              <div class="min-w-0">
+                <p class="admin-party-card__name"><%= conversation.client_name %></p>
+                <p class="admin-party-card__hint">Client de la reservation</p>
+                <p class="admin-party-card__meta"><%= conversation.client_email %></p>
+              </div>
+            </div>
+          </article>
+
+          <article class="admin-party-card admin-party-card--provider">
+            <div class="flex flex-wrap items-center gap-2">
+              <span class="admin-party-card__role admin-party-card__role--provider">
+                Compte prestataire
+              </span>
+            </div>
+            <div class="admin-party-card__content mt-4">
+              <div class="admin-avatar admin-avatar--xl">
+                <% if (conversation.provider_profile_photo) { %>
+                  <img
+                    src="<%= conversation.provider_profile_photo %>"
+                    alt="Photo de profil de <%= conversation.provider_name %>"
+                    class="admin-avatar__image"
+                  >
+                <% } else { %>
+                  <span class="admin-avatar__fallback"><%= getInitials(conversation.provider_name) %></span>
+                <% } %>
+              </div>
+              <div class="min-w-0">
+                <p class="admin-party-card__name"><%= conversation.provider_name %></p>
+                <p class="admin-party-card__hint">Prestataire du service</p>
+                <p class="admin-party-card__meta"><%= conversation.provider_email %></p>
+              </div>
+            </div>
+          </article>
+        </div>
+      </div>
+
+      <div class="conversation-thread-shell px-6 py-6">
+        <div class="conversation-thread rounded-3xl border border-white/10 bg-slate-950/45 p-4 pr-3">
+          <div class="space-y-4">
+            <% if (!conversation.messages.length) { %>
+              <div class="rounded-2xl border border-white/10 bg-slate-900/30 px-4 py-5 text-sm text-slate-400">
+                Aucun message enregistre dans cette conversation.
+              </div>
+            <% } else { %>
+              <% conversation.messages.forEach((message) => { %>
+                <% const tone = getMessageTone(message); %>
+                <article class="rounded-2xl border px-4 py-4 <%= tone.card %>">
+                  <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                    <div class="flex items-start gap-3">
+                      <div class="admin-avatar">
+                        <% if (message.sender_profile_photo) { %>
+                          <img
+                            src="<%= message.sender_profile_photo %>"
+                            alt="Photo de profil de <%= message.sender_name %>"
+                            class="admin-avatar__image"
+                          >
+                        <% } else { %>
+                          <span class="admin-avatar__fallback"><%= getInitials(message.sender_name) %></span>
+                        <% } %>
+                      </div>
+                      <div class="min-w-0">
+                        <div class="flex flex-wrap items-center gap-2">
+                          <span class="rounded-full border px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] <%= tone.badge %>">
+                            <%= getMessageRoleLabel(message) %>
+                          </span>
+                          <p class="admin-message__name"><%= message.sender_name %></p>
+                        </div>
+                        <p class="mt-3 whitespace-pre-wrap text-sm leading-6 text-slate-100"><%= message.content %></p>
+                      </div>
+                    </div>
+                    <p class="text-xs text-slate-400"><%= new Date(message.created_at).toLocaleString("fr-FR") %></p>
+                  </div>
+                </article>
+              <% }) %>
+            <% } %>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <aside class="space-y-4">
+      <div class="rounded-3xl border border-white/10 bg-white/5 px-5 py-5 shadow-xl shadow-black/10">
+        <p class="text-xs uppercase tracking-[0.25em] text-blue-300">Reservation</p>
+        <h2 class="mt-3 text-lg font-semibold text-white"><%= conversation.service_title %></h2>
+        <div class="mt-4 space-y-2 text-sm text-slate-300">
+          <p><span class="text-slate-500">Statut :</span> <%= conversation.booking_status %></p>
+          <p><span class="text-slate-500">Date :</span> <%= conversation.booking_date ? new Date(conversation.booking_date).toLocaleDateString("fr-FR") : "A definir" %></p>
+          <p><span class="text-slate-500">Heure :</span> <%= conversation.booking_time ? String(conversation.booking_time).slice(0, 5) : "A definir" %></p>
+          <p><span class="text-slate-500">Montant :</span> <%= Number(conversation.total_price || 0).toString().replace(".", ",") %> EUR</p>
+        </div>
+      </div>
+
+      <div class="rounded-3xl border border-white/10 bg-white/5 px-5 py-5 shadow-xl shadow-black/10">
+        <p class="text-xs uppercase tracking-[0.25em] text-blue-300">Liens utiles</p>
+        <div class="mt-4 flex flex-col gap-3 text-sm">
+          <a href="/admin/bookings/<%= conversation.booking_id %>" class="rounded-2xl border border-white/10 bg-slate-900/30 px-4 py-3 text-white transition hover:border-white/20">
+            Ouvrir la reservation
+          </a>
+          <a href="/services/<%= conversation.service_slug || '' %>" class="rounded-2xl border border-white/10 bg-slate-900/30 px-4 py-3 text-white transition hover:border-white/20">
+            Voir le service public
+          </a>
+        </div>
+      </div>
+
+      <div class="rounded-3xl border border-white/10 bg-white/5 px-5 py-5 shadow-xl shadow-black/10">
+        <p class="text-xs uppercase tracking-[0.25em] text-blue-300">Trace admin</p>
+        <p class="mt-3 text-sm leading-6 text-slate-300">
+          Cette consultation est journalisee dans l'historique admin. Les messages restent visibles ici meme si la conversation est supprimee cote client ou cote prestataire.
+        </p>
+      </div>
+    </aside>
+  </div>
+</section>

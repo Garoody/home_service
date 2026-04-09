@@ -1,6 +1,7 @@
 "use strict";
 
 import { z } from "zod";
+import { PROVIDER_STATUS_VALUES } from "../constants/providerStatuses.js";
 
 /**
  * Objectif:
@@ -23,6 +24,13 @@ const serviceSchema = z.object({
   // Prix numerique >= 0.
   price: z.number().min(0, "Le prix doit etre positif."),
   // Informations professionnelles ajoutees au service.
+  provider_status: z
+    .string()
+    .trim()
+    .refine(
+      (value) => PROVIDER_STATUS_VALUES.includes(value),
+      "Le statut du prestataire est obligatoire."
+    ),
   experience_years: z.number().int().min(0, "L'annee d'experience est invalide.").max(60, "L'annee d'experience est invalide."),
   trainings: z.string().trim().max(500, "Les formations sont trop longues.").optional(),
   has_driving_license: z.boolean(),
@@ -65,6 +73,7 @@ export function validateServicePayload(payload = {}) {
     title: payload.title,
     description: payload.description,
     price: Number(payload.price),
+    provider_status: payload.provider_status,
     experience_years: Number(payload.experience_years),
     trainings: payload.trainings || "",
     has_driving_license:
@@ -79,9 +88,10 @@ export function validateServicePayload(payload = {}) {
     return {
       success: false,
       data: null,
+      issues: result.error.issues,
       message: result.error.issues.map((issue) => issue.message).join(" | "),
     };
   }
 
-  return { success: true, data: result.data, message: null };
+  return { success: true, data: result.data, issues: [], message: null };
 }

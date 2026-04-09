@@ -1,11 +1,12 @@
 "use strict";
 
 import BookingService from "../services/BookingService.js";
-import PaymentService from "../services/PaymentService.js";
 import {
   validateBookingCreatePayload,
   validateBookingUpdatePayload,
 } from "../validators/bookingValidator.js";
+import { getFirstValidationMessage } from "../utils/formState.js";
+import { getBookingDateTimeConstraints } from "../utils/bookingSlot.js";
 
 function getUserId(req) {
   return (
@@ -15,6 +16,38 @@ function getUserId(req) {
     req.session?.userId ||
     null
   );
+}
+
+function buildBookingOldInput(payload = {}) {
+  return {
+    service_id: payload.service_id || "",
+    first_name: payload.first_name || "",
+    last_name: payload.last_name || "",
+    city: payload.city || "",
+    address: payload.address || "",
+    booking_date: payload.booking_date || "",
+    booking_time: payload.booking_time || "",
+    payment_method: payload.payment_method || "cb",
+    cardholder_name: payload.cardholder_name || "",
+    expiry: payload.expiry || "",
+    paypal_full_name: payload.paypal_full_name || "",
+    paypal_email: payload.paypal_email || "",
+    paypal_reference: payload.paypal_reference || "",
+    bank_account_name: payload.bank_account_name || "",
+    bank_name: payload.bank_name || "",
+    bic: payload.bic || "",
+    transfer_reference: payload.transfer_reference || "",
+  };
+}
+
+function getSafeReturnPath(req, fallbackPath) {
+  const returnTo = String(req.body?.returnTo || "").trim();
+
+  if (returnTo.startsWith("/") && !returnTo.startsWith("//")) {
+    return returnTo;
+  }
+
+  return fallbackPath;
 }
 
 class BookingController {
@@ -37,14 +70,47 @@ class BookingController {
     }
   }
 
+  async show(req, res) {
+    try {
+      const clientId = getUserId(req);
+      const { id } = req.params;
+      const booking = await BookingService.getDetailForUser({ bookingId: id, clientId });
+
+      return res.render("pages/bookings/show", {
+        title: "Detail de la reservation - HomeService",
+        booking,
+        viewerMode: "client",
+        csrfToken: res.locals.csrfToken,
+      });
+    } catch (error) {
+      req.flash("error", error.message);
+      return res.redirect("/bookings");
+    }
+  }
+
   async new(req, res) {
     const serviceId = req.query.service_id || req.query.service || "";
 
-    res.render("pages/bookings/new", {
-      title: "Nouvelle reservation - HomeService",
-      serviceId,
-      csrfToken: res.locals.csrfToken,
-    });
+    try {
+      const clientId = getUserId(req);
+
+      if (serviceId) {
+        await BookingService.assertClientCanBookService({
+          serviceId,
+          clientId,
+        });
+      }
+
+      res.render("pages/bookings/new", {
+        title: "Nouvelle reservation - HomeService",
+        serviceId,
+        bookingDateMin: getBookingDateTimeConstraints().minDate,
+        csrfToken: res.locals.csrfToken,
+      });
+    } catch (error) {
+      req.flash("error", error.message);
+      return res.redirect(serviceId ? `/services/${serviceId}` : "/services");
+    }
   }
 
   async edit(req, res) {
@@ -53,9 +119,15 @@ class BookingController {
       const { id } = req.params;
       const booking = await BookingService.getByIdForUser({ bookingId: id, clientId });
 
+      if (booking.status !== "pending") {
+        req.flash("error", "Cette reservation n'est plus modifiable.");
+        return res.redirect("/bookings");
+      }
+
       res.render("pages/bookings/edit", {
         title: "Modifier la reservation - HomeService",
         booking,
+        bookingDateMin: getBookingDateTimeConstraints().minDate,
         csrfToken: res.locals.csrfToken,
       });
     } catch (error) {
@@ -70,7 +142,8 @@ class BookingController {
 
     try {
       if (!validation.success) {
-        req.flash("error", validation.message);
+        req.saveOldInput(buildBookingOldInput(req.body));
+        req.flash("error", getFirstValidationMessage(validation));
         const backService = serviceIdForRedirect ? `?service=${encodeURIComponent(serviceIdForRedirect)}` : "";
         return res.redirect(`/bookings/new${backService}`);
       }
@@ -83,18 +156,13 @@ class BookingController {
         address,
         booking_date,
         booking_time,
-        payment_method,
-        cardholder_name,
-        card_number,
-        expiry,
-        cvc,
-        save_card,
-        paypal_email,
-        bank_account_name,
-        iban,
-        cash_acknowledged,
       } = validation.data;
       const clientId = getUserId(req);
+
+      await BookingService.assertClientCanBookService({
+        serviceId: service_id,
+        clientId,
+      });
 
       const booking = await BookingService.create({
         client_id: clientId,
@@ -107,57 +175,26 @@ class BookingController {
         booking_time,
       });
 
-      if (payment_method === "cb") {
-        const [expMonth = "", expYear = ""] = String(expiry || "").split("/");
+      req.flash(
+        "success",
+        "Demande de reservation envoyee. Le chat est ouvert et le paiement restera bloque jusqu'a la confirmation du prestataire."
+      );
 
-        await PaymentService.payBooking({
-          bookingId: booking.id,
-          clientId,
-          payment_method,
-          payment_source: "new",
-          saved_method_id: "",
-          save_card,
-          cardholder_name,
-          card_number,
-          exp_month: Number(expMonth),
-          exp_year: Number(`20${expYear}`),
-          cvc,
-          payment_details: {
-            cardholder_name,
-            last4: String(card_number || "").replace(/\s+/g, "").slice(-4),
-            exp_month: Number(expMonth),
-            exp_year: Number(`20${expYear}`),
-          },
-        });
-
-        req.flash("success", "Reservation creee et paiement par carte enregistre.");
-      } else {
-        const paymentDetails =
-          payment_method === "paypal"
-            ? { paypal_email }
-            : payment_method === "bank_transfer"
-              ? {
-                  bank_account_name,
-                  iban_last4: String(iban || "").replace(/\s+/g, "").slice(-4),
-                }
-              : {
-                  cash_acknowledged: Boolean(cash_acknowledged),
-                  note: "Paiement prevu lors de la prestation.",
-                };
-
-        await PaymentService.registerBookingPaymentSelection({
-          bookingId: booking.id,
-          clientId,
-          payment_method,
-          payment_details: paymentDetails,
-        });
-
-        req.flash("success", "Reservation creee avec le mode de paiement selectionne.");
+      if (booking?.conversationId) {
+        return res.redirect(`/conversations/${booking.conversationId}`);
       }
 
       res.redirect("/bookings");
     } catch (error) {
       req.flash("error", error.message);
+      if (
+        serviceIdForRedirect &&
+        error.message === "Vous ne pouvez pas reserver votre propre service."
+      ) {
+        return res.redirect(`/services/${serviceIdForRedirect}`);
+      }
+
+      req.saveOldInput(buildBookingOldInput(req.body));
       const backService = serviceIdForRedirect ? `?service=${encodeURIComponent(serviceIdForRedirect)}` : "";
       res.redirect(`/bookings/new${backService}`);
     }
@@ -167,7 +204,8 @@ class BookingController {
     try {
       const validation = validateBookingUpdatePayload(req.body);
       if (!validation.success) {
-        req.flash("error", validation.message);
+        req.saveOldInput(req.body);
+        req.flash("error", getFirstValidationMessage(validation));
         return res.redirect(`/bookings/${req.params.id}/edit`);
       }
 
@@ -189,6 +227,7 @@ class BookingController {
       req.flash("success", "Reservation mise a jour.");
       res.redirect("/bookings");
     } catch (error) {
+      req.saveOldInput(req.body);
       req.flash("error", error.message);
       res.redirect(`/bookings/${req.params.id}/edit`);
     }
@@ -201,11 +240,48 @@ class BookingController {
 
       await BookingService.deleteByClient({ bookingId: id, clientId });
 
-      req.flash("success", "Reservation supprimee.");
+      req.flash("success", "Reservation annulee.");
       res.redirect("/bookings");
     } catch (error) {
       req.flash("error", error.message);
       res.redirect("/bookings");
+    }
+  }
+
+  async confirmByProvider(req, res) {
+    const fallbackPath = "/users/profile/service-bookings/pending";
+
+    try {
+      const providerId = getUserId(req);
+      const { id } = req.params;
+
+      await BookingService.confirmByProvider({ bookingId: id, providerId });
+
+      req.flash(
+        "success",
+        "Reservation confirmee. Le client peut maintenant proceder au paiement."
+      );
+      res.redirect(getSafeReturnPath(req, fallbackPath));
+    } catch (error) {
+      req.flash("error", error.message);
+      res.redirect(getSafeReturnPath(req, fallbackPath));
+    }
+  }
+
+  async refuseByProvider(req, res) {
+    const fallbackPath = "/users/profile/service-bookings/pending";
+
+    try {
+      const providerId = getUserId(req);
+      const { id } = req.params;
+
+      await BookingService.refuseByProvider({ bookingId: id, providerId });
+
+      req.flash("success", "Reservation refusee.");
+      res.redirect(getSafeReturnPath(req, fallbackPath));
+    } catch (error) {
+      req.flash("error", error.message);
+      res.redirect(getSafeReturnPath(req, fallbackPath));
     }
   }
 }

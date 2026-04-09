@@ -8,27 +8,27 @@ import logger from "./logger.js";
 
 /**
  * Configuration Upload Images - HomeService
- * Stockage local (peut évoluer vers Cloudinary / S3 plus tard)
+ * Stockage local (peut evoluer vers Cloudinary / S3 plus tard)
  */
 
 const uploadPath = "public/uploads";
 
-// Création automatique du dossier si inexistant
+// Creation automatique du dossier si inexistant
 if (!fs.existsSync(uploadPath)) {
   fs.mkdirSync(uploadPath, { recursive: true });
-  logger.info("📁 Dossier uploads créé");s
+  logger.info("Dossier uploads cree");
 }
 
 /**
  * Configuration du stockage
  */
 const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
+  destination: (_req, _file, cb) => {
     cb(null, uploadPath);
   },
 
-  filename: (req, file, cb) => {
-    // Génère un nom unique sécurisé
+  filename: (_req, file, cb) => {
+    // Genere un nom unique securise
     const uniqueName = crypto.randomUUID();
     const extension = path.extname(file.originalname).toLowerCase();
 
@@ -37,9 +37,9 @@ const storage = multer.diskStorage({
 });
 
 /**
- * Filtre : uniquement images autorisées
+ * Filtre : uniquement images autorisees
  */
-const fileFilter = (req, file, cb) => {
+const fileFilter = (_req, file, cb) => {
   const allowedMimeTypes = [
     "image/jpeg",
     "image/png",
@@ -52,21 +52,21 @@ const fileFilter = (req, file, cb) => {
   } else {
     logger.warn(
       { fileType: file.mimetype },
-      "❌ Tentative upload fichier non autorisé"
+      "Tentative upload fichier non autorise"
     );
 
-    cb(new Error("Format non supporté. Images uniquement."), false);
+    cb(new Error("Format non supporte. Images uniquement."), false);
   }
 };
 
 /**
- * Middleware Multer configuré
+ * Middleware Multer configure
  */
 export const uploadConfig = multer({
   storage,
   fileFilter,
   limits: {
-    fileSize: 5 * 1024 * 1024, // 5MB max
+    fileSize: 5 * 1024 * 1024,
   },
 });
 

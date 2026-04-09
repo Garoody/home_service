@@ -20,6 +20,7 @@ CREATE TABLE IF NOT EXISTS reviews (
 );
 
 -- Trigger updated_at
+DROP TRIGGER IF EXISTS set_timestamp_reviews ON reviews;
 CREATE TRIGGER set_timestamp_reviews
 BEFORE UPDATE ON reviews
 FOR EACH ROW

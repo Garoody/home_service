@@ -1,0 +1,165 @@
+<section class="py-10">
+  <div class="max-w-5xl mx-auto px-4">
+    <% const isAllActive = !currentStatus; %>
+    <% const isPendingActive = currentStatus === "pending"; %>
+    <% const isConfirmedActive = currentStatus === "confirmed"; %>
+    <% const isCompletedActive = currentStatus === "completed"; %>
+
+    <div class="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+      <div>
+        <p class="text-xs uppercase tracking-[0.25em] text-blue-300">Activite de mes services</p>
+        <h1 class="mt-2 text-3xl font-semibold tracking-tight"><%= heading || "Reservations recues" %></h1>
+        <p class="mt-2 text-slate-400">
+          <%= description || "Suivez les reservations recues sur vos services et leur statut." %>
+        </p>
+      </div>
+      <a href="/users/profile" class="text-sm text-blue-300 hover:text-blue-200 transition">
+        Retour au profil
+      </a>
+    </div>
+
+    <div class="mt-8 flex flex-wrap gap-3">
+      <a
+        href="/users/profile/service-bookings"
+        class="<%= isAllActive ? 'bg-blue-600 text-white border-blue-600' : 'border-white/10 bg-white/5' %> rounded-full border px-4 py-2 text-sm hover:border-white/20 transition"
+      >
+        Toutes les reservations
+      </a>
+      <a
+        href="/users/profile/service-bookings/pending"
+        class="<%= isPendingActive ? 'bg-blue-600 text-white border-blue-600' : 'border-white/10 bg-white/5' %> rounded-full border px-4 py-2 text-sm hover:border-white/20 transition"
+      >
+        A confirmer
+      </a>
+      <a
+        href="/users/profile/service-bookings/confirmed"
+        class="<%= isConfirmedActive ? 'bg-blue-600 text-white border-blue-600' : 'border-white/10 bg-white/5' %> rounded-full border px-4 py-2 text-sm hover:border-white/20 transition"
+      >
+        Confirmees
+      </a>
+      <a
+        href="/users/profile/service-bookings/completed"
+        class="<%= isCompletedActive ? 'bg-blue-600 text-white border-blue-600' : 'border-white/10 bg-white/5' %> rounded-full border px-4 py-2 text-sm hover:border-white/20 transition"
+      >
+        Terminees
+      </a>
+    </div>
+
+    <div class="mt-8 space-y-4">
+      <% if (!bookings.length) { %>
+        <div class="rounded-2xl border border-white/10 bg-white/5 px-5 py-6 text-slate-400">
+          Aucune reservation trouvee pour ce filtre.
+        </div>
+      <% } else { %>
+        <% bookings.forEach((booking) => { %>
+          <% const statusLabels = { pending: "A confirmer", confirmed: "Confirmee", completed: "Terminee", cancelled: "Annulee" }; %>
+          <% const bookingDateValue = booking.booking_date instanceof Date ? booking.booking_date.toISOString().slice(0, 10) : String(booking.booking_date || "").slice(0, 10); %>
+          <% const bookingTimeValue = String(booking.booking_time || "").slice(0, 5); %>
+
+          <% const providerBookingCardLink = `/users/profile/service-bookings/detail/${booking.id}`; %>
+          <article
+            class="service-card--interactive rounded-2xl border border-white/10 bg-white/5 px-5 py-5"
+            tabindex="0"
+            data-card-link="<%= providerBookingCardLink %>"
+          >
+            <div class="flex flex-wrap items-center justify-between gap-4">
+              <div>
+                <a href="/services/<%= booking.service_slug %>" class="text-lg font-medium text-white transition hover:text-blue-200"><%= booking.service_title %></a>
+                <p class="mt-1 text-sm text-slate-400">
+                  Reserve par : <span class="text-slate-200"><%= booking.client_name %></span>
+                </p>
+                <p class="mt-1 text-sm text-slate-500">
+                  Creneau propose : <%= bookingDateValue || "N/A" %> a <%= bookingTimeValue || "N/A" %>
+                </p>
+              </div>
+              <div class="text-right">
+                <span class="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs text-slate-300">
+                  <%= statusLabels[booking.status] || booking.status %>
+                </span>
+                <p class="mt-3 text-emerald-300 font-medium"><%= (booking.total_price ?? 0).toString().replace(".", ",") %> EUR</p>
+              </div>
+            </div>
+
+            <div class="mt-4 rounded-xl border border-white/10 bg-slate-900/30 px-4 py-3 text-sm text-slate-300">
+              <% if (booking.status === "pending") { %>
+                Cette demande attend votre reponse. Le client peut deja vous ecrire, puis vous pouvez confirmer ou refuser le creneau.
+              <% } else if (booking.status === "confirmed" && booking.payment_status !== "paid") { %>
+                La reservation est confirmee. Le client peut maintenant proceder au paiement du service. Le creneau ne sera bloque qu'apres un paiement valide.
+              <% } else if (booking.payment_status === "paid" && booking.conversation_id) { %>
+                Paiement valide. Vous etes maintenant engage sur ce creneau et la discussion avec le client reste ouverte.
+              <% } else if (booking.status === "cancelled") { %>
+                Cette reservation a ete annulee.
+              <% } else { %>
+                Retrouvez ici le suivi de la reservation et les prochaines etapes.
+              <% } %>
+            </div>
+
+            <div class="mt-4 flex flex-wrap gap-2">
+              <a
+                href="/services/<%= booking.service_slug %>"
+                class="inline-flex items-center rounded-lg border border-white/10 bg-white/5 px-4 py-2 text-sm transition hover:border-white/20"
+              >
+                Voir le service
+              </a>
+
+              <a
+                href="/users/profile/service-bookings/detail/<%= booking.id %>"
+                class="inline-flex items-center rounded-lg border border-white/10 bg-white/5 px-4 py-2 text-sm transition hover:border-white/20"
+              >
+                Voir le detail
+              </a>
+
+              <% if (booking.conversation_id) { %>
+                <a
+                  href="/conversations/<%= booking.conversation_id %>"
+                  class="inline-flex items-center rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-indigo-500"
+                >
+                  Ouvrir la discussion
+                </a>
+              <% } %>
+
+              <% if (booking.status === "pending") { %>
+                <form action="/bookings/<%= booking.id %>/confirm" method="POST" class="inline-flex">
+                  <% if (csrfToken) { %>
+                    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                  <% } %>
+                  <button
+                    type="submit"
+                    class="inline-flex items-center rounded-lg bg-emerald-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-emerald-500"
+                  >
+                    Confirmer
+                  </button>
+                </form>
+
+                <form
+                  action="/bookings/<%= booking.id %>/refuse"
+                  method="POST"
+                  class="inline-flex"
+                  data-confirm="Voulez-vous vraiment refuser cette reservation ?"
+                >
+                  <% if (csrfToken) { %>
+                    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                  <% } %>
+                  <button
+                    type="submit"
+                    class="inline-flex items-center rounded-lg bg-rose-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-rose-500"
+                  >
+                    Refuser
+                  </button>
+                </form>
+              <% } else if (booking.status === "confirmed") { %>
+                <span class="inline-flex items-center rounded-lg border border-white/10 bg-white/5 px-4 py-2 text-sm text-slate-400">
+                  En attente du paiement du client
+                </span>
+              <% } else { %>
+                <span class="inline-flex items-center rounded-lg border border-white/10 bg-white/5 px-4 py-2 text-sm text-slate-400">
+                  La discussion reste disponible depuis la reservation
+                </span>
+              <% } %>
+            </div>
+          </article>
+        <% }) %>
+      <% } %>
+    </div>
+  </div>
+</section>

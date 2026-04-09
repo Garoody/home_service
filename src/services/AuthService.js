@@ -4,12 +4,26 @@ import bcrypt from "bcrypt";
 import { randomBytes } from "crypto";
 import UserRepository from "../repositories/UserRepository.js";
 
+const INVALID_LOGIN_MESSAGE = "Email ou mot de passe invalide.";
+
 class AuthService {
   // Authentifie un utilisateur via email et mot de passe.
   async authenticate(loginDto) {
     const user = await UserRepository.findByEmail(loginDto.email);
     if (!user) {
-      return { success: false, status: 401, message: "Email ou mot de passe incorrect." };
+      return { success: false, status: 401, message: INVALID_LOGIN_MESSAGE };
+    }
+
+    if (user.deletedByAdminAt) {
+      return { success: false, status: 401, message: INVALID_LOGIN_MESSAGE };
+    }
+
+    if (user.bannedAt) {
+      return { success: false, status: 401, message: INVALID_LOGIN_MESSAGE };
+    }
+
+    if (user.suspendedAt) {
+      return { success: false, status: 401, message: INVALID_LOGIN_MESSAGE };
     }
 
     // Compare le mot de passe saisi avec le hash stocke en base.
@@ -18,7 +32,7 @@ class AuthService {
       : false;
 
     if (!isValidPassword) {
-      return { success: false, status: 401, message: "Email ou mot de passe incorrect." };
+      return { success: false, status: 401, message: INVALID_LOGIN_MESSAGE };
     }
 
     return { success: true, user };

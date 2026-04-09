@@ -32,6 +32,16 @@ const paymentSchema = z.object({
   exp_year: z.number().int().min(new Date().getFullYear(), "Annee d'expiration invalide.").max(new Date().getFullYear() + 20, "Annee d'expiration invalide.").optional(),
   // CVC utilise seulement a la soumission, jamais persiste.
   cvc: z.string().regex(/^[0-9]{3,4}$/, "CVC invalide.").optional().or(z.literal("")),
+  // Coordonnees PayPal.
+  paypal_full_name: z.string().trim().min(2, "Nom PayPal invalide.").max(120, "Nom PayPal trop long.").optional().or(z.literal("")),
+  paypal_email: z.string().trim().max(160, "Adresse PayPal trop longue.").optional().or(z.literal("")),
+  paypal_reference: z.string().trim().max(80, "Reference PayPal trop longue.").optional().or(z.literal("")),
+  // Coordonnees de virement.
+  bank_account_name: z.string().trim().min(2, "Nom du titulaire du compte invalide.").max(120, "Nom du titulaire du compte trop long.").optional().or(z.literal("")),
+  bank_name: z.string().trim().min(2, "Nom de la banque invalide.").max(120, "Nom de la banque trop long.").optional().or(z.literal("")),
+  iban: z.string().trim().regex(/^[A-Za-z0-9\s]{14,34}$/, "IBAN invalide.").optional().or(z.literal("")),
+  bic: z.string().trim().regex(/^[A-Za-z0-9]{8,11}$/, "BIC / SWIFT invalide.").optional().or(z.literal("")),
+  transfer_reference: z.string().trim().max(80, "Reference de virement trop longue.").optional().or(z.literal("")),
   // Memoriser la carte pour plus tard.
   save_card: z.boolean().optional(),
   // Statut autorise par le type enum metier.
@@ -39,60 +49,110 @@ const paymentSchema = z.object({
 }).superRefine((data, ctx) => {
   const isCardPayment = ["cb", "visa", "mastercard", "other"].includes(data.payment_method);
 
-  if (!isCardPayment) {
-    return;
-  }
+  if (isCardPayment) {
+    if (data.payment_source === "saved") {
+      if (!data.saved_method_id) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ["saved_method_id"],
+          message: "Selectionnez une carte enregistree.",
+        });
+      }
+      return;
+    }
 
-  if (data.payment_source === "saved") {
-    if (!data.saved_method_id) {
+    if (!data.cardholder_name) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
-        path: ["saved_method_id"],
-        message: "Selectionnez une carte enregistree.",
+        path: ["cardholder_name"],
+        message: "Le nom du titulaire est obligatoire.",
       });
     }
+
+    const digits = String(data.card_number || "").replace(/\s+/g, "");
+    if (digits.length < 12 || digits.length > 19) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["card_number"],
+        message: "Numero de carte invalide.",
+      });
+    }
+
+    if (!data.exp_month) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["exp_month"],
+        message: "Le mois d'expiration est obligatoire.",
+      });
+    }
+
+    if (!data.exp_year) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["exp_year"],
+        message: "L'annee d'expiration est obligatoire.",
+      });
+    }
+
+    if (!data.cvc) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["cvc"],
+        message: "Le CVC est obligatoire.",
+      });
+    }
+
     return;
   }
 
-  if (!data.cardholder_name) {
-    ctx.addIssue({
-      code: z.ZodIssueCode.custom,
-      path: ["cardholder_name"],
-      message: "Le nom du titulaire est obligatoire.",
-    });
+  if (data.payment_method === "paypal") {
+    if (!data.paypal_full_name) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["paypal_full_name"],
+        message: "Le nom du titulaire PayPal est obligatoire.",
+      });
+    }
+    if (!String(data.paypal_email || "").includes("@")) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["paypal_email"],
+        message: "L'adresse PayPal est obligatoire.",
+      });
+    }
+
+    return;
   }
 
-  const digits = String(data.card_number || "").replace(/\s+/g, "");
-  if (digits.length < 12 || digits.length > 19) {
-    ctx.addIssue({
-      code: z.ZodIssueCode.custom,
-      path: ["card_number"],
-      message: "Numero de carte invalide.",
-    });
-  }
-
-  if (!data.exp_month) {
-    ctx.addIssue({
-      code: z.ZodIssueCode.custom,
-      path: ["exp_month"],
-      message: "Le mois d'expiration est obligatoire.",
-    });
-  }
-
-  if (!data.exp_year) {
-    ctx.addIssue({
-      code: z.ZodIssueCode.custom,
-      path: ["exp_year"],
-      message: "L'annee d'expiration est obligatoire.",
-    });
-  }
-
-  if (!data.cvc) {
-    ctx.addIssue({
-      code: z.ZodIssueCode.custom,
-      path: ["cvc"],
-      message: "Le CVC est obligatoire.",
-    });
+  if (data.payment_method === "bank_transfer") {
+    if (!data.bank_account_name) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["bank_account_name"],
+        message: "Le nom du titulaire du compte est obligatoire.",
+      });
+    }
+    if (!data.bank_name) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["bank_name"],
+        message: "Le nom de la banque est obligatoire.",
+      });
+    }
+    if (!data.iban) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["iban"],
+        message: "L'IBAN est obligatoire.",
+      });
+    }
+    if (!data.bic) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["bic"],
+        message: "Le BIC / SWIFT est obligatoire.",
+      });
+    }
   }
 });
 
@@ -118,6 +178,14 @@ export function validatePaymentPayload(payload = {}) {
     exp_month: payload.exp_month ? Number(payload.exp_month) : undefined,
     exp_year: payload.exp_year ? Number(payload.exp_year) : undefined,
     cvc: String(payload.cvc || ""),
+    paypal_full_name: payload.paypal_full_name,
+    paypal_email: String(payload.paypal_email || "").trim(),
+    paypal_reference: payload.paypal_reference,
+    bank_account_name: payload.bank_account_name,
+    bank_name: payload.bank_name,
+    iban: String(payload.iban || "").replace(/\s+/g, "").toUpperCase(),
+    bic: String(payload.bic || "").replace(/\s+/g, "").toUpperCase(),
+    transfer_reference: payload.transfer_reference,
     save_card:
       payload.save_card === true ||
       payload.save_card === "true" ||
@@ -130,8 +198,35 @@ export function validatePaymentPayload(payload = {}) {
     return {
       success: false,
       data: null,
+      issues: result.error.issues,
       message: result.error.issues.map((issue) => issue.message).join(" | "),
     };
   }
-  return { success: true, data: result.data, message: null };
+
+  const paymentDetails =
+    result.data.payment_method === "paypal"
+      ? {
+          paypal_full_name: result.data.paypal_full_name,
+          paypal_email: result.data.paypal_email,
+          paypal_reference: result.data.paypal_reference || null,
+        }
+      : result.data.payment_method === "bank_transfer"
+      ? {
+          bank_account_name: result.data.bank_account_name,
+          bank_name: result.data.bank_name,
+          bic: result.data.bic,
+          iban_last4: result.data.iban ? result.data.iban.slice(-4) : null,
+          transfer_reference: result.data.transfer_reference || null,
+        }
+      : null;
+
+  return {
+    success: true,
+    data: {
+      ...result.data,
+      payment_details: paymentDetails,
+    },
+    issues: [],
+    message: null,
+  };
 }

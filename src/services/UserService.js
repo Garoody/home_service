@@ -29,12 +29,16 @@ class UserService {
     return UserRepository.deleteById(userId);
   }
 
-  async updateProviderProfile(payload) {
-    return UserRepository.updateProviderProfile(payload);
+  async updateServiceProfile(payload) {
+    return UserRepository.updateServiceProfile(payload);
   }
 
-  async updateClientProfile(payload) {
-    return UserRepository.updateClientProfile(payload);
+  async updateProviderStatus(payload) {
+    return UserRepository.updateProviderStatus(payload);
+  }
+
+  async updateUserProfile(payload) {
+    return UserRepository.updateUserProfile(payload);
   }
 }
 

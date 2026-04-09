@@ -1,0 +1,242 @@
+<section class="py-10 max-w-7xl mx-auto px-4">
+  <%
+    const getInitials = (name) =>
+      String(name || "")
+        .trim()
+        .split(/\s+/)
+        .slice(0, 2)
+        .map((part) => part.charAt(0).toUpperCase())
+        .join("") || "?";
+    const formatMoney = (value) => Number(value || 0).toString().replace(".", ",");
+    const roleLabel = user.role === 'provider' ? 'Prestataire' : 'Client';
+    const buildReportLink = (targetType, targetId, title) =>
+      `/admin/reports?target_type=${encodeURIComponent(targetType)}&target_id=${encodeURIComponent(targetId)}&title=${encodeURIComponent(title)}`;
+  %>
+
+  <div class="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+    <div>
+      <p class="text-xs uppercase tracking-[0.3em] text-blue-300">Administration</p>
+      <h1 class="mt-2 text-3xl font-semibold tracking-tight">Detail du compte</h1>
+      <p class="mt-2 text-slate-400">Vue complete du profil, des activites recentes et de l'historique admin.</p>
+    </div>
+    <div class="flex flex-wrap gap-3">
+      <a href="/admin/users" class="rounded-lg border border-white/10 bg-white/5 px-4 py-2 hover:border-white/20 transition">
+        Retour aux comptes
+      </a>
+      <a href="<%= buildReportLink('user', user.id, `Compte ${user.full_name}`) %>" class="rounded-lg bg-blue-600 px-4 py-2 text-white hover:bg-blue-500 transition">
+        Creer un signalement
+      </a>
+    </div>
+  </div>
+
+  <div class="mt-8 grid gap-6 lg:grid-cols-[minmax(0,1fr)_24rem]">
+    <section class="space-y-6">
+      <article class="rounded-3xl border border-white/10 bg-white/5 p-6 shadow-xl shadow-black/10">
+        <div class="flex flex-col gap-5 md:flex-row md:items-start md:justify-between">
+          <div class="flex items-start gap-4">
+            <div class="admin-avatar admin-avatar--xl">
+              <% if (user.profile_photo_path) { %>
+                <img src="<%= user.profile_photo_path %>" alt="Photo de profil de <%= user.full_name %>" class="admin-avatar__image">
+              <% } else { %>
+                <span class="admin-avatar__fallback"><%= getInitials(user.full_name) %></span>
+              <% } %>
+            </div>
+            <div class="min-w-0">
+              <div class="flex flex-wrap items-center gap-3">
+                <span class="rounded-full border border-blue-400/20 bg-blue-500/15 px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-blue-100"><%= roleLabel %></span>
+                <h2 class="text-2xl font-semibold text-white"><%= user.full_name %></h2>
+              </div>
+
+              <div class="mt-4 grid gap-2 text-sm text-slate-300 md:grid-cols-2">
+                <p><span class="text-slate-500">Email :</span> <%= user.email %></p>
+                <p><span class="text-slate-500">Telephone :</span> <%= user.phone || 'Non renseigne' %></p>
+                <p><span class="text-slate-500">Adresse :</span> <%= user.address || 'Non renseignee' %></p>
+                <p><span class="text-slate-500">Inscrit le :</span> <%= new Date(user.created_at).toLocaleDateString('fr-FR') %></p>
+              </div>
+
+              <% if (user.role === 'provider') { %>
+                <div class="mt-4 grid gap-2 text-sm text-slate-300 md:grid-cols-2">
+                  <p><span class="text-slate-500">Statut :</span> <%= user.provider_status || 'Non renseigne' %></p>
+                  <p><span class="text-slate-500">Experience :</span> <%= user.experience_years || 0 %> an(s)</p>
+                  <p><span class="text-slate-500">Zone :</span> <%= user.service_area || 'Non renseignee' %></p>
+                  <p><span class="text-slate-500">Permis :</span> <%= user.has_driving_license ? 'Oui' : 'Non' %></p>
+                </div>
+                <% if (user.trainings) { %>
+                  <p class="mt-3 text-sm text-slate-300"><span class="text-slate-500">Formations :</span> <%= user.trainings %></p>
+                <% } %>
+              <% } %>
+
+              <div class="mt-5 flex flex-wrap gap-3 text-sm">
+                <% if (user.role === 'provider') { %>
+                  <a href="/users/public/<%= user.id %>" class="rounded-xl border border-white/10 bg-white/5 px-4 py-2 hover:border-white/20 transition">Voir le profil public</a>
+                <% } %>
+                <a href="/admin/conversations?q=<%= encodeURIComponent(user.full_name) %>" class="rounded-xl border border-white/10 bg-white/5 px-4 py-2 hover:border-white/20 transition">Voir ses conversations</a>
+              </div>
+            </div>
+          </div>
+
+          <div class="flex flex-wrap gap-2 md:max-w-xs">
+            <% if (user.deleted_by_admin_at) { %>
+              <span class="rounded-full border border-rose-400/20 bg-rose-500/15 px-3 py-1 text-xs font-medium text-rose-200">Supprime admin</span>
+            <% } else if (user.banned_at) { %>
+              <span class="rounded-full border border-rose-400/20 bg-rose-500/15 px-3 py-1 text-xs font-medium text-rose-200">Banni</span>
+            <% } else if (user.suspended_at) { %>
+              <span class="rounded-full border border-amber-400/20 bg-amber-500/15 px-3 py-1 text-xs font-medium text-amber-200">Suspendu</span>
+            <% } else { %>
+              <span class="rounded-full border border-emerald-400/30 bg-emerald-500/20 px-3 py-1 text-xs font-semibold text-emerald-100">Actif</span>
+            <% } %>
+            <% if (!user.can_message) { %>
+              <span class="rounded-full border border-blue-400/20 bg-blue-500/15 px-3 py-1 text-xs font-medium text-blue-200">Messagerie coupee</span>
+            <% } %>
+            <% if (!user.can_publish_services) { %>
+              <span class="rounded-full border border-violet-400/20 bg-violet-500/15 px-3 py-1 text-xs font-medium text-violet-200">Publication coupee</span>
+            <% } %>
+          </div>
+        </div>
+      </article>
+
+      <div class="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+        <article class="rounded-2xl border border-white/10 bg-white/5 p-5">
+          <p class="text-sm text-slate-400">Services</p>
+          <p class="mt-3 text-3xl font-semibold text-white"><%= user.service_count %></p>
+        </article>
+        <article class="rounded-2xl border border-white/10 bg-white/5 p-5">
+          <p class="text-sm text-slate-400">Reservations client</p>
+          <p class="mt-3 text-3xl font-semibold text-white"><%= user.client_booking_count %></p>
+        </article>
+        <article class="rounded-2xl border border-white/10 bg-white/5 p-5">
+          <p class="text-sm text-slate-400">Reservations prestataire</p>
+          <p class="mt-3 text-3xl font-semibold text-white"><%= user.provider_booking_count %></p>
+        </article>
+        <article class="rounded-2xl border border-white/10 bg-white/5 p-5">
+          <p class="text-sm text-slate-400">Total encaisse</p>
+          <p class="mt-3 text-3xl font-semibold text-emerald-300"><%= formatMoney(user.revenue_received) %> EUR</p>
+        </article>
+      </div>
+
+      <div class="grid gap-6 xl:grid-cols-2">
+        <article class="rounded-3xl border border-white/10 bg-white/5 p-6 shadow-xl shadow-black/10">
+          <h2 class="text-xl font-semibold text-white">Services recents</h2>
+          <% if (!user.recentServices?.length) { %>
+            <p class="mt-4 text-sm text-slate-400">Aucun service recent.</p>
+          <% } else { %>
+            <div class="mt-4 space-y-3">
+              <% user.recentServices.forEach((service) => { %>
+                <a href="/admin/services/<%= service.id %>" class="block rounded-2xl border border-white/10 bg-slate-900/30 px-4 py-4 hover:border-white/20 transition">
+                  <div class="flex items-center justify-between gap-3">
+                    <p class="text-sm font-semibold text-white"><%= service.title %></p>
+                    <span class="text-xs text-slate-500"><%= service.admin_status %></span>
+                  </div>
+                  <p class="mt-2 text-sm text-slate-400"><%= formatMoney(service.price) %> EUR</p>
+                </a>
+              <% }) %>
+            </div>
+          <% } %>
+        </article>
+
+        <article class="rounded-3xl border border-white/10 bg-white/5 p-6 shadow-xl shadow-black/10">
+          <h2 class="text-xl font-semibold text-white">Paiements recents</h2>
+          <% if (!user.recentPayments?.length) { %>
+            <p class="mt-4 text-sm text-slate-400">Aucun paiement recent.</p>
+          <% } else { %>
+            <div class="mt-4 space-y-3">
+              <% user.recentPayments.forEach((payment) => { %>
+                <a href="/admin/payments/<%= payment.id %>" class="block rounded-2xl border border-white/10 bg-slate-900/30 px-4 py-4 hover:border-white/20 transition">
+                  <div class="flex items-center justify-between gap-3">
+                    <p class="text-sm font-semibold text-white"><%= payment.service_title %></p>
+                    <span class="text-xs text-slate-500"><%= payment.payment_status %></span>
+                  </div>
+                  <p class="mt-2 text-sm text-slate-400"><%= formatMoney(payment.amount) %> EUR · <%= payment.payment_method %></p>
+                </a>
+              <% }) %>
+            </div>
+          <% } %>
+        </article>
+
+        <article class="rounded-3xl border border-white/10 bg-white/5 p-6 shadow-xl shadow-black/10">
+          <h2 class="text-xl font-semibold text-white">Reservations client recentes</h2>
+          <% if (!user.recentClientBookings?.length) { %>
+            <p class="mt-4 text-sm text-slate-400">Aucune reservation client recente.</p>
+          <% } else { %>
+            <div class="mt-4 space-y-3">
+              <% user.recentClientBookings.forEach((booking) => { %>
+                <a href="/admin/bookings/<%= booking.id %>" class="block rounded-2xl border border-white/10 bg-slate-900/30 px-4 py-4 hover:border-white/20 transition">
+                  <div class="flex items-center justify-between gap-3">
+                    <p class="text-sm font-semibold text-white"><%= booking.service_title %></p>
+                    <span class="text-xs text-slate-500"><%= booking.status %></span>
+                  </div>
+                  <p class="mt-2 text-sm text-slate-400"><%= booking.provider_name %> · <%= new Date(booking.booking_date).toLocaleDateString('fr-FR') %></p>
+                </a>
+              <% }) %>
+            </div>
+          <% } %>
+        </article>
+
+        <article class="rounded-3xl border border-white/10 bg-white/5 p-6 shadow-xl shadow-black/10">
+          <h2 class="text-xl font-semibold text-white">Reservations prestataire recentes</h2>
+          <% if (!user.recentProviderBookings?.length) { %>
+            <p class="mt-4 text-sm text-slate-400">Aucune reservation prestataire recente.</p>
+          <% } else { %>
+            <div class="mt-4 space-y-3">
+              <% user.recentProviderBookings.forEach((booking) => { %>
+                <a href="/admin/bookings/<%= booking.id %>" class="block rounded-2xl border border-white/10 bg-slate-900/30 px-4 py-4 hover:border-white/20 transition">
+                  <div class="flex items-center justify-between gap-3">
+                    <p class="text-sm font-semibold text-white"><%= booking.service_title %></p>
+                    <span class="text-xs text-slate-500"><%= booking.status %></span>
+                  </div>
+                  <p class="mt-2 text-sm text-slate-400"><%= booking.client_name %> · <%= new Date(booking.booking_date).toLocaleDateString('fr-FR') %></p>
+                </a>
+              <% }) %>
+            </div>
+          <% } %>
+        </article>
+      </div>
+    </section>
+
+    <aside class="space-y-6">
+      <article class="rounded-3xl border border-white/10 bg-white/5 p-6 shadow-xl shadow-black/10">
+        <h2 class="text-xl font-semibold text-white">Avertissements</h2>
+        <% if (!user.warnings?.length) { %>
+          <p class="mt-4 text-sm text-slate-400">Aucun avertissement enregistre.</p>
+        <% } else { %>
+          <div class="mt-4 space-y-3">
+            <% user.warnings.forEach((warning) => { %>
+              <article class="rounded-2xl border border-white/10 bg-slate-900/30 px-4 py-4">
+                <p class="text-sm font-semibold text-white"><%= warning.warning_level %></p>
+                <p class="mt-2 text-sm text-slate-300"><%= warning.reason %></p>
+                <p class="mt-2 text-xs text-slate-500"><%= warning.admin_name %> · <%= new Date(warning.created_at).toLocaleString('fr-FR') %></p>
+              </article>
+            <% }) %>
+          </div>
+        <% } %>
+      </article>
+
+      <article class="rounded-3xl border border-white/10 bg-white/5 p-6 shadow-xl shadow-black/10">
+        <div class="flex items-center justify-between gap-3">
+          <div>
+            <h2 class="text-xl font-semibold text-white">Trace admin</h2>
+            <p class="mt-1 text-sm text-slate-400">Actions recentes sur ce compte.</p>
+          </div>
+          <a href="/admin/logs?q=<%= encodeURIComponent(user.full_name) %>" class="text-sm text-blue-300 hover:text-blue-200 transition">Tout voir</a>
+        </div>
+
+        <% if (!user.adminLogs?.length) { %>
+          <div class="mt-5 rounded-2xl border border-white/10 bg-slate-900/30 px-4 py-5 text-sm text-slate-400">
+            Aucune trace admin pour ce compte.
+          </div>
+        <% } else { %>
+          <div class="mt-5 space-y-3">
+            <% user.adminLogs.forEach((log) => { %>
+              <article class="rounded-2xl border border-white/10 bg-slate-900/30 px-4 py-4">
+                <p class="text-sm font-semibold text-white"><%= log.display_title %></p>
+                <p class="mt-1 text-sm text-slate-300"><%= log.display_subject %></p>
+                <p class="mt-2 text-sm text-slate-400"><%= log.display_detail %></p>
+                <p class="mt-2 text-xs text-slate-500"><%= new Date(log.created_at).toLocaleString('fr-FR') %></p>
+              </article>
+            <% }) %>
+          </div>
+        <% } %>
+      </article>
+    </aside>
+  </div>
+</section>

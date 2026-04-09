@@ -18,6 +18,7 @@ CREATE TABLE IF NOT EXISTS payments (
 );
 
 -- Trigger updated_at
+DROP TRIGGER IF EXISTS set_timestamp_payments ON payments;
 CREATE TRIGGER set_timestamp_payments
 BEFORE UPDATE ON payments
 FOR EACH ROW

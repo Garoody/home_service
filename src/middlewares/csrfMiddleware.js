@@ -1,11 +1,7 @@
 "use strict";
 
 // Comme j'ai déjà generateToken() et doubleCsrfProtection dans ton security.js, on fait simple :
-
-
-
-
-import { generateToken, doubleCsrfProtection } from "../middlewares/security.js";
+import { generateToken, doubleCsrfProtection } from "../config/security.js";
 
 /**
  * Protège les requêtes POST/PUT/PATCH/DELETE (formulaires).

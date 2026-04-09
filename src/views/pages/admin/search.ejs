@@ -1,0 +1,77 @@
+<section class="py-10 max-w-7xl mx-auto px-4">
+  <div class="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+    <div>
+      <p class="text-xs uppercase tracking-[0.3em] text-blue-300">Administration</p>
+      <h1 class="mt-2 text-3xl font-semibold tracking-tight">Recherche globale admin</h1>
+      <p class="mt-2 text-slate-400">Une seule recherche pour retrouver un compte, un service, une reservation, un paiement, un avis ou une conversation.</p>
+    </div>
+    <a href="/admin" class="rounded-lg border border-white/10 bg-white/5 px-4 py-2 hover:border-white/20 transition">
+      Retour au dashboard
+    </a>
+  </div>
+
+  <form method="GET" action="/admin/search" class="mt-8 grid gap-4 rounded-2xl border border-white/10 bg-white/5 p-5 md:grid-cols-[1fr_auto]">
+    <input
+      type="text"
+      name="q"
+      value="<%= q || '' %>"
+      placeholder="Nom, email, service, conversation, reservation..."
+      class="rounded-xl border border-white/10 bg-slate-900/40 px-4 py-3 text-slate-100 placeholder:text-slate-500"
+    >
+    <button type="submit" class="rounded-xl bg-blue-600 px-4 py-3 font-medium text-white hover:bg-blue-500 transition">
+      Rechercher
+    </button>
+  </form>
+
+  <% const sections = [
+    { title: 'Comptes', items: results.users, link: (item) => `/admin/users/${item.id}` },
+    { title: 'Services', items: results.services, link: (item) => `/admin/services/${item.id}` },
+    { title: 'Reservations', items: results.bookings, link: (item) => `/admin/bookings/${item.id}` },
+    { title: 'Paiements', items: results.payments, link: (item) => `/admin/payments/${item.id}` },
+    { title: 'Avis', items: results.reviews, link: (item) => `/admin/reviews/${item.id}` },
+    { title: 'Conversations', items: results.conversations, link: (item) => `/admin/conversations/${item.id}` },
+  ]; %>
+
+  <div class="mt-8 grid gap-6 xl:grid-cols-2">
+    <% sections.forEach((section) => { %>
+      <article class="rounded-3xl border border-white/10 bg-white/5 p-6 shadow-xl shadow-black/10">
+        <div class="flex items-center justify-between gap-3">
+          <h2 class="text-xl font-semibold text-white"><%= section.title %></h2>
+          <span class="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-medium text-slate-200"><%= section.items.length %></span>
+        </div>
+
+        <% if (!q) { %>
+          <p class="mt-4 text-sm text-slate-400">Lance une recherche pour afficher les resultats.</p>
+        <% } else if (!section.items.length) { %>
+          <p class="mt-4 text-sm text-slate-400">Aucun resultat dans cette section.</p>
+        <% } else { %>
+          <div class="mt-4 space-y-3">
+            <% section.items.forEach((item) => { %>
+              <a href="<%= section.link(item) %>" class="block rounded-2xl border border-white/10 bg-slate-900/30 px-4 py-4 hover:border-white/20 transition">
+                <% if (section.title === 'Comptes') { %>
+                  <p class="text-sm font-semibold text-white"><%= item.full_name %></p>
+                  <p class="mt-1 text-sm text-slate-400"><%= item.email %> · <%= item.role === 'provider' ? 'Prestataire' : 'Client' %></p>
+                <% } else if (section.title === 'Services') { %>
+                  <p class="text-sm font-semibold text-white"><%= item.title %></p>
+                  <p class="mt-1 text-sm text-slate-400"><%= item.provider_name %> · <%= item.admin_status %></p>
+                <% } else if (section.title === 'Reservations') { %>
+                  <p class="text-sm font-semibold text-white"><%= item.service_title %></p>
+                  <p class="mt-1 text-sm text-slate-400"><%= item.client_name %> · <%= item.provider_name %> · <%= item.status %></p>
+                <% } else if (section.title === 'Paiements') { %>
+                  <p class="text-sm font-semibold text-white"><%= item.service_title %></p>
+                  <p class="mt-1 text-sm text-slate-400"><%= item.client_name %> · <%= Number(item.amount || 0).toString().replace(".", ",") %> EUR · <%= item.payment_status %></p>
+                <% } else if (section.title === 'Avis') { %>
+                  <p class="text-sm font-semibold text-white"><%= item.service_title %></p>
+                  <p class="mt-1 text-sm text-slate-400"><%= item.client_name %> · <%= item.provider_name %> · <%= item.rating %>/5</p>
+                <% } else { %>
+                  <p class="text-sm font-semibold text-white"><%= item.service_title %></p>
+                  <p class="mt-1 text-sm text-slate-400"><%= item.client_name %> · <%= item.provider_name %></p>
+                <% } %>
+              </a>
+            <% }) %>
+          </div>
+        <% } %>
+      </article>
+    <% }) %>
+  </div>
+</section>

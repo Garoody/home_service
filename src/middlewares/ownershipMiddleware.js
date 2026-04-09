@@ -2,7 +2,6 @@
 
 /**
  * Empêche un user de modifier une ressource qui ne lui appartient pas.
- * admin = bypass
  */
 export const requireOwnership = (getOwnerId) => {
   return async (req, res, next) => {
@@ -11,10 +10,8 @@ export const requireOwnership = (getOwnerId) => {
 
       if (!user) {
         req.flash?.("error", "Veuillez vous connecter.");
-        return res.redirect("/login");
+        return res.redirect("/auth/login");
       }
-
-      if (user.role === "admin") return next();
 
       const ownerId = await getOwnerId(req);
 

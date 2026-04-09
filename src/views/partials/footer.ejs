@@ -1,62 +1,79 @@
-<footer class="bg-slate-950 border-t border-white/10">
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-8 text-sm">
-      <div>
-        <a href="/" class="inline-flex items-center gap-3 text-white font-semibold mb-3 hover:text-blue-400 transition">
-          <img
-            src="/images/logo.svg"
-            alt="HomeService"
-            class="h-10 w-10 rounded-xl border border-white/10 bg-white/5 p-1.5 shadow-lg shadow-blue-950/20"
-          >
-          <span>HomeService</span>
-        </a>
-        <p class="text-slate-400">
-          Plateforme de reservation de services a domicile.
-          Trouvez rapidement un professionnel qualifie pres de chez vous.
-        </p>
-      </div>
+<%
+  const isAdmin = currentUser?.role === "admin";
+  const accountHome = isAdmin ? "/admin" : "/users/profile";
+%>
 
-      <div>
-        <h3 class="text-white font-semibold mb-3">Liens rapides</h3>
-        <ul class="space-y-2 text-slate-400">
-          <li><a href="/" class="hover:text-blue-400 transition">Accueil</a></li>
-          <li><a href="/categories" class="hover:text-blue-400 transition">Categories</a></li>
-          <li><a href="/services" class="hover:text-blue-400 transition">Services</a></li>
-          <% if (currentUser) { %>
-            <li><a href="/users/profile" class="hover:text-blue-400 transition">Mon espace</a></li>
-            <% if (currentUser.role === "client") { %>
-              <li><a href="/bookings" class="hover:text-blue-400 transition">Mes reservations</a></li>
-            <% } %>
-            <li>
-              <form
-                action="/auth/logout"
-                method="POST"
-                data-confirm="Voulez-vous vraiment vous deconnecter ?"
-              >
-                <button
-                  type="submit"
-                  class="bg-transparent p-0 text-slate-400 hover:text-red-300 transition"
-                >
-                  Deconnexion
-                </button>
-              </form>
-            </li>
-          <% } else { %>
-            <li><a href="/auth/login" class="hover:text-blue-400 transition">Connexion</a></li>
-          <% } %>
-        </ul>
-      </div>
+<div class="service-footer__inner">
+  <div class="service-footer__grid">
+    <div class="service-footer__brand">
+      <a href="/services" class="service-footer__logo">
+        <img
+          src="/images/logo.svg"
+          alt="HomeService"
+        >
 
-      <div>
-        <h3 class="text-white font-semibold mb-3">Contact</h3>
-        <p class="text-slate-400">France</p>
-        <p class="text-slate-400">cherygaroody@gmail.com</p>
-        <p class="text-slate-400">+33 758480076</p>
-      </div>
+        <span>
+          <span class="service-footer__eyebrow">Plateforme de services</span>
+          <span class="service-brand__title">HomeService</span>
+        </span>
+      </a>
+
+      <p class="service-footer__copy">
+        Plateforme de reservation de services a domicile.
+        Trouvez rapidement un professionnel qualifie pres de chez vous,
+        puis suivez vos demandes, vos paiements et vos reservations.
+      </p>
     </div>
 
-    <div class="mt-8 pt-6 border-t border-white/10 text-center text-slate-500 text-xs">
-      &copy; <%= new Date().getFullYear() %> HomeService - Tous droits reserves
+    <div>
+      <h3 class="service-footer__title">Liens rapides</h3>
+      <ul class="service-footer__list">
+        <li><a href="/categories">Categories</a></li>
+        <li><a href="/services">Services</a></li>
+        <% if (currentUser) { %>
+          <li>
+            <a href="<%= accountHome %>">
+              <%= isAdmin ? "Administration" : "Mon espace" %>
+            </a>
+          </li>
+          <% if (!isAdmin) { %>
+            <li><a href="/bookings">Mes reservations</a></li>
+            <li><a href="/services/new">Proposer un service</a></li>
+          <% } %>
+          <li>
+            <form
+              action="/auth/logout"
+              method="POST"
+              data-confirm="Voulez-vous vraiment vous deconnecter ?"
+            >
+              <% if (csrfToken) { %>
+                <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+              <% } %>
+              <button
+                type="submit"
+                class="service-nav__logout bg-transparent"
+              >
+                Deconnexion
+              </button>
+            </form>
+          </li>
+        <% } else { %>
+          <li><a href="/auth/login">Connexion</a></li>
+        <% } %>
+      </ul>
+    </div>
+
+    <div>
+      <h3 class="service-footer__title">Contact</h3>
+      <ul class="service-footer__list">
+        <li>France</li>
+        <li>cherygaroody@gmail.com</li>
+        <li>+33 758480076</li>
+      </ul>
     </div>
   </div>
-</footer>
+
+  <div class="service-footer__bottom">
+    &copy; <%= new Date().getFullYear() %> HomeService - Tous droits reserves
+  </div>
+</div>

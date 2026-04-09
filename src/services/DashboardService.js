@@ -3,14 +3,9 @@
 import db from "../config/database.js";
 import BookingService from "./BookingService.js";
 import PaymentService from "./PaymentService.js";
+import ServiceService from "./ServiceService.js";
 
-/**
- * DashboardService
- * Centralise les donnees affichees dans l'espace utilisateur.
- * Le contenu varie selon le role connecte : client ou prestataire.
- */
 class DashboardService {
-  // Prepare les indicateurs utiles au tableau de bord client.
   static async getClientDashboard(userId) {
     const [bookings, payments, reviewsResult] = await Promise.all([
       BookingService.listForUser(userId),
@@ -39,9 +34,14 @@ class DashboardService {
     };
   }
 
-  // Prepare les indicateurs utiles au tableau de bord prestataire.
-  static async getProviderDashboard(userId) {
-    const [servicesResult, bookingsResult, reviewsResult, payments] = await Promise.all([
+  static async getProviderDashboard(userId, { publicOnly = false } = {}) {
+    const hasAdminStatusColumn = await ServiceService.hasAdminStatusColumn();
+    const serviceVisibilitySql =
+      publicOnly && hasAdminStatusColumn
+        ? "AND COALESCE(s.admin_status, 'active') = 'active'"
+        : "";
+
+    const [servicesResult, bookings, reviewsResult, payments] = await Promise.all([
       db.query(
         `
         SELECT
@@ -54,29 +54,12 @@ class DashboardService {
         FROM public.services s
         JOIN public.categories c ON c.id_category = s.category_id
         WHERE s.provider_id::text = $1
+          ${serviceVisibilitySql}
         ORDER BY s.created_at DESC
         `,
         [userId]
       ),
-      db.query(
-        `
-        SELECT
-          b.id_booking::text AS id,
-          b.status,
-          b.booking_date,
-          b.booking_time,
-          b.total_price,
-          s.id_service::text AS service_slug,
-          s.title AS service_title,
-          u.full_name AS client_name
-        FROM public.bookings b
-        JOIN public.services s ON s.id_service = b.service_id
-        JOIN public.users u ON u.id_user = b.client_id
-        WHERE s.provider_id::text = $1
-        ORDER BY b.created_at DESC
-        `,
-        [userId]
-      ),
+      BookingService.listForProvider(userId),
       db.query(
         `
         SELECT
@@ -91,7 +74,6 @@ class DashboardService {
     ]);
 
     const services = servicesResult.rows;
-    const bookings = bookingsResult.rows;
     const reviews = reviewsResult.rows[0] || { total_reviews: 0, average_rating: 0 };
     const revenue = payments.reduce((total, payment) => total + Number(payment.amount || 0), 0);
 
@@ -110,6 +92,39 @@ class DashboardService {
       latestServices: services.slice(0, 4),
       latestBookings: bookings.slice(0, 4),
       recentPayments: payments.slice(0, 4),
+    };
+  }
+
+  // Tableau de bord unique pour un compte utilisateur normal.
+  // Le meme compte peut reserver et publier des services.
+  static async getUserDashboard(userId) {
+    const [clientDashboard, providerDashboard] = await Promise.all([
+      this.getClientDashboard(userId),
+      this.getProviderDashboard(userId),
+    ]);
+
+    return {
+      role: "user",
+      stats: {
+        bookings: clientDashboard.stats.bookings,
+        pending: clientDashboard.stats.pending,
+        completed: clientDashboard.stats.completed,
+        payments: clientDashboard.stats.payments,
+        reviewsLeft: clientDashboard.stats.reviews,
+        services: providerDashboard.stats.services,
+        requests: providerDashboard.stats.bookings,
+        activeRequests: providerDashboard.stats.activeBookings,
+        completedServices: providerDashboard.stats.completedBookings,
+        receivedPayments: providerDashboard.stats.paidPayments,
+        revenue: providerDashboard.stats.revenue,
+        reviewsReceived: providerDashboard.stats.totalReviews,
+        averageRating: providerDashboard.stats.averageRating,
+      },
+      recentBookings: clientDashboard.recentBookings,
+      recentPayments: clientDashboard.recentPayments,
+      latestServices: providerDashboard.latestServices,
+      latestRequests: providerDashboard.latestBookings,
+      providerPayments: providerDashboard.recentPayments,
     };
   }
 }

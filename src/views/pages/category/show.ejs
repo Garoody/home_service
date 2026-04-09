@@ -1,3 +1,8 @@
+<%
+  const isAdmin = currentUser?.role === "admin";
+  const isOwnService = currentUser && String(currentUser.id) === String(service.provider_id);
+%>
+
 <section class="py-8">
   <div class="max-w-4xl mx-auto">
     <div class="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
@@ -21,7 +26,7 @@
           <% if (service.provider_name) { %>
             Propose par <span class="text-slate-200"><%= service.provider_name %></span>
           <% } else { %>
-            Propose par un prestataire
+            Propose par un utilisateur
           <% } %>
         </p>
       </div>
@@ -34,13 +39,17 @@
           <- Retour
         </a>
 
-        <% if (!currentUser || currentUser.role === "client") { %>
+        <% if (!isAdmin && !isOwnService) { %>
           <a
             href="/bookings/new?service=<%= service.slug %>"
             class="px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 transition font-medium shadow-lg shadow-blue-600/20"
           >
             Reserver
           </a>
+        <% } else if (isOwnService) { %>
+          <span class="px-4 py-2 rounded-lg border border-white/10 bg-white/5 text-sm font-medium text-slate-300">
+            Votre service
+          </span>
         <% } %>
       </div>
     </div>
@@ -76,16 +85,20 @@
         </div>
 
         <div class="mt-6 grid gap-3">
-          <% if (!currentUser || currentUser.role === "client") { %>
+          <% if (!isAdmin && !isOwnService) { %>
             <a
               href="/bookings/new?service=<%= service.slug %>"
               class="w-full text-center py-2.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 transition font-medium shadow-lg shadow-emerald-600/20"
             >
               Reserver maintenant
             </a>
+          <% } else if (isOwnService) { %>
+            <div class="w-full text-center py-2.5 rounded-lg border border-white/10 bg-white/5 text-sm font-medium text-slate-300">
+              Votre service
+            </div>
           <% } %>
 
-          <% if (currentUser && (currentUser.role === "admin" || String(currentUser.id) === String(service.provider_id))) { %>
+          <% if (currentUser && String(currentUser.id) === String(service.provider_id)) { %>
             <a
               href="/services/<%= service.slug %>/edit"
               class="w-full text-center py-2.5 rounded-lg bg-slate-700 hover:bg-slate-600 transition font-medium"

@@ -1,0 +1,125 @@
+<section class="py-10 max-w-7xl mx-auto px-4">
+  <%
+    const getInitials = (name) =>
+      String(name || "")
+        .trim()
+        .split(/\s+/)
+        .slice(0, 2)
+        .map((part) => part.charAt(0).toUpperCase())
+        .join("") || "?";
+    const formatMoney = (value) => Number(value || 0).toString().replace(".", ",");
+  %>
+
+  <div class="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+    <div>
+      <p class="text-xs uppercase tracking-[0.3em] text-blue-300">Administration</p>
+      <h1 class="mt-2 text-3xl font-semibold tracking-tight">Paiements admin</h1>
+      <p class="mt-2 text-slate-400">Tous les paiements, avec le client, le prestataire, le service et le statut.</p>
+    </div>
+    <a href="/admin" class="rounded-lg border border-white/10 bg-white/5 px-4 py-2 hover:border-white/20 transition">
+      Retour au dashboard
+    </a>
+  </div>
+
+  <form method="GET" action="/admin/payments" class="mt-8 grid gap-4 rounded-2xl border border-white/10 bg-white/5 p-5 lg:grid-cols-[1fr_220px_220px_auto]">
+    <input
+      type="text"
+      name="q"
+      value="<%= q || '' %>"
+      placeholder="Rechercher par client, prestataire ou service"
+      class="rounded-xl border border-white/10 bg-slate-900/40 px-4 py-3 text-slate-100 placeholder:text-slate-500"
+    >
+    <select name="status" class="rounded-xl border border-white/10 bg-slate-900/40 px-4 py-3 text-slate-100">
+      <option value="">Tous les statuts</option>
+      <option value="pending" <%= status === 'pending' ? 'selected' : '' %>>En attente</option>
+      <option value="paid" <%= status === 'paid' ? 'selected' : '' %>>Payes</option>
+      <option value="failed" <%= status === 'failed' ? 'selected' : '' %>>Echoues</option>
+    </select>
+    <select name="method" class="rounded-xl border border-white/10 bg-slate-900/40 px-4 py-3 text-slate-100">
+      <option value="">Tous les modes</option>
+      <option value="card" <%= method === 'card' ? 'selected' : '' %>>Carte</option>
+      <option value="paypal" <%= method === 'paypal' ? 'selected' : '' %>>PayPal</option>
+      <option value="bank_transfer" <%= method === 'bank_transfer' ? 'selected' : '' %>>Virement</option>
+      <option value="cash" <%= method === 'cash' ? 'selected' : '' %>>Especes</option>
+    </select>
+    <button type="submit" class="rounded-xl bg-blue-600 px-4 py-3 font-medium text-white hover:bg-blue-500 transition">
+      Filtrer
+    </button>
+  </form>
+
+  <div class="mt-8 space-y-5">
+    <% if (!payments.length) { %>
+      <div class="rounded-2xl border border-white/10 bg-white/5 px-5 py-6 text-slate-400">
+        Aucun paiement ne correspond a cette recherche.
+      </div>
+    <% } else { %>
+      <% payments.forEach((payment) => { %>
+        <article
+          class="service-card--interactive rounded-2xl border border-white/10 bg-white/5 p-5"
+          tabindex="0"
+          data-card-link="/admin/payments/<%= payment.id %>"
+        >
+          <div class="flex flex-col gap-5 xl:flex-row xl:items-start xl:justify-between">
+            <div class="min-w-0 flex-1">
+              <div class="flex flex-wrap items-center gap-3">
+                <h2 class="text-xl font-semibold text-white"><%= payment.service_title %></h2>
+                <span class="rounded-full border border-blue-400/20 bg-blue-500/15 px-3 py-1 text-xs font-medium text-blue-200"><%= payment.payment_status %></span>
+                <span class="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-medium text-slate-200"><%= payment.payment_method %></span>
+              </div>
+
+              <div class="mt-4 grid gap-3 md:grid-cols-2">
+                <div class="rounded-2xl border border-white/10 bg-slate-900/30 px-4 py-4">
+                  <div class="flex items-center gap-3">
+                    <div class="admin-avatar">
+                      <% if (payment.client_profile_photo) { %>
+                        <img src="<%= payment.client_profile_photo %>" alt="Photo de profil de <%= payment.client_name %>" class="admin-avatar__image">
+                      <% } else { %>
+                        <span class="admin-avatar__fallback"><%= getInitials(payment.client_name) %></span>
+                      <% } %>
+                    </div>
+                    <div class="min-w-0">
+                      <p class="text-xs font-semibold uppercase tracking-[0.2em] text-blue-200">Client</p>
+                      <p class="mt-1 text-sm font-medium text-white"><%= payment.client_name %></p>
+                      <p class="mt-1 text-xs text-slate-400"><%= payment.client_email %></p>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="rounded-2xl border border-white/10 bg-slate-900/30 px-4 py-4">
+                  <div class="flex items-center gap-3">
+                    <div class="admin-avatar">
+                      <% if (payment.provider_profile_photo) { %>
+                        <img src="<%= payment.provider_profile_photo %>" alt="Photo de profil de <%= payment.provider_name %>" class="admin-avatar__image">
+                      <% } else { %>
+                        <span class="admin-avatar__fallback"><%= getInitials(payment.provider_name) %></span>
+                      <% } %>
+                    </div>
+                    <div class="min-w-0">
+                      <p class="text-xs font-semibold uppercase tracking-[0.2em] text-slate-200">Prestataire</p>
+                      <p class="mt-1 text-sm font-medium text-white"><%= payment.provider_name %></p>
+                      <p class="mt-1 text-xs text-slate-400"><%= payment.provider_email %></p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="mt-4 grid gap-2 text-sm text-slate-300 md:grid-cols-2 xl:grid-cols-4">
+                <p><span class="text-slate-500">Montant :</span> <%= formatMoney(payment.amount) %> EUR</p>
+                <p><span class="text-slate-500">Reservation :</span> <%= payment.booking_status %></p>
+                <p><span class="text-slate-500">Date :</span> <%= payment.payment_date ? new Date(payment.payment_date).toLocaleString('fr-FR') : 'Non reglee' %></p>
+                <p><span class="text-slate-500">Creation :</span> <%= new Date(payment.created_at).toLocaleDateString('fr-FR') %></p>
+              </div>
+            </div>
+
+            <div class="w-full max-w-xs rounded-2xl border border-white/10 bg-slate-900/30 p-4">
+              <p class="text-sm text-slate-300">Ouvrez le paiement pour voir le detail du mode de reglement et les liens vers la reservation.</p>
+              <a href="/admin/payments/<%= payment.id %>" class="mt-3 inline-flex w-full items-center justify-center rounded-xl bg-blue-600 px-4 py-2.5 text-sm font-medium text-white transition hover:bg-blue-500">
+                Ouvrir le detail
+              </a>
+            </div>
+          </div>
+        </article>
+      <% }) %>
+    <% } %>
+  </div>
+</section>

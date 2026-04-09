@@ -12,16 +12,40 @@ import { z } from "zod";
  * Sortie:
  * - contrat uniforme { success, data, message }
  */
-const reviewSchema = z.object({
-  // Reservation ciblee par l'avis.
-  booking_id: z.string().uuid("Reservation invalide."),
-  // Prestataire evalue.
-  provider_id: z.string().uuid("Prestataire invalide."),
+const reviewContentSchema = z.object({
   // Note de 1 a 5 conformement a la contrainte SQL.
   rating: z.number().int().min(1, "La note minimum est 1.").max(5, "La note maximum est 5."),
   // Commentaire optionnel.
   comment: z.string().trim().max(5000, "Le commentaire est trop long.").optional().or(z.literal("")),
 });
+
+const reviewCreateSchema = reviewContentSchema.extend({
+  // Reservation ciblee par l'avis.
+  booking_id: z.string().uuid("Reservation invalide."),
+  // Prestataire evalue.
+  provider_id: z.string().uuid("Prestataire invalide."),
+});
+
+const reviewReplySchema = z.object({
+  provider_reply: z
+    .string()
+    .trim()
+    .min(1, "La reponse du prestataire est obligatoire.")
+    .max(5000, "La reponse du prestataire est trop longue."),
+});
+
+function buildValidationResult(result) {
+  if (!result.success) {
+    return {
+      success: false,
+      data: null,
+      issues: result.error.issues,
+      message: result.error.issues.map((issue) => issue.message).join(" | "),
+    };
+  }
+
+  return { success: true, data: result.data, issues: [], message: null };
+}
 
 /**
  * Objectif:
@@ -41,13 +65,22 @@ export function validateReviewPayload(payload = {}) {
     comment: payload.comment,
   };
 
-  const result = reviewSchema.safeParse(normalized);
-  if (!result.success) {
-    return {
-      success: false,
-      data: null,
-      message: result.error.issues.map((issue) => issue.message).join(" | "),
-    };
-  }
-  return { success: true, data: result.data, message: null };
+  return buildValidationResult(reviewCreateSchema.safeParse(normalized));
+}
+
+export function validateReviewUpdatePayload(payload = {}) {
+  const normalized = {
+    rating: Number(payload.rating),
+    comment: payload.comment,
+  };
+
+  return buildValidationResult(reviewContentSchema.safeParse(normalized));
+}
+
+export function validateReviewReplyPayload(payload = {}) {
+  const normalized = {
+    provider_reply: payload.provider_reply,
+  };
+
+  return buildValidationResult(reviewReplySchema.safeParse(normalized));
 }

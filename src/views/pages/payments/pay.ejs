@@ -5,22 +5,75 @@
 -->
 <section class="checkout-page">
   <div class="checkout-page__inner">
+    <%
+      const formValues = oldInput || {};
+      const selectedMethod = formValues.payment_method || preferredMethod || "cb";
+    %>
     <h1 class="checkout-page__title">Selectionner un mode de paiement</h1>
+
+    <div class="checkout-summary">
+      <p class="checkout-summary__eyebrow">Reservation confirmee</p>
+      <h2 class="checkout-summary__title"><%= booking.service_title || "Service" %></h2>
+      <p class="checkout-summary__text">
+        Votre reservation est confirmee. Vous pouvez maintenant regler
+        <strong><%= (booking.amount ?? 0).toString().replace(".", ",") %> EUR</strong>.
+        La discussion est deja ouverte et le creneau sera verrouille apres validation du paiement.
+      </p>
+    </div>
 
     <form action="/payments/<%= booking.booking_id %>" method="POST" id="payment-form" class="checkout-card">
       <% if (typeof csrfToken !== "undefined") { %>
-        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>">
       <% } %>
 
-      <input type="hidden" name="amount" value="<%= booking.amount %>">
-      <input type="hidden" name="payment_source" value="new">
-      <input type="hidden" name="exp_month" id="exp_month">
-      <input type="hidden" name="exp_year" id="exp_year">
+      <input type="hidden" name="amount" value="<%= formValues.amount || booking.amount %>">
+      <input type="hidden" name="payment_source" value="<%= formValues.payment_source || 'new' %>">
+      <input type="hidden" name="exp_month" id="exp_month" value="<%= formValues.exp_month || '' %>" data-method-field="cb">
+      <input type="hidden" name="exp_year" id="exp_year" value="<%= formValues.exp_year || '' %>" data-method-field="cb">
 
-      <section class="checkout-option <%= (preferredMethod || 'cb') === 'cb' ? 'is-active' : '' %>" data-method-section data-method="cb">
+      <div class="checkout-method-picker">
+        <button type="button" class="checkout-choice <%= selectedMethod === 'cb' ? 'is-active' : '' %>" data-method-choice="cb" data-method-select="cb">
+          <span class="checkout-choice__radio" aria-hidden="true"></span>
+          <span class="checkout-choice__content">
+            <span class="checkout-choice__title">Payer par Carte Bancaire</span>
+            <span class="checkout-choice__text">Visa, Mastercard, CB et autres cartes compatibles.</span>
+            <span class="checkout-choice__logos">
+              <span class="checkout-logo checkout-logo--visa">VISA</span>
+              <span class="checkout-logo checkout-logo--mc">MASTERCARD</span>
+              <span class="checkout-logo checkout-logo--cb">CB</span>
+            </span>
+          </span>
+        </button>
+
+        <button type="button" class="checkout-choice <%= selectedMethod === 'paypal' ? 'is-active' : '' %>" data-method-choice="paypal" data-method-select="paypal">
+          <span class="checkout-choice__radio" aria-hidden="true"></span>
+          <span class="checkout-choice__content">
+            <span class="checkout-choice__title">Payer par PayPal</span>
+            <span class="checkout-choice__text">Reglez avec votre compte PayPal en quelques instants.</span>
+          </span>
+        </button>
+
+        <button type="button" class="checkout-choice <%= selectedMethod === 'bank_transfer' ? 'is-active' : '' %>" data-method-choice="bank_transfer" data-method-select="bank_transfer">
+          <span class="checkout-choice__radio" aria-hidden="true"></span>
+          <span class="checkout-choice__content">
+            <span class="checkout-choice__title">Virement Bancaire</span>
+            <span class="checkout-choice__text">Renseignez les informations du compte utilise pour le virement.</span>
+          </span>
+        </button>
+
+        <button type="button" class="checkout-choice <%= selectedMethod === 'cash' ? 'is-active' : '' %>" data-method-choice="cash" data-method-select="cash">
+          <span class="checkout-choice__radio" aria-hidden="true"></span>
+          <span class="checkout-choice__content">
+            <span class="checkout-choice__title">Payer en Especes</span>
+            <span class="checkout-choice__text">Paiement en especes a la livraison.</span>
+          </span>
+        </button>
+      </div>
+
+      <section class="checkout-option <%= selectedMethod === 'cb' ? 'is-active' : '' %>" data-method-section data-method="cb">
         <div class="checkout-option__frame">
           <label class="checkout-option__header">
-            <input type="radio" name="payment_method" value="cb" <%= (preferredMethod || 'cb') === 'cb' ? 'checked' : '' %>>
+            <input type="radio" name="payment_method" value="cb" <%= selectedMethod === 'cb' ? 'checked' : '' %>>
             <span class="checkout-option__radio"></span>
 
             <div class="checkout-option__content">
@@ -30,7 +83,6 @@
                 <span class="checkout-logo checkout-logo--visa">VISA</span>
                 <span class="checkout-logo checkout-logo--mc">MASTERCARD</span>
                 <span class="checkout-logo checkout-logo--cb">CB</span>
-                <span class="checkout-logo checkout-logo--other">AUTRE</span>
               </div>
             </div>
           </label>
@@ -39,51 +91,78 @@
             <div class="checkout-option__inner">
               <div class="checkout-option__divider"></div>
 
-              <div class="checkout-fields">
-              <input
-                type="text"
-                name="card_number"
-                id="card_number"
-                placeholder="Numero de carte"
-                inputmode="numeric"
-                autocomplete="cc-number"
-                maxlength="23"
-                class="checkout-input checkout-input--number"
-              >
+              <div class="checkout-grid">
+                <label class="checkout-field">
+                  <span class="checkout-field__label">Titulaire de la carte</span>
+                  <input
+                    type="text"
+                    name="cardholder_name"
+                    id="cardholder_name"
+                    placeholder="Nom complet du titulaire"
+                    value="<%= formValues.cardholder_name || '' %>"
+                    class="checkout-input"
+                    data-method-field="cb"
+                  >
+                </label>
 
-                <input
-                  type="text"
-                  id="expiry"
-                  placeholder="Date d'expiration MM / AA"
-                  inputmode="numeric"
-                  maxlength="5"
-                  class="checkout-input"
-                >
+                <label class="checkout-field checkout-field--wide">
+                  <span class="checkout-field__label">Numero de carte</span>
+                  <input
+                    type="text"
+                    name="card_number"
+                    id="card_number"
+                    placeholder="Numero de carte"
+                    inputmode="numeric"
+                    autocomplete="cc-number"
+                    maxlength="23"
+                    value="<%= formValues.card_number || '' %>"
+                    class="checkout-input"
+                    data-method-field="cb"
+                  >
+                </label>
 
-                <input
-                  type="text"
-                  name="cvc"
-                  id="cvc"
-                  placeholder="Cryptogramme CVC"
-                  inputmode="numeric"
-                  autocomplete="cc-csc"
-                  maxlength="4"
-                  class="checkout-input"
-                >
+                <label class="checkout-field">
+                  <span class="checkout-field__label">Date d'expiration</span>
+                  <input
+                    type="text"
+                    id="expiry"
+                    placeholder="MM / AA"
+                    inputmode="numeric"
+                    maxlength="5"
+                    value="<%= formValues.expiry || '' %>"
+                    class="checkout-input"
+                    data-method-field="cb"
+                  >
+                </label>
+
+                <label class="checkout-field">
+                  <span class="checkout-field__label">Cryptogramme</span>
+                  <input
+                    type="text"
+                    name="cvc"
+                    id="cvc"
+                    placeholder="CVC"
+                    inputmode="numeric"
+                    autocomplete="cc-csc"
+                    maxlength="4"
+                    class="checkout-input"
+                    data-method-field="cb"
+                  >
+                </label>
               </div>
 
               <div class="checkout-button-row">
-                <button type="submit" class="checkout-button">Payer</button>
+                <button type="submit" class="checkout-button">Payer par carte</button>
               </div>
             </div>
           </div>
         </div>
       </section>
 
-      <section class="checkout-option <%= preferredMethod === 'paypal' ? 'is-active' : '' %>" data-method-section data-method="paypal">
+      <section class="checkout-option <%= selectedMethod === 'paypal' ? 'is-active' : '' %>" data-method-section data-method="paypal">
         <div class="checkout-option__frame">
           <label class="checkout-option__header checkout-option__header--compact">
-            <input type="radio" name="payment_method" value="paypal" <%= preferredMethod === 'paypal' ? 'checked' : '' %>>
+            <input type="radio" name="payment_method" value="paypal" <%= selectedMethod === 'paypal' ? 'checked' : '' %>>
             <span class="checkout-option__radio"></span>
 
             <div class="checkout-option__content">
@@ -95,6 +174,59 @@
 
           <div class="checkout-option__body checkout-option__body--compact">
             <div class="checkout-option__inner">
+              <div class="checkout-option__divider"></div>
+
+              <div class="checkout-method-note">
+                Renseignez simplement le compte PayPal que vous souhaitez utiliser pour ce reglement.
+              </div>
+
+              <div class="checkout-grid">
+                <label class="checkout-field">
+                  <span class="checkout-field__label">Nom du titulaire PayPal</span>
+                  <input
+                    type="text"
+                    name="paypal_full_name"
+                    id="paypal_full_name"
+                    placeholder="Nom complet"
+                    value="<%= formValues.paypal_full_name || '' %>"
+                    class="checkout-input"
+                    data-method-field="paypal"
+                  >
+                </label>
+
+                <label class="checkout-field">
+                  <span class="checkout-field__label">Adresse PayPal</span>
+                  <input
+                    type="text"
+                    name="paypal_email"
+                    id="paypal_email"
+                    placeholder="nom@paypal.com"
+                    inputmode="email"
+                    value="<%= formValues.paypal_email || '' %>"
+                    class="checkout-input"
+                    data-method-field="paypal"
+                  >
+                </label>
+
+                <label class="checkout-field checkout-field--wide">
+                  <span class="checkout-field__label">Reference du paiement</span>
+                  <input
+                    type="text"
+                    name="paypal_reference"
+                    id="paypal_reference"
+                    placeholder="Reference interne ou motif du paiement"
+                    value="<%= formValues.paypal_reference || '' %>"
+                    class="checkout-input"
+                    data-method-field="paypal"
+                  >
+                </label>
+              </div>
+
+              <div class="checkout-summary-strip">
+                <span>Montant a regler</span>
+                <strong><%= (booking.amount ?? 0).toString().replace(".", ",") %> EUR</strong>
+              </div>
+
               <div class="checkout-button-row">
                 <button type="submit" class="checkout-button">Payer avec PayPal</button>
               </div>
@@ -103,30 +235,111 @@
         </div>
       </section>
 
-      <section class="checkout-option <%= preferredMethod === 'bank_transfer' ? 'is-active' : '' %>" data-method-section data-method="bank_transfer">
+      <section class="checkout-option <%= selectedMethod === 'bank_transfer' ? 'is-active' : '' %>" data-method-section data-method="bank_transfer">
         <div class="checkout-option__frame">
           <label class="checkout-option__header checkout-option__header--compact">
-            <input type="radio" name="payment_method" value="bank_transfer" <%= preferredMethod === 'bank_transfer' ? 'checked' : '' %>>
+            <input type="radio" name="payment_method" value="bank_transfer" <%= selectedMethod === 'bank_transfer' ? 'checked' : '' %>>
             <span class="checkout-option__radio"></span>
 
             <div class="checkout-option__content">
               <h2 class="checkout-option__title">Virement Bancaire</h2>
-              <p class="checkout-option__text">Coordonnees bancaires fournies a l'etape suivante.</p>
+              <p class="checkout-option__text">Renseignez les informations du compte utilise pour le virement.</p>
             </div>
           </label>
 
           <div class="checkout-option__body checkout-option__body--compact">
             <div class="checkout-option__inner">
-              <div class="checkout-message">Les informations de virement seront communiquees apres validation.</div>
+              <div class="checkout-option__divider"></div>
+
+              <div class="checkout-method-note">
+                Ce mode enregistre votre choix de virement pour cette reservation et garde un recapitulatif clair dans votre espace.
+              </div>
+
+              <div class="checkout-grid">
+                <label class="checkout-field">
+                  <span class="checkout-field__label">Titulaire du compte</span>
+                  <input
+                    type="text"
+                    name="bank_account_name"
+                    id="bank_account_name"
+                    placeholder="Nom du titulaire"
+                    value="<%= formValues.bank_account_name || '' %>"
+                    class="checkout-input"
+                    data-method-field="bank_transfer"
+                  >
+                </label>
+
+                <label class="checkout-field">
+                  <span class="checkout-field__label">Banque</span>
+                  <input
+                    type="text"
+                    name="bank_name"
+                    id="bank_name"
+                    placeholder="Nom de la banque"
+                    value="<%= formValues.bank_name || '' %>"
+                    class="checkout-input"
+                    data-method-field="bank_transfer"
+                  >
+                </label>
+
+                <label class="checkout-field checkout-field--wide">
+                  <span class="checkout-field__label">IBAN</span>
+                  <input
+                    type="text"
+                    name="iban"
+                    id="iban"
+                    placeholder="FR76 3000 6000 0112 3456 7890 189"
+                    inputmode="text"
+                    value="<%= formValues.iban || '' %>"
+                    class="checkout-input"
+                    data-method-field="bank_transfer"
+                  >
+                </label>
+
+                <label class="checkout-field">
+                  <span class="checkout-field__label">BIC / SWIFT</span>
+                  <input
+                    type="text"
+                    name="bic"
+                    id="bic"
+                    placeholder="AGRIFRPP"
+                    value="<%= formValues.bic || '' %>"
+                    class="checkout-input"
+                    data-method-field="bank_transfer"
+                  >
+                </label>
+
+                <label class="checkout-field">
+                  <span class="checkout-field__label">Reference du virement</span>
+                  <input
+                    type="text"
+                    name="transfer_reference"
+                    id="transfer_reference"
+                    placeholder="Reference ou motif"
+                    value="<%= formValues.transfer_reference || '' %>"
+                    class="checkout-input"
+                    data-method-field="bank_transfer"
+                  >
+                </label>
+              </div>
+
+              <div class="checkout-summary-strip">
+                <span>Montant a regler</span>
+                <strong><%= (booking.amount ?? 0).toString().replace(".", ",") %> EUR</strong>
+              </div>
+
+              <div class="checkout-button-row">
+                <button type="submit" class="checkout-button">Confirmer le virement</button>
+              </div>
             </div>
           </div>
         </div>
       </section>
 
-      <section class="checkout-option <%= preferredMethod === 'cash' ? 'is-active' : '' %>" data-method-section data-method="cash">
+      <section class="checkout-option <%= selectedMethod === 'cash' ? 'is-active' : '' %>" data-method-section data-method="cash">
         <div class="checkout-option__frame">
           <label class="checkout-option__header checkout-option__header--compact">
-            <input type="radio" name="payment_method" value="cash" <%= preferredMethod === 'cash' ? 'checked' : '' %>>
+            <input type="radio" name="payment_method" value="cash" <%= selectedMethod === 'cash' ? 'checked' : '' %>>
             <span class="checkout-option__radio"></span>
 
             <div class="checkout-option__content">
@@ -137,7 +350,10 @@
 
           <div class="checkout-option__body checkout-option__body--compact">
             <div class="checkout-option__inner">
-              <div class="checkout-message">Le paiement sera effectue directement au prestataire lors du service.</div>
+              <div class="checkout-message">Le paiement sera effectue directement a l'intervenant lors du service.</div>
+              <div class="checkout-button-row">
+                <button type="submit" class="checkout-button">Confirmer le paiement en especes</button>
+              </div>
             </div>
           </div>
         </div>
@@ -153,28 +369,37 @@
 
     const methodInputs = Array.from(form.querySelectorAll('input[name="payment_method"]'));
     const sections = Array.from(form.querySelectorAll("[data-method-section]"));
-    const cardFields = [
-      document.getElementById("card_number"),
-      document.getElementById("expiry"),
-      document.getElementById("cvc"),
-      document.getElementById("exp_month"),
-      document.getElementById("exp_year"),
-    ];
+    const choices = Array.from(form.querySelectorAll("[data-method-choice]"));
+    const selectButtons = Array.from(form.querySelectorAll("[data-method-select]"));
+    const methodFields = Array.from(form.querySelectorAll("[data-method-field]"));
     const cardNumberInput = document.getElementById("card_number");
     const expiryInput = document.getElementById("expiry");
     const expMonthInput = document.getElementById("exp_month");
     const expYearInput = document.getElementById("exp_year");
+    const ibanInput = document.getElementById("iban");
+    const bicInput = document.getElementById("bic");
 
     const syncPaymentState = () => {
       const selectedMethod = form.querySelector('input[name="payment_method"]:checked')?.value || "cb";
       const isCardPayment = ["cb", "visa", "mastercard", "other"].includes(selectedMethod);
+      const activeMethodKey = isCardPayment ? "cb" : selectedMethod;
 
       sections.forEach((section) => {
         section.classList.toggle("is-active", section.dataset.method === selectedMethod);
       });
 
-      cardFields.forEach((field) => {
-        if (field) field.disabled = !isCardPayment;
+      choices.forEach((choice) => {
+        choice.classList.toggle("is-active", choice.dataset.methodChoice === selectedMethod);
+      });
+
+      methodFields.forEach((field) => {
+        if (
+          field instanceof HTMLInputElement ||
+          field instanceof HTMLTextAreaElement ||
+          field instanceof HTMLSelectElement
+        ) {
+          field.disabled = field.dataset.methodField !== activeMethodKey;
+        }
       });
     };
 
@@ -197,8 +422,38 @@
       });
     }
 
+    if (ibanInput) {
+      ibanInput.addEventListener("input", () => {
+        const normalized = ibanInput.value
+          .replace(/[^a-zA-Z0-9]/g, "")
+          .toUpperCase()
+          .slice(0, 34);
+
+        ibanInput.value = normalized.replace(/(.{4})/g, "$1 ").trim();
+      });
+    }
+
+    if (bicInput) {
+      bicInput.addEventListener("input", () => {
+        bicInput.value = bicInput.value
+          .replace(/[^a-zA-Z0-9]/g, "")
+          .toUpperCase()
+          .slice(0, 11);
+      });
+    }
+
     methodInputs.forEach((input) => {
       input.addEventListener("change", syncPaymentState);
+    });
+
+    selectButtons.forEach((button) => {
+      button.addEventListener("click", () => {
+        const selectedMethod = button.dataset.methodSelect;
+        const targetInput = form.querySelector(`input[name="payment_method"][value="${selectedMethod}"]`);
+        if (!(targetInput instanceof HTMLInputElement)) return;
+        targetInput.checked = true;
+        syncPaymentState();
+      });
     });
 
     syncPaymentState();
@@ -209,7 +464,9 @@
   .checkout-page {
     min-height: calc(100vh - 4rem);
     padding: 2.5rem 1rem 3rem;
-    background: #1c1f28;
+    background:
+      radial-gradient(circle at top left, rgba(47, 103, 211, 0.12), transparent 24rem),
+      linear-gradient(180deg, #f7f9fd 0%, #eef3fb 100%);
   }
 
   .checkout-page__inner {
@@ -223,27 +480,147 @@
     text-align: center;
     font-size: 2.3rem;
     font-weight: 700;
-    color: #ffffff;
+    color: #16213b;
+  }
+
+  .checkout-summary {
+    width: 100%;
+    max-width: 70rem;
+    margin: 0 auto 1.5rem;
+    padding: 1.2rem 1.4rem;
+    border: 1px solid #d7e0ef;
+    border-radius: 1rem;
+    background: rgba(255, 255, 255, 0.96);
+    box-shadow: 0 18px 34px rgba(15, 23, 42, 0.08);
+    color: #41506a;
+  }
+
+  .checkout-summary__eyebrow {
+    margin: 0;
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: #1450b8;
+  }
+
+  .checkout-summary__title {
+    margin: 0.55rem 0 0;
+    font-size: 1.25rem;
+    color: #16213b;
+  }
+
+  .checkout-summary__text {
+    margin: 0.65rem 0 0;
+    line-height: 1.6;
+    color: #49566f;
   }
 
   .checkout-card {
     width: 100%;
     max-width: 70rem;
     margin: 0 auto;
-    border: 1px solid #3a3f49;
-    border-radius: 0.2rem;
-    background: #222631;
+    border: 1px solid #d7e0ef;
+    border-radius: 1.1rem;
+    background: rgba(255, 255, 255, 0.98);
+    box-shadow: 0 24px 42px rgba(15, 23, 42, 0.08);
     overflow: hidden;
   }
 
-  .checkout-option {
-    border-top: 1px solid #3a3f49;
+  .checkout-method-picker {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1rem;
+    padding: 1.35rem;
+    border-bottom: 1px solid #e4ebf5;
+    background: linear-gradient(180deg, rgba(247, 250, 255, 0.98), rgba(255, 255, 255, 0.98));
+  }
+
+  .checkout-choice {
     display: flex;
-    justify-content: center;
+    align-items: flex-start;
+    gap: 0.9rem;
+    width: 100%;
+    padding: 1.05rem 1.1rem;
+    border: 1px solid #d7e0ef;
+    border-radius: 1rem;
+    background: #ffffff;
+    text-align: left;
+    cursor: pointer;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease, transform 0.2s ease;
+  }
+
+  .checkout-choice:hover {
+    border-color: #97b4ed;
+    box-shadow: 0 16px 30px rgba(15, 23, 42, 0.08);
+    transform: translateY(-1px);
+  }
+
+  .checkout-choice.is-active {
+    border-color: #2f67d3;
+    background: #eef4ff;
+    box-shadow: 0 16px 30px rgba(47, 103, 211, 0.12);
+  }
+
+  .checkout-choice__radio {
+    position: relative;
+    width: 1.15rem;
+    height: 1.15rem;
+    margin-top: 0.22rem;
+    border: 2px solid #8b99b0;
+    border-radius: 999px;
+    flex-shrink: 0;
+  }
+
+  .checkout-choice.is-active .checkout-choice__radio {
+    border-color: #2f67d3;
+  }
+
+  .checkout-choice.is-active .checkout-choice__radio::after {
+    content: "";
+    position: absolute;
+    inset: 0.14rem;
+    border-radius: 999px;
+    background: #2f67d3;
+  }
+
+  .checkout-choice__content {
+    display: grid;
+    gap: 0.38rem;
+    min-width: 0;
+  }
+
+  .checkout-choice__title {
+    color: #16213b;
+    font-size: 1rem;
+    font-weight: 700;
+  }
+
+  .checkout-choice__text {
+    color: #5d6a80;
+    font-size: 0.92rem;
+    line-height: 1.5;
+  }
+
+  .checkout-choice__logos {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.55rem;
+    margin-top: 0.15rem;
+  }
+
+  .checkout-option {
+    display: none;
+    background: transparent;
   }
 
   .checkout-option:first-child {
     border-top: 0;
+  }
+
+  .checkout-option.is-active {
+    display: flex;
+    justify-content: center;
   }
 
   .checkout-option__frame {
@@ -253,13 +630,7 @@
   }
 
   .checkout-option__header {
-    display: flex;
-    align-items: flex-start;
-    gap: 1.05rem;
-    padding: 1.75rem 1.55rem 1.1rem;
-    cursor: pointer;
-    width: 100%;
-    box-sizing: border-box;
+    display: none;
   }
 
   .checkout-option__header--compact {
@@ -277,7 +648,7 @@
     width: 1.15rem;
     height: 1.15rem;
     margin-top: 0.28rem;
-    border: 2px solid #5d6573;
+    border: 2px solid #8b99b0;
     border-radius: 999px;
     flex-shrink: 0;
   }
@@ -303,13 +674,13 @@
     margin: 0;
     font-size: 1rem;
     font-weight: 700;
-    color: #ffffff;
+    color: #16213b;
   }
 
   .checkout-option__text {
     margin: 0.85rem 0 0;
     font-size: 0.92rem;
-    color: #a6aebb;
+    color: #5d6a80;
   }
 
   .checkout-option__logos {
@@ -351,16 +722,16 @@
   }
 
   .checkout-option__body {
-    display: none;
-    padding: 0 1.55rem 1.55rem;
+    display: block;
+    padding: 1.35rem 1.55rem 1.55rem;
   }
 
   .checkout-option__body--compact {
     padding-top: 0;
   }
 
-  .checkout-option.is-active .checkout-option__body {
-    display: block;
+  .checkout-option.is-active {
+    background: linear-gradient(180deg, rgba(243, 247, 255, 0.92), rgba(255, 255, 255, 0.98));
   }
 
   .checkout-option__inner {
@@ -371,7 +742,7 @@
 
   .checkout-option__divider {
     height: 1px;
-    background: #3a3f49;
+    background: #e1e8f3;
     margin: 0 0 1.45rem;
   }
 
@@ -384,16 +755,66 @@
     width: 100%;
   }
 
+  .checkout-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.8rem;
+  }
+
+  .checkout-field {
+    display: grid;
+    gap: 0.42rem;
+  }
+
+  .checkout-field--wide {
+    grid-column: 1 / -1;
+  }
+
+  .checkout-field__label {
+    font-size: 0.82rem;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    color: #22314d;
+  }
+
+  .checkout-method-note {
+    margin-bottom: 1rem;
+    padding: 0.95rem 1rem;
+    border: 1px solid #d8e4fb;
+    border-radius: 0.75rem;
+    background: #f5f9ff;
+    color: #47607e;
+    line-height: 1.55;
+  }
+
+  .checkout-summary-strip {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-top: 1rem;
+    padding: 0.9rem 1rem;
+    border: 1px solid #d8e4fb;
+    border-radius: 0.75rem;
+    background: #edf4ff;
+    color: #32507a;
+  }
+
+  .checkout-summary-strip strong {
+    color: #16213b;
+    font-size: 1rem;
+  }
+
   .checkout-input {
     width: 100%;
     min-width: 0;
     min-height: 3.45rem;
     margin: 0;
     padding: 0 1rem;
-    border: 1px solid #404654;
-    border-radius: 0.12rem;
-    background: #1b1f28;
-    color: #f8fafc;
+    border: 1px solid #c9d5e7;
+    border-radius: 0.85rem;
+    background: #ffffff;
+    color: #152033;
     font-size: 0.98rem;
   }
 
@@ -406,7 +827,13 @@
   }
 
   .checkout-input::placeholder {
-    color: #9da6b3;
+    color: #8190a6;
+  }
+
+  .checkout-input:focus {
+    outline: none;
+    border-color: #2f67d3;
+    box-shadow: 0 0 0 3px rgba(47, 103, 211, 0.14);
   }
 
   .checkout-button-row {
@@ -419,11 +846,12 @@
     min-width: 17rem;
     min-height: 3.55rem;
     border: 0;
-    border-radius: 0.15rem;
+    border-radius: 999px;
     background: #2e61b8;
     color: #ffffff;
     font-size: 1rem;
     font-weight: 700;
+    box-shadow: 0 14px 28px rgba(46, 97, 184, 0.18);
   }
 
   .checkout-button:hover {
@@ -432,10 +860,10 @@
 
   .checkout-message {
     padding: 1rem 1.1rem;
-    border: 1px solid #404654;
-    border-radius: 0.12rem;
-    background: #1b1f28;
-    color: #a6aebb;
+    border: 1px solid #d8e4fb;
+    border-radius: 0.75rem;
+    background: #f8fbff;
+    color: #4e5f78;
     line-height: 1.5;
   }
 
@@ -453,6 +881,15 @@
       margin-bottom: 2rem;
     }
 
+    .checkout-method-picker {
+      grid-template-columns: 1fr;
+      padding: 1rem;
+    }
+
+    .checkout-choice {
+      padding: 0.95rem 1rem;
+    }
+
     .checkout-option__header {
       padding: 1.2rem 1rem 0.9rem;
     }
@@ -462,7 +899,11 @@
     }
 
     .checkout-option__body {
-      padding: 0 1rem 1rem;
+      padding: 1rem;
+    }
+
+    .checkout-grid {
+      grid-template-columns: 1fr;
     }
 
     .checkout-fields {

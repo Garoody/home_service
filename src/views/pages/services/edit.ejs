@@ -2,7 +2,7 @@
   <div class="w-full max-w-2xl p-8 rounded-2xl bg-white/5 backdrop-blur shadow-xl border border-white/10">
     <h2 class="text-xl font-semibold mb-6 text-center">Modifier le service</h2>
 
-    <form action="/services/<%= service.slug %>/update" method="POST" class="space-y-5">
+    <form action="/services/<%= service.slug %>/update" method="POST" enctype="multipart/form-data" class="space-y-5">
       <input type="hidden" name="_csrf" value="<%= csrfToken %>">
 
       <div>
@@ -70,6 +70,25 @@
 
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
+          <label class="block text-sm mb-1 text-slate-300">Statut du prestataire</label>
+          <select
+            name="provider_status"
+            required
+            class="w-full px-4 py-2 rounded-lg bg-slate-900/70 border border-slate-700 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition"
+          >
+            <option value="" disabled <%= !service.provider_status ? "selected" : "" %>>Choisir un statut</option>
+            <% (providerStatusOptions || []).forEach((option) => { %>
+              <option
+                value="<%= option.value %>"
+                <%= option.value === service.provider_status ? "selected" : "" %>
+              >
+                <%= option.label %>
+              </option>
+            <% }) %>
+          </select>
+        </div>
+
+        <div>
           <label class="block text-sm mb-1 text-slate-300">Annee d'experience</label>
           <input
             type="number"
@@ -82,16 +101,17 @@
           >
         </div>
 
-        <div>
-          <label class="block text-sm mb-1 text-slate-300">Zone d'intervention</label>
-          <input
-            type="text"
-            name="service_area"
-            value="<%= service.service_area || '' %>"
-            required
-            class="w-full px-4 py-2 rounded-lg bg-slate-900/70 border border-slate-700 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition"
-          >
-        </div>
+      </div>
+
+      <div>
+        <label class="block text-sm mb-1 text-slate-300">Zone d'intervention</label>
+        <input
+          type="text"
+          name="service_area"
+          value="<%= service.service_area || '' %>"
+          required
+          class="w-full px-4 py-2 rounded-lg bg-slate-900/70 border border-slate-700 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition"
+        >
       </div>
 
       <div>
@@ -101,6 +121,57 @@
           rows="3"
           class="w-full px-4 py-2 rounded-lg bg-slate-900/70 border border-slate-700 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition"
         ><%= service.trainings || '' %></textarea>
+      </div>
+
+      <% if (service.photos?.length) { %>
+        <div>
+          <div class="flex items-center justify-between gap-3">
+            <label class="block text-sm text-slate-300">Photos deja publiees</label>
+            <span class="text-xs text-slate-500"><%= service.photos.length %>/6</span>
+          </div>
+          <div class="mt-3 grid grid-cols-2 gap-3 md:grid-cols-3">
+            <% service.photos.forEach((photo, index) => { %>
+              <button
+                type="button"
+                class="image-preview-trigger overflow-hidden rounded-xl border border-white/10 bg-slate-900/40"
+                data-image-preview
+                data-image-src="<%= photo.image_path %>"
+                data-image-alt="Photo de realisation <%= index + 1 %> pour <%= service.title %>"
+              >
+                <img
+                  src="<%= photo.image_path %>"
+                  alt="Photo de realisation <%= index + 1 %>"
+                  class="h-32 w-full object-cover"
+                >
+              </button>
+            <% }) %>
+          </div>
+        </div>
+      <% } %>
+
+      <div class="rounded-xl border border-dashed border-slate-700/80 bg-slate-900/40 p-4">
+        <label class="block text-sm mb-1 text-slate-300">Ajouter des photos de realisations</label>
+        <p class="text-xs text-slate-400">
+          Optionnel. Tu peux garder ton service tel quel ou ajouter d'autres photos, dans la limite de 6 au total.
+        </p>
+        <div class="mt-4 flex flex-wrap items-center gap-3">
+          <button
+            type="button"
+            data-file-trigger="service_photos"
+            class="inline-flex min-h-10 items-center justify-center rounded-lg border border-slate-600 bg-slate-800 px-4 py-2 text-sm font-medium text-slate-100 transition hover:border-slate-500 hover:bg-slate-700"
+          >
+            Ajouter des photos
+          </button>
+          <span class="text-xs text-slate-400" data-file-status="service_photos" aria-live="polite"></span>
+        </div>
+        <input
+          id="service_photos"
+          name="service_photos"
+          type="file"
+          accept="image/png,image/jpeg,image/webp,image/gif"
+          multiple
+          class="hidden"
+        >
       </div>
 
       <label class="inline-flex items-center gap-3 text-sm text-slate-300">

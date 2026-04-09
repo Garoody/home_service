@@ -1,9 +1,12 @@
 <section class="py-10">
   <div class="max-w-2xl mx-auto px-4">
     <div class="p-8 rounded-2xl bg-white/5 border border-white/10 shadow-xl">
-      <h1 class="text-2xl font-semibold">Nouvelle réservation</h1>
+      <% const formValues = oldInput || {}; %>
+      <% const selectedPaymentMethod = formValues.payment_method || "cb"; %>
+      <h1 class="text-2xl font-semibold">Nouvelle demande de reservation</h1>
       <p class="mt-2 text-sm text-slate-400">
-        Choisis une date et une heure pour confirmer ta réservation.
+        Renseignez votre demande. Le prestataire recevra votre date et votre heure proposees,
+        puis vous paierez seulement apres sa confirmation.
       </p>
 
       <form action="/bookings" method="POST" class="mt-8 space-y-5">
@@ -21,17 +24,19 @@
               name="last_name"
               type="text"
               required
+              value="<%= formValues.last_name || '' %>"
               class="w-full px-4 py-2.5 rounded-lg bg-white/5 border border-white/10 text-slate-100 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
             >
           </div>
 
           <div>
-            <label class="block text-sm text-slate-300 mb-2" for="first_name">Prénom</label>
+            <label class="block text-sm text-slate-300 mb-2" for="first_name">Prenom</label>
             <input
               id="first_name"
               name="first_name"
               type="text"
               required
+              value="<%= formValues.first_name || '' %>"
               class="w-full px-4 py-2.5 rounded-lg bg-white/5 border border-white/10 text-slate-100 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
             >
           </div>
@@ -44,6 +49,7 @@
             name="city"
             type="text"
             required
+            value="<%= formValues.city || '' %>"
             class="w-full px-4 py-2.5 rounded-lg bg-white/5 border border-white/10 text-slate-100 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
           >
         </div>
@@ -55,202 +61,333 @@
             name="address"
             type="text"
             required
+            value="<%= formValues.address || '' %>"
             class="w-full px-4 py-2.5 rounded-lg bg-white/5 border border-white/10 text-slate-100 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
           >
         </div>
 
-        <div>
-          <label class="block text-sm text-slate-300 mb-2" for="booking_date">Date</label>
-          <input
-            id="booking_date"
-            name="booking_date"
-            type="date"
-            required
-            class="w-full px-4 py-2.5 rounded-lg bg-white/5 border border-white/10 text-slate-100 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
-          >
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm text-slate-300 mb-2" for="booking_date">Date</label>
+            <input
+              id="booking_date"
+              name="booking_date"
+              type="date"
+              data-booking-date
+              min="<%= bookingDateMin || '' %>"
+              required
+              value="<%= formValues.booking_date || '' %>"
+              class="w-full px-4 py-2.5 rounded-lg bg-white/5 border border-white/10 text-slate-100 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+            >
+          </div>
+
+          <div>
+            <label class="block text-sm text-slate-300 mb-2" for="booking_time">Heure</label>
+            <input
+              id="booking_time"
+              name="booking_time"
+              type="time"
+              data-booking-time
+              required
+              value="<%= formValues.booking_time || '' %>"
+              class="w-full px-4 py-2.5 rounded-lg bg-white/5 border border-white/10 text-slate-100 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+            >
+          </div>
         </div>
+        <p class="text-xs text-slate-400">
+          Les dates passees sont bloquees. Pour aujourd'hui, choisissez uniquement une heure future.
+        </p>
 
-        <div>
-          <label class="block text-sm text-slate-300 mb-2" for="booking_time">Heure</label>
-          <input
-            id="booking_time"
-            name="booking_time"
-            type="time"
-            required
-            class="w-full px-4 py-2.5 rounded-lg bg-white/5 border border-white/10 text-slate-100 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
-          >
-        </div>
+        <section class="booking-payment-box" data-booking-payment-form>
+          <div class="booking-payment-box__head">
+            <div class="booking-payment-box__intro">
+              <p class="booking-payment-box__eyebrow">Mode de paiement</p>
+              <div class="booking-payment-box__title-row">
+                <h2 class="booking-payment-box__title">Choisissez votre mode de paiement prefere</h2>
+                <span class="booking-payment-box__pill">Sans debit immediat</span>
+              </div>
+            </div>
+            <p class="booking-payment-box__copy">
+              Cette etape prepare simplement votre preference. Le vrai paiement restera disponible
+              seulement apres confirmation du prestataire.
+            </p>
+          </div>
 
-        <div class="rounded-2xl border border-white/10 bg-white/5 p-5" data-booking-payment-form>
-          <h2 class="text-sm font-semibold text-slate-100">Mode de paiement</h2>
-          <p class="mt-1 text-sm text-slate-400">
-            Choisis ton mode de paiement avant de passer a l'etape suivante.
-          </p>
-
-          <div class="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <label
-              class="payment-choice flex items-center gap-3 rounded-xl border border-white/10 bg-slate-900/40 px-4 py-3 cursor-pointer hover:border-blue-500/50 transition"
-              for="payment-method-cb"
-            >
-              <input id="payment-method-cb" type="radio" name="payment_method" value="cb" checked>
-              <span class="text-sm text-slate-200">Carte bancaire</span>
+          <div class="booking-payment-choice-list">
+            <label class="payment-choice">
+              <input
+                type="radio"
+                name="payment_method"
+                value="cb"
+                <%= selectedPaymentMethod === "cb" ? "checked" : "" %>
+              >
+              <span class="payment-choice__radio"></span>
+              <span class="payment-choice__content">
+                <span class="payment-choice__title">Carte bancaire</span>
+                <span class="payment-choice__copy">Un formulaire simple et classique pour preparer votre reglement.</span>
+              </span>
             </label>
 
-            <label
-              class="payment-choice flex items-center gap-3 rounded-xl border border-white/10 bg-slate-900/40 px-4 py-3 cursor-pointer hover:border-blue-500/50 transition"
-              for="payment-method-paypal"
-            >
-              <input id="payment-method-paypal" type="radio" name="payment_method" value="paypal">
-              <span class="text-sm text-slate-200">PayPal</span>
+            <label class="payment-choice">
+              <input
+                type="radio"
+                name="payment_method"
+                value="paypal"
+                <%= selectedPaymentMethod === "paypal" ? "checked" : "" %>
+              >
+              <span class="payment-choice__radio"></span>
+              <span class="payment-choice__content">
+                <span class="payment-choice__title">PayPal</span>
+                <span class="payment-choice__copy">Pratique si vous souhaitez retrouver votre compte PayPal ensuite.</span>
+              </span>
             </label>
 
-            <label
-              class="payment-choice flex items-center gap-3 rounded-xl border border-white/10 bg-slate-900/40 px-4 py-3 cursor-pointer hover:border-blue-500/50 transition"
-              for="payment-method-bank-transfer"
-            >
-              <input id="payment-method-bank-transfer" type="radio" name="payment_method" value="bank_transfer">
-              <span class="text-sm text-slate-200">Virement bancaire</span>
+            <label class="payment-choice">
+              <input
+                type="radio"
+                name="payment_method"
+                value="bank_transfer"
+                <%= selectedPaymentMethod === "bank_transfer" ? "checked" : "" %>
+              >
+              <span class="payment-choice__radio"></span>
+              <span class="payment-choice__content">
+                <span class="payment-choice__title">Virement bancaire</span>
+                <span class="payment-choice__copy">Indiquez un compte de virement pour garder un parcours clair et professionnel.</span>
+              </span>
             </label>
 
-            <label
-              class="payment-choice flex items-center gap-3 rounded-xl border border-white/10 bg-slate-900/40 px-4 py-3 cursor-pointer hover:border-blue-500/50 transition"
-              for="payment-method-cash"
-            >
-              <input id="payment-method-cash" type="radio" name="payment_method" value="cash">
-              <span class="text-sm text-slate-200">Paiement en especes</span>
+            <label class="payment-choice">
+              <input
+                type="radio"
+                name="payment_method"
+                value="cash"
+                <%= selectedPaymentMethod === "cash" ? "checked" : "" %>
+              >
+              <span class="payment-choice__radio"></span>
+              <span class="payment-choice__content">
+                <span class="payment-choice__title">Paiement en especes</span>
+                <span class="payment-choice__copy">Le reglement sera effectue directement avec le prestataire au bon moment.</span>
+              </span>
             </label>
           </div>
 
-          <div class="mt-4">
-            <div class="payment-panel rounded-xl border border-blue-500/20 bg-blue-500/10 p-4" data-payment-panel="cb">
-              <h3 class="text-sm font-semibold text-blue-100">Paiement par carte bancaire</h3>
-              <p class="mt-1 text-sm text-slate-300">
-                Renseigne tes informations bancaires pour regler la reservation des maintenant.
-              </p>
-
-              <div class="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <div class="sm:col-span-2">
-                  <label class="block text-sm text-slate-200 mb-2" for="cardholder_name">Nom du titulaire</label>
-                  <input
-                    id="cardholder_name"
-                    name="cardholder_name"
-                    type="text"
-                    autocomplete="cc-name"
-                    placeholder="Ex: Jeanne Martin"
-                    class="w-full px-4 py-2.5 rounded-lg bg-slate-950/50 border border-blue-400/20 text-slate-100 outline-none focus:border-blue-400 focus:ring-1 focus:ring-blue-400"
-                  >
-                </div>
-
-                <div class="sm:col-span-2">
-                  <label class="block text-sm text-slate-200 mb-2" for="card_number">Numero de carte</label>
-                  <input
-                    id="card_number"
-                    name="card_number"
-                    type="text"
-                    inputmode="numeric"
-                    autocomplete="cc-number"
-                    maxlength="23"
-                    placeholder="1234 5678 9012 3456"
-                    class="w-full px-4 py-2.5 rounded-lg bg-slate-950/50 border border-blue-400/20 text-slate-100 outline-none focus:border-blue-400 focus:ring-1 focus:ring-blue-400"
-                  >
-                </div>
-
-                <div>
-                  <label class="block text-sm text-slate-200 mb-2" for="expiry">Expiration</label>
-                  <input
-                    id="expiry"
-                    name="expiry"
-                    type="text"
-                    inputmode="numeric"
-                    maxlength="5"
-                    placeholder="MM/AA"
-                    class="w-full px-4 py-2.5 rounded-lg bg-slate-950/50 border border-blue-400/20 text-slate-100 outline-none focus:border-blue-400 focus:ring-1 focus:ring-blue-400"
-                  >
-                </div>
-
-                <div>
-                  <label class="block text-sm text-slate-200 mb-2" for="cvc">CVC</label>
-                  <input
-                    id="cvc"
-                    name="cvc"
-                    type="text"
-                    inputmode="numeric"
-                    maxlength="4"
-                    autocomplete="cc-csc"
-                    placeholder="123"
-                    class="w-full px-4 py-2.5 rounded-lg bg-slate-950/50 border border-blue-400/20 text-slate-100 outline-none focus:border-blue-400 focus:ring-1 focus:ring-blue-400"
-                  >
-                </div>
-              </div>
-
-              <label class="mt-4 inline-flex items-center gap-3 text-sm text-slate-200">
-                <input type="checkbox" name="save_card">
-                <span>Enregistrer cette carte pour les prochains paiements</span>
-              </label>
+          <div
+            class="booking-payment-panel"
+            data-payment-panel="cb"
+            style="<%= selectedPaymentMethod === 'cb' ? 'display:block' : 'display:none' %>"
+          >
+            <div class="booking-payment-panel__note">
+              Vous ne payez pas encore. Vous renseignez simplement la preference que vous souhaitez utiliser si la reservation est confirmee.
             </div>
 
-            <div class="payment-panel rounded-xl border border-sky-500/20 bg-sky-500/10 p-4" data-payment-panel="paypal" style="display: none;">
-              <h3 class="text-sm font-semibold text-sky-100">Paiement avec PayPal</h3>
-              <p class="mt-1 text-sm text-slate-300">
-                Renseigne l'adresse email utilisee sur ton compte PayPal pour associer proprement le paiement a la reservation.
-              </p>
+            <div class="booking-payment-summary-strip">
+              <span>Preference enregistree pour cette demande</span>
+              <strong>Paiement debloque seulement apres confirmation</strong>
+            </div>
 
-              <div class="mt-4">
-                <label class="block text-sm text-slate-200 mb-2" for="paypal_email">Email PayPal</label>
+            <div class="booking-payment-grid">
+              <label class="booking-payment-field">
+                <span class="booking-payment-field__label">Titulaire de la carte</span>
                 <input
-                  id="paypal_email"
-                  name="paypal_email"
-                  type="email"
-                  autocomplete="email"
-                  placeholder="client@paypal.com"
-                  class="w-full px-4 py-2.5 rounded-lg bg-slate-950/50 border border-sky-400/20 text-slate-100 outline-none focus:border-sky-400 focus:ring-1 focus:ring-sky-400"
+                  type="text"
+                  name="cardholder_name"
+                  id="cardholder_name"
+                  value="<%= formValues.cardholder_name || '' %>"
+                  placeholder="Nom complet du titulaire"
+                  class="booking-payment-input"
                 >
-              </div>
-            </div>
+              </label>
 
-            <div class="payment-panel rounded-xl border border-amber-500/20 bg-amber-500/10 p-4" data-payment-panel="bank_transfer" style="display: none;">
-              <h3 class="text-sm font-semibold text-amber-100">Paiement par virement bancaire</h3>
-              <p class="mt-1 text-sm text-slate-300">
-                Renseigne les informations de ton compte pour preparer le virement bancaire associe a la reservation.
-              </p>
+              <label class="booking-payment-field booking-payment-field--wide">
+                <span class="booking-payment-field__label">Numero de carte</span>
+                <input
+                  type="text"
+                  name="card_number"
+                  id="card_number"
+                  value="<%= formValues.card_number || '' %>"
+                  placeholder="Numero de carte"
+                  inputmode="numeric"
+                  maxlength="23"
+                  class="booking-payment-input"
+                >
+              </label>
 
-              <div class="mt-4 grid grid-cols-1 gap-3">
-                <div>
-                  <label class="block text-sm text-slate-200 mb-2" for="bank_account_name">Titulaire du compte</label>
-                  <input
-                    id="bank_account_name"
-                    name="bank_account_name"
-                    type="text"
-                    placeholder="Ex: Jeanne Martin"
-                    class="w-full px-4 py-2.5 rounded-lg bg-slate-950/50 border border-amber-400/20 text-slate-100 outline-none focus:border-amber-400 focus:ring-1 focus:ring-amber-400"
-                  >
-                </div>
+              <label class="booking-payment-field">
+                <span class="booking-payment-field__label">Date d'expiration</span>
+                <input
+                  type="text"
+                  id="expiry"
+                  value="<%= formValues.expiry || '' %>"
+                  placeholder="MM / AA"
+                  inputmode="numeric"
+                  maxlength="5"
+                  class="booking-payment-input"
+                >
+              </label>
 
-                <div>
-                  <label class="block text-sm text-slate-200 mb-2" for="iban">IBAN</label>
-                  <input
-                    id="iban"
-                    name="iban"
-                    type="text"
-                    placeholder="FR76 3000 6000 0112 3456 7890 189"
-                    class="w-full px-4 py-2.5 rounded-lg bg-slate-950/50 border border-amber-400/20 text-slate-100 outline-none focus:border-amber-400 focus:ring-1 focus:ring-amber-400"
-                  >
-                </div>
-              </div>
-            </div>
-
-            <div class="payment-panel rounded-xl border border-emerald-500/20 bg-emerald-500/10 p-4" data-payment-panel="cash" style="display: none;">
-              <h3 class="text-sm font-semibold text-emerald-100">Paiement en especes</h3>
-              <p class="mt-1 text-sm text-slate-300">
-                Le paiement sera effectue directement au prestataire le jour de l'intervention.
-              </p>
-
-              <label class="mt-4 inline-flex items-center gap-3 text-sm text-slate-200">
-                <input type="checkbox" name="cash_acknowledged">
-                <span>Je confirme que le paiement se fera en especes lors de la prestation.</span>
+              <label class="booking-payment-field">
+                <span class="booking-payment-field__label">Cryptogramme</span>
+                <input
+                  type="text"
+                  name="cvc"
+                  id="cvc"
+                  placeholder="CVC"
+                  inputmode="numeric"
+                  maxlength="4"
+                  class="booking-payment-input"
+                >
               </label>
             </div>
           </div>
+
+          <div
+            class="booking-payment-panel"
+            data-payment-panel="paypal"
+            style="<%= selectedPaymentMethod === 'paypal' ? 'display:block' : 'display:none' %>"
+          >
+            <div class="booking-payment-panel__note">
+              Ce compte servira seulement de preference. Vous confirmerez le vrai reglement PayPal apres acceptation du creneau.
+            </div>
+
+            <div class="booking-payment-summary-strip">
+              <span>Compte PayPal memorise pour votre reservation</span>
+              <strong>Validation du paiement plus tard dans votre espace</strong>
+            </div>
+
+            <div class="booking-payment-grid">
+              <label class="booking-payment-field">
+                <span class="booking-payment-field__label">Nom du titulaire PayPal</span>
+                <input
+                  type="text"
+                  name="paypal_full_name"
+                  value="<%= formValues.paypal_full_name || '' %>"
+                  placeholder="Nom complet"
+                  class="booking-payment-input"
+                >
+              </label>
+
+              <label class="booking-payment-field">
+                <span class="booking-payment-field__label">Adresse PayPal</span>
+                <input
+                  type="text"
+                  name="paypal_email"
+                  value="<%= formValues.paypal_email || '' %>"
+                  placeholder="nom@paypal.com"
+                  class="booking-payment-input"
+                >
+              </label>
+
+              <label class="booking-payment-field booking-payment-field--wide">
+                <span class="booking-payment-field__label">Reference</span>
+                <input
+                  type="text"
+                  name="paypal_reference"
+                  value="<%= formValues.paypal_reference || '' %>"
+                  placeholder="Reference ou note utile"
+                  class="booking-payment-input"
+                >
+              </label>
+            </div>
+          </div>
+
+          <div
+            class="booking-payment-panel"
+            data-payment-panel="bank_transfer"
+            style="<%= selectedPaymentMethod === 'bank_transfer' ? 'display:block' : 'display:none' %>"
+          >
+            <div class="booking-payment-panel__note">
+              Preparez ici le mode virement. Le paiement reel ne sera active qu'apres validation du prestataire.
+            </div>
+
+            <div class="booking-payment-summary-strip">
+              <span>Coordonnees bancaires associees a votre demande</span>
+              <strong>Le virement sera confirme seulement apres accord du prestataire</strong>
+            </div>
+
+            <div class="booking-payment-grid">
+              <label class="booking-payment-field">
+                <span class="booking-payment-field__label">Titulaire du compte</span>
+                <input
+                  type="text"
+                  name="bank_account_name"
+                  value="<%= formValues.bank_account_name || '' %>"
+                  placeholder="Nom du titulaire"
+                  class="booking-payment-input"
+                >
+              </label>
+
+              <label class="booking-payment-field">
+                <span class="booking-payment-field__label">Banque</span>
+                <input
+                  type="text"
+                  name="bank_name"
+                  value="<%= formValues.bank_name || '' %>"
+                  placeholder="Nom de la banque"
+                  class="booking-payment-input"
+                >
+              </label>
+
+              <label class="booking-payment-field booking-payment-field--wide">
+                <span class="booking-payment-field__label">IBAN</span>
+                <input
+                  type="text"
+                  name="iban"
+                  id="iban"
+                  value="<%= formValues.iban || '' %>"
+                  placeholder="FR76 3000 6000 0112 3456 7890 189"
+                  class="booking-payment-input"
+                >
+              </label>
+
+              <label class="booking-payment-field">
+                <span class="booking-payment-field__label">BIC / SWIFT</span>
+                <input
+                  type="text"
+                  name="bic"
+                  id="bic"
+                  value="<%= formValues.bic || '' %>"
+                  placeholder="AGRIFRPP"
+                  class="booking-payment-input"
+                >
+              </label>
+
+              <label class="booking-payment-field">
+                <span class="booking-payment-field__label">Reference</span>
+                <input
+                  type="text"
+                  name="transfer_reference"
+                  value="<%= formValues.transfer_reference || '' %>"
+                  placeholder="Reference ou motif"
+                  class="booking-payment-input"
+                >
+              </label>
+            </div>
+          </div>
+
+          <div
+            class="booking-payment-panel"
+            data-payment-panel="cash"
+            style="<%= selectedPaymentMethod === 'cash' ? 'display:block' : 'display:none' %>"
+          >
+            <div class="booking-payment-panel__note">
+              Vous indiquez simplement ici que vous preferez regler en especes plus tard, directement avec le prestataire.
+            </div>
+
+            <div class="booking-payment-summary-strip">
+              <span>Paiement en especes choisi comme preference</span>
+              <strong>Le reglement se fera apres validation du creneau</strong>
+            </div>
+          </div>
+        </section>
+
+        <div class="rounded-2xl border border-blue-500/20 bg-blue-500/10 p-5">
+          <h2 class="text-sm font-semibold text-blue-100">Ce qui se passe ensuite</h2>
+          <ol class="mt-3 space-y-2 text-sm text-slate-200">
+            <li>1. Le prestataire recoit votre demande avec le creneau propose.</li>
+            <li>2. Le chat est disponible tout de suite pour echanger.</li>
+            <li>3. Le prestataire confirme ou refuse la reservation.</li>
+            <li>4. S'il confirme, vous pourrez regler le service.</li>
+          </ol>
         </div>
 
         <div class="flex flex-wrap gap-3 pt-2">
@@ -259,7 +396,7 @@
             id="booking-submit-button"
             class="px-5 py-2.5 rounded-lg bg-blue-600 hover:bg-blue-500 transition font-medium"
           >
-            Reserver avec carte bancaire
+            Envoyer la demande
           </button>
           <a
             href="/bookings"

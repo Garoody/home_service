@@ -1,0 +1,158 @@
+<section class="py-10 max-w-7xl mx-auto px-4">
+  <div class="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+    <div>
+      <p class="text-xs uppercase tracking-[0.3em] text-blue-300">Administration</p>
+      <h1 class="mt-2 text-3xl font-semibold tracking-tight">Signalements admin</h1>
+      <p class="mt-2 text-slate-400">File simple de suivi des problemes internes, avec priorite, statut et resolution.</p>
+    </div>
+    <a href="/admin" class="rounded-lg border border-white/10 bg-white/5 px-4 py-2 hover:border-white/20 transition">
+      Retour au dashboard
+    </a>
+  </div>
+
+  <div class="mt-8 grid gap-6 xl:grid-cols-[minmax(0,1fr)_24rem]">
+    <section class="space-y-6">
+      <form method="GET" action="/admin/reports" class="grid gap-4 rounded-2xl border border-white/10 bg-white/5 p-5 lg:grid-cols-[1fr_220px_220px_auto]">
+        <input
+          type="text"
+          name="q"
+          value="<%= q || '' %>"
+          placeholder="Titre, description ou type cible"
+          class="rounded-xl border border-white/10 bg-slate-900/40 px-4 py-3 text-slate-100 placeholder:text-slate-500"
+        >
+        <select name="status" class="rounded-xl border border-white/10 bg-slate-900/40 px-4 py-3 text-slate-100">
+          <option value="">Tous les statuts</option>
+          <option value="ouvert" <%= status === 'ouvert' ? 'selected' : '' %>>Ouverts</option>
+          <option value="en_cours" <%= status === 'en_cours' ? 'selected' : '' %>>En cours</option>
+          <option value="resolu" <%= status === 'resolu' ? 'selected' : '' %>>Resolus</option>
+        </select>
+        <select name="priority" class="rounded-xl border border-white/10 bg-slate-900/40 px-4 py-3 text-slate-100">
+          <option value="">Toutes les priorites</option>
+          <option value="faible" <%= priority === 'faible' ? 'selected' : '' %>>Faible</option>
+          <option value="moyenne" <%= priority === 'moyenne' ? 'selected' : '' %>>Moyenne</option>
+          <option value="urgente" <%= priority === 'urgente' ? 'selected' : '' %>>Urgente</option>
+        </select>
+        <button type="submit" class="rounded-xl bg-blue-600 px-4 py-3 font-medium text-white hover:bg-blue-500 transition">
+          Filtrer
+        </button>
+      </form>
+
+      <% if (!reports.length) { %>
+        <div class="rounded-2xl border border-white/10 bg-white/5 px-5 py-6 text-slate-400">
+          Aucun signalement ne correspond a cette recherche.
+        </div>
+      <% } else { %>
+        <div class="space-y-5">
+          <% reports.forEach((report) => { %>
+            <article class="rounded-3xl border border-white/10 bg-white/5 p-5 shadow-xl shadow-black/10">
+              <div class="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
+                <div class="min-w-0 flex-1">
+                  <div class="flex flex-wrap items-center gap-3">
+                    <h2 class="text-xl font-semibold text-white"><%= report.title %></h2>
+                    <span class="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-medium text-slate-200"><%= report.status %></span>
+                    <span class="rounded-full border border-blue-400/20 bg-blue-500/15 px-3 py-1 text-xs font-medium text-blue-200"><%= report.priority %></span>
+                  </div>
+                  <div class="mt-4 grid gap-2 text-sm text-slate-300 md:grid-cols-2">
+                    <p><span class="text-slate-500">Cible :</span> <%= report.target_type %> #<%= report.target_id %></p>
+                    <p><span class="text-slate-500">Cree par :</span> <%= report.created_by_name %></p>
+                    <p><span class="text-slate-500">Assigne a :</span> <%= report.assigned_admin_name || 'Non assigne' %></p>
+                    <p><span class="text-slate-500">Cree le :</span> <%= new Date(report.created_at).toLocaleString('fr-FR') %></p>
+                  </div>
+                  <p class="mt-4 whitespace-pre-wrap text-sm text-slate-300"><%= report.description %></p>
+                  <% if (report.resolution_note) { %>
+                    <div class="mt-4 rounded-2xl border border-white/10 bg-slate-900/30 px-4 py-4">
+                      <p class="text-xs uppercase tracking-[0.18em] text-slate-500">Note de resolution</p>
+                      <p class="mt-2 text-sm text-slate-300"><%= report.resolution_note %></p>
+                    </div>
+                  <% } %>
+                </div>
+
+                <form action="/admin/reports/<%= report.id %>/status" method="POST" class="w-full max-w-sm space-y-3 rounded-2xl border border-white/10 bg-slate-900/30 p-4">
+                  <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                  <select name="status" class="w-full rounded-xl border border-white/10 bg-slate-950/50 px-4 py-3 text-sm text-slate-100">
+                    <option value="ouvert" <%= report.status === 'ouvert' ? 'selected' : '' %>>Ouvert</option>
+                    <option value="en_cours" <%= report.status === 'en_cours' ? 'selected' : '' %>>En cours</option>
+                    <option value="resolu" <%= report.status === 'resolu' ? 'selected' : '' %>>Resolu</option>
+                  </select>
+                  <textarea
+                    name="resolution_note"
+                    rows="3"
+                    placeholder="Note de suivi ou de resolution"
+                    class="w-full rounded-xl border border-white/10 bg-slate-950/50 px-4 py-3 text-sm text-slate-100 placeholder:text-slate-500"
+                  ><%= report.resolution_note || '' %></textarea>
+                  <button type="submit" class="rounded-xl bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-500 transition">
+                    Mettre a jour
+                  </button>
+                </form>
+              </div>
+            </article>
+          <% }) %>
+        </div>
+      <% } %>
+    </section>
+
+    <aside>
+      <form action="/admin/reports" method="POST" class="rounded-3xl border border-white/10 bg-white/5 p-6 shadow-xl shadow-black/10">
+        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+
+        <h2 class="text-xl font-semibold text-white">Creer un signalement</h2>
+        <p class="mt-2 text-sm text-slate-400">Un formulaire volontairement simple pour noter un probleme et le suivre.</p>
+
+        <div class="mt-5 space-y-4">
+          <div>
+            <label class="text-sm font-medium text-slate-200">Type cible</label>
+            <select name="target_type" class="mt-2 w-full rounded-xl border border-white/10 bg-slate-950/50 px-4 py-3 text-sm text-slate-100">
+              <option value="">Choisir</option>
+              <% ['user', 'service', 'review', 'booking', 'payment', 'conversation'].forEach((type) => { %>
+                <option value="<%= type %>" <%= prefill?.targetType === type ? 'selected' : '' %>><%= type %></option>
+              <% }) %>
+            </select>
+          </div>
+
+          <div>
+            <label class="text-sm font-medium text-slate-200">Identifiant cible</label>
+            <input
+              type="text"
+              name="target_id"
+              value="<%= prefill?.targetId || '' %>"
+              class="mt-2 w-full rounded-xl border border-white/10 bg-slate-950/50 px-4 py-3 text-sm text-slate-100"
+            >
+          </div>
+
+          <div>
+            <label class="text-sm font-medium text-slate-200">Titre</label>
+            <input
+              type="text"
+              name="title"
+              value="<%= prefill?.title || '' %>"
+              class="mt-2 w-full rounded-xl border border-white/10 bg-slate-950/50 px-4 py-3 text-sm text-slate-100"
+            >
+          </div>
+
+          <div>
+            <label class="text-sm font-medium text-slate-200">Priorite</label>
+            <select name="priority" class="mt-2 w-full rounded-xl border border-white/10 bg-slate-950/50 px-4 py-3 text-sm text-slate-100">
+              <option value="faible">Faible</option>
+              <option value="moyenne" selected>Moyenne</option>
+              <option value="urgente">Urgente</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="text-sm font-medium text-slate-200">Description</label>
+            <textarea
+              name="description"
+              rows="5"
+              class="mt-2 w-full rounded-xl border border-white/10 bg-slate-950/50 px-4 py-3 text-sm text-slate-100 placeholder:text-slate-500"
+              placeholder="Decrire simplement le probleme ou le contexte"
+            ></textarea>
+          </div>
+
+          <button type="submit" class="rounded-xl bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-500 transition">
+            Creer le signalement
+          </button>
+        </div>
+      </form>
+    </aside>
+  </div>
+</section>

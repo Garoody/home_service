@@ -1,0 +1,206 @@
+<section class="py-10 max-w-7xl mx-auto px-4">
+  <%
+    const getInitials = (name) =>
+      String(name || "")
+        .trim()
+        .split(/\s+/)
+        .slice(0, 2)
+        .map((part) => part.charAt(0).toUpperCase())
+        .join("") || "?";
+    const getRoleLabel = (role) => (role === "provider" ? "Prestataire" : "Client");
+    const getUserTargetPath = (user) => `/admin/users/${user.id}`;
+  %>
+  <div class="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+    <div>
+      <p class="text-xs uppercase tracking-[0.3em] text-blue-300">Administration</p>
+      <h1 class="mt-2 text-3xl font-semibold tracking-tight">Moderation des comptes</h1>
+      <p class="mt-2 text-slate-400">Avertissements, suspension, bannissement, suppression admin et restrictions ciblées.</p>
+    </div>
+    <a href="/admin" class="rounded-lg border border-white/10 bg-white/5 px-4 py-2 hover:border-white/20 transition">
+      Retour au dashboard
+    </a>
+  </div>
+
+  <form method="GET" action="/admin/users" class="mt-8 grid gap-4 rounded-2xl border border-white/10 bg-white/5 p-5 md:grid-cols-[1fr_220px_auto]">
+    <input
+      type="text"
+      name="q"
+      value="<%= q || '' %>"
+      placeholder="Rechercher par nom, email ou telephone"
+      class="rounded-xl border border-white/10 bg-slate-900/40 px-4 py-3 text-slate-100 placeholder:text-slate-500"
+    >
+    <select
+      name="status"
+      class="rounded-xl border border-white/10 bg-slate-900/40 px-4 py-3 text-slate-100"
+    >
+      <option value="">Tous les statuts</option>
+      <option value="active" <%= status === 'active' ? 'selected' : '' %>>Actifs</option>
+      <option value="warned" <%= status === 'warned' ? 'selected' : '' %>>Avertis</option>
+      <option value="suspended" <%= status === 'suspended' ? 'selected' : '' %>>Suspendus</option>
+      <option value="banned" <%= status === 'banned' ? 'selected' : '' %>>Bannis</option>
+      <option value="deleted" <%= status === 'deleted' ? 'selected' : '' %>>Supprimes admin</option>
+      <option value="messaging-disabled" <%= status === 'messaging-disabled' ? 'selected' : '' %>>Messagerie coupee</option>
+      <option value="publishing-disabled" <%= status === 'publishing-disabled' ? 'selected' : '' %>>Publication coupee</option>
+    </select>
+    <button type="submit" class="rounded-xl bg-blue-600 px-4 py-3 font-medium text-white hover:bg-blue-500 transition">
+      Filtrer
+    </button>
+  </form>
+
+  <div class="mt-8 space-y-5">
+    <% if (!users.length) { %>
+      <div class="rounded-2xl border border-white/10 bg-white/5 px-5 py-6 text-slate-400">
+        Aucun compte ne correspond à cette recherche.
+      </div>
+    <% } else { %>
+      <% users.forEach((user) => { %>
+        <article
+          class="service-card--interactive rounded-2xl border border-white/10 bg-white/5 p-5"
+          tabindex="0"
+          data-card-focus="admin-user-panel-<%= user.id %>"
+        >
+          <div class="flex flex-col gap-5 xl:flex-row xl:items-start xl:justify-between">
+            <div class="min-w-0 flex-1">
+              <div class="flex items-start gap-4">
+                <div class="admin-avatar admin-avatar--lg">
+                  <% if (user.profile_photo_path) { %>
+                    <img
+                      src="<%= user.profile_photo_path %>"
+                      alt="Photo de profil de <%= user.full_name %>"
+                      class="admin-avatar__image"
+                    >
+                  <% } else { %>
+                    <span class="admin-avatar__fallback"><%= getInitials(user.full_name) %></span>
+                  <% } %>
+                </div>
+
+                <div class="min-w-0 flex-1">
+                  <div class="flex flex-wrap items-center gap-3">
+                    <span class="rounded-full border border-blue-400/25 bg-blue-500/15 px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-blue-100">
+                      <%= getRoleLabel(user.role) %>
+                    </span>
+                    <h2 class="text-2xl font-semibold">
+                      <a
+                        href="<%= getUserTargetPath(user) %>"
+                        class="text-white transition hover:text-blue-200"
+                      >
+                        <%= user.full_name %>
+                      </a>
+                    </h2>
+                  </div>
+
+                  <div class="mt-3 flex flex-wrap items-center gap-2">
+                <% if (user.deleted_by_admin_at) { %>
+                  <span class="rounded-full border border-rose-400/20 bg-rose-500/15 px-3 py-1 text-xs font-medium text-rose-200">Supprime admin</span>
+                <% } else if (user.banned_at) { %>
+                  <span class="rounded-full border border-rose-400/20 bg-rose-500/15 px-3 py-1 text-xs font-medium text-rose-200">Banni</span>
+                <% } else if (user.suspended_at) { %>
+                  <span class="rounded-full border border-amber-400/20 bg-amber-500/15 px-3 py-1 text-xs font-medium text-amber-200">Suspendu</span>
+                <% } else { %>
+                  <span class="rounded-full border border-emerald-400/30 bg-emerald-500/20 px-3 py-1 text-xs font-semibold text-emerald-100">Compte actif</span>
+                <% } %>
+                <% if (!user.can_message) { %>
+                  <span class="rounded-full border border-blue-400/20 bg-blue-500/15 px-3 py-1 text-xs font-medium text-blue-200">Messagerie coupee</span>
+                <% } %>
+                <% if (!user.can_publish_services) { %>
+                  <span class="rounded-full border border-violet-400/20 bg-violet-500/15 px-3 py-1 text-xs font-medium text-violet-200">Publication coupee</span>
+                <% } %>
+                  </div>
+
+                  <div class="mt-4 grid gap-2 text-sm text-slate-300 md:grid-cols-2">
+                    <p><span class="text-slate-500">Email :</span> <%= user.email %></p>
+                    <p><span class="text-slate-500">Telephone :</span> <%= user.phone || 'Non renseigne' %></p>
+                    <p><span class="text-slate-500">Services :</span> <%= user.service_count %></p>
+                    <p><span class="text-slate-500">Reservations :</span> <%= user.booking_count %></p>
+                    <p><span class="text-slate-500">Avertissements :</span> <%= user.warning_count %></p>
+                    <p><span class="text-slate-500">Inscrit le :</span> <%= new Date(user.created_at).toLocaleDateString('fr-FR') %></p>
+                  </div>
+
+                  <% if (user.suspended_reason) { %>
+                    <p class="mt-3 text-sm text-amber-200">Suspension : <%= user.suspended_reason %></p>
+                  <% } %>
+                  <% if (user.banned_reason) { %>
+                    <p class="mt-2 text-sm text-rose-200">Bannissement : <%= user.banned_reason %></p>
+                  <% } %>
+
+                  <div class="mt-4 flex flex-wrap gap-3 text-sm">
+                    <a href="/admin/users/<%= user.id %>" class="text-blue-300 transition hover:text-blue-200">
+                      Ouvrir la fiche admin
+                    </a>
+                    <% if (user.role === "provider" && Number(user.service_count || 0) > 0) { %>
+                      <a href="/users/public/<%= user.id %>" class="text-slate-300 transition hover:text-white">
+                        Voir le profil public
+                      </a>
+                    <% } else { %>
+                      <a href="/admin/conversations?q=<%= encodeURIComponent(user.full_name || '') %>" class="text-slate-300 transition hover:text-white">
+                        Voir les conversations liees
+                      </a>
+                    <% } %>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <form
+              id="admin-user-panel-<%= user.id %>"
+              action="/admin/users/<%= user.id %>/moderation"
+              method="POST"
+              class="admin-card-panel w-full max-w-xl space-y-3 rounded-2xl border border-white/10 bg-slate-900/30 p-4"
+              data-admin-moderation-form="user"
+            >
+              <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+
+              <div class="grid gap-3 md:grid-cols-2">
+                <select
+                  name="action"
+                  id="admin-user-action-<%= user.id %>"
+                  class="rounded-xl border border-white/10 bg-slate-950/50 px-4 py-3 text-sm text-slate-100"
+                  data-admin-action-select
+                >
+                  <option value="warn">Envoyer un avertissement</option>
+                  <option value="suspend">Suspendre le compte</option>
+                  <option value="unsuspend">Lever la suspension</option>
+                  <option value="ban">Bannir le compte</option>
+                  <option value="unban">Lever le bannissement</option>
+                  <option value="disable_messages">Couper la messagerie</option>
+                  <option value="enable_messages">Retablir la messagerie</option>
+                  <option value="disable_publishing">Couper la publication</option>
+                  <option value="enable_publishing">Retablir la publication</option>
+                  <option value="delete">Supprimer le compte cote admin</option>
+                </select>
+
+                <div data-admin-warning-field>
+                  <select name="warning_level" class="w-full rounded-xl border border-white/10 bg-slate-950/50 px-4 py-3 text-sm text-slate-100">
+                    <option value="1er avertissement">1er avertissement</option>
+                    <option value="2e avertissement">2e avertissement</option>
+                    <option value="Dernier avertissement">Dernier avertissement</option>
+                  </select>
+                </div>
+              </div>
+
+              <textarea
+                name="reason"
+                rows="3"
+                placeholder="Motif de l'avertissement admin"
+                class="w-full rounded-xl border border-white/10 bg-slate-950/50 px-4 py-3 text-sm text-slate-100 placeholder:text-slate-500"
+                data-admin-reason-input
+              ></textarea>
+
+              <p class="text-xs text-slate-400" data-admin-action-summary>
+                Vous allez envoyer un avertissement a ce compte.
+              </p>
+
+              <button
+                type="submit"
+                class="rounded-xl bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-500 transition"
+                data-admin-submit-button
+              >
+                Envoyer l'avertissement
+              </button>
+            </form>
+          </div>
+        </article>
+      <% }) %>
+    <% } %>
+  </div>
+</section>

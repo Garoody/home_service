@@ -1,3 +1,16 @@
+<%
+  const isAdmin = currentUser?.role === "admin";
+  const isOwnService =
+    currentUser && String(currentUser.id) === String(service.provider_id);
+  const providerName = service.provider_name || "Utilisateur";
+  const providerInitials = providerName
+    .split(/\s+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((part) => part[0]?.toUpperCase())
+    .join("") || "PR";
+%>
+
 <section class="py-10">
   <div class="max-w-4xl mx-auto px-4">
     <div class="mb-6">
@@ -12,10 +25,25 @@
           <p class="text-xs uppercase tracking-wider text-blue-300">
             <%= service.category_name || "Service" %>
           </p>
+          <% if (service.viewer_state) { %>
+            <p class="mt-3">
+              <span class="tag tag--booking-state tag--booking-state-<%= service.viewer_state.tone %>">
+                <%= service.viewer_state.label %>
+              </span>
+            </p>
+          <% } %>
           <h1 class="mt-2 text-3xl font-semibold"><%= service.title %></h1>
           <p class="mt-2 text-sm text-slate-400">
-            <% if (service.provider_name) { %>
-              Par <span class="text-slate-200"><%= service.provider_name %></span>
+            <% if (isOwnService) { %>
+              Publie par <span class="text-slate-200">moi</span>
+            <% } else if (service.provider_name) { %>
+              Par
+              <a
+                href="/users/public/<%= service.provider_id %>"
+                class="text-slate-200 hover:text-white underline decoration-white/20 underline-offset-4"
+              >
+                <%= service.provider_name %>
+              </a>
             <% } %>
           </p>
         </div>
@@ -24,15 +52,29 @@
           <p class="text-2xl font-semibold text-emerald-300">
             <%= (service.price ?? 0).toString().replace(".", ",") %> EUR
           </p>
-          <% if (!currentUser || currentUser.role === "client") { %>
-            <a
-              href="/bookings/new?service=<%= service.slug %>"
-              class="inline-block mt-4 mr-2 px-4 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 transition font-medium"
-            >
-              Reserver
-            </a>
+          <% if (!isAdmin && !isOwnService) { %>
+            <% if (service.viewer_state) { %>
+              <p class="mt-3 text-sm text-slate-300"><%= service.viewer_state.helper %></p>
+              <a
+                href="<%= service.viewer_state.actionHref %>"
+                class="inline-block mt-4 mr-2 px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 transition font-medium"
+              >
+                <%= service.viewer_state.actionLabel %>
+              </a>
+            <% } else { %>
+              <a
+                href="/bookings/new?service=<%= service.slug %>"
+                class="inline-block mt-4 mr-2 px-4 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 transition font-medium"
+              >
+                Reserver
+              </a>
+            <% } %>
+          <% } else if (isOwnService) { %>
+            <span class="inline-block mt-4 mr-2 px-4 py-2 rounded-lg border border-white/10 bg-white/5 text-sm font-medium text-slate-300">
+              Votre service
+            </span>
           <% } %>
-          <% if (currentUser && (currentUser.role === "admin" || String(currentUser.id) === String(service.provider_id))) { %>
+          <% if (currentUser && String(currentUser.id) === String(service.provider_id)) { %>
             <a
               href="/services/<%= service.slug %>/edit"
               class="inline-block mt-4 px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 transition font-medium"
@@ -43,12 +85,97 @@
         </div>
       </div>
 
+      <% if (!isOwnService) { %>
+        <div class="mt-8 provider-highlight">
+          <div class="provider-highlight__avatar">
+            <% if (service.provider_photo_path) { %>
+              <button
+                type="button"
+                class="image-preview-trigger image-preview-trigger--round"
+                data-image-preview
+                data-image-src="<%= service.provider_photo_path %>"
+                data-image-alt="Photo de profil de <%= providerName %>"
+                aria-label="Voir la photo de profil de <%= providerName %>"
+              >
+                <img
+                  src="<%= service.provider_photo_path %>"
+                  alt="Photo de profil de <%= providerName %>"
+                  class="provider-highlight__avatar-image"
+                >
+              </button>
+            <% } else { %>
+              <div class="provider-highlight__avatar-fallback">
+                <%= providerInitials %>
+              </div>
+            <% } %>
+          </div>
+
+          <div>
+            <p class="provider-highlight__eyebrow">Profil public</p>
+            <p class="provider-highlight__name"><%= providerName %></p>
+            <p class="provider-highlight__copy">
+              Consultez son profil public, ses informations professionnelles et les avis laisses par ses clients.
+            </p>
+
+            <div class="provider-highlight__meta">
+              <span class="provider-highlight__chip"><%= reviews.length %> avis</span>
+              <% if (service.provider_status) { %>
+                <span class="provider-highlight__chip"><%= service.provider_status %></span>
+              <% } %>
+              <% if (service.experience_years) { %>
+                <span class="provider-highlight__chip"><%= service.experience_years %> an(s) d'experience</span>
+              <% } %>
+              <% if (service.service_area) { %>
+                <span class="provider-highlight__chip"><%= service.service_area %></span>
+              <% } %>
+            </div>
+          </div>
+
+          <a
+            href="/users/public/<%= service.provider_id %>"
+            class="btn-secondary provider-highlight__action"
+          >
+            Voir le profil public
+          </a>
+        </div>
+      <% } %>
+
       <div class="mt-8">
         <h2 class="text-lg font-semibold">Description</h2>
         <p class="mt-3 text-slate-300 whitespace-pre-line"><%= service.description %></p>
       </div>
 
+      <% if (service.photos?.length) { %>
+        <section class="mt-8">
+          <div class="flex items-center justify-between gap-3">
+            <h2 class="text-lg font-semibold">Photos de realisations</h2>
+            <span class="text-sm text-slate-400"><%= service.photos.length %> photo(s)</span>
+          </div>
+          <div class="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            <% service.photos.forEach((photo, index) => { %>
+              <button
+                type="button"
+                class="image-preview-trigger overflow-hidden rounded-2xl border border-white/10 bg-slate-900/30 shadow-lg shadow-black/10"
+                data-image-preview
+                data-image-src="<%= photo.image_path %>"
+                data-image-alt="Photo de realisation <%= index + 1 %> pour <%= service.title %>"
+              >
+                <img
+                  src="<%= photo.image_path %>"
+                  alt="Photo de realisation <%= index + 1 %> pour <%= service.title %>"
+                  class="h-52 w-full object-cover"
+                >
+              </button>
+            <% }) %>
+          </div>
+        </section>
+      <% } %>
+
       <div class="mt-8 grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+        <div class="rounded-xl border border-white/10 bg-slate-900/30 p-4">
+          <p class="text-slate-400">Statut du prestataire</p>
+          <p class="mt-2 text-slate-100"><%= service.provider_status || "Non renseigne" %></p>
+        </div>
         <div class="rounded-xl border border-white/10 bg-slate-900/30 p-4">
           <p class="text-slate-400">Experience</p>
           <p class="mt-2 text-slate-100"><%= service.experience_years ?? "Non renseignee" %> an(s)</p>
@@ -89,12 +216,19 @@
                     </p>
                   </div>
                   <div class="text-amber-300 text-sm font-medium">
-                    <%= "★".repeat(review.rating) %><span class="text-slate-600"><%= "★".repeat(5 - review.rating) %></span>
+                    <%- "&#9733;".repeat(review.rating) %><span class="text-slate-600"><%- "&#9733;".repeat(5 - review.rating) %></span>
                   </div>
                 </div>
 
                 <% if (review.comment) { %>
                   <p class="mt-3 text-sm text-slate-300 whitespace-pre-line"><%= review.comment %></p>
+                <% } %>
+
+                <% if (review.provider_reply) { %>
+                  <div class="mt-4 rounded-xl border border-blue-400/20 bg-blue-500/10 px-4 py-3">
+                    <p class="text-xs uppercase tracking-[0.2em] text-blue-200">Reponse du prestataire</p>
+                    <p class="mt-2 whitespace-pre-line text-sm text-slate-100"><%= review.provider_reply %></p>
+                  </div>
                 <% } %>
               </article>
             <% }) %>

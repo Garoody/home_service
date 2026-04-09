@@ -16,6 +16,7 @@ INSERT INTO
         trainings,
         has_driving_license,
         service_area,
+        provider_status,
         created_at
     )
 VALUES (
@@ -29,11 +30,12 @@ VALUES (
         'Formation hygiene et entretien des surfaces',
         FALSE,
         'Paris et petite couronne',
+        'Artisan',
         CURRENT_TIMESTAMP
     ),
     (
         '018d5c8e-3000-7001-b001-000000000002',
-        '018d5c8e-1000-7001-9001-000000000003',
+        '018d5c8e-1000-7001-9001-000000000004',
         '018d5c8e-2000-7001-a001-000000000002',
         'Service de jardinage',
         'Entretien professionnel du jardin et des exterieurs.',
@@ -42,11 +44,12 @@ VALUES (
         'Formation entretien des espaces verts et taille saisonniere',
         TRUE,
         'Marseille et alentours',
+        'Artisan',
         CURRENT_TIMESTAMP
     ),
     (
         '018d5c8e-3000-7001-b001-000000000003',
-        '018d5c8e-1000-7001-9001-000000000003',
+        '018d5c8e-1000-7001-9001-000000000005',
         '018d5c8e-2000-7001-a001-000000000003',
         'Service de plomberie',
         'Intervention pour depannage et petites reparations de plomberie.',
@@ -55,11 +58,12 @@ VALUES (
         'CAP installateur sanitaire et intervention de depannage',
         TRUE,
         'Marseille, Aix-en-Provence et alentours',
+        'Artisan',
         CURRENT_TIMESTAMP
     ),
     (
         '018d5c8e-3000-7001-b001-000000000004',
-        '018d5c8e-1000-7001-9001-000000000003',
+        '018d5c8e-1000-7001-9001-000000000006',
         '018d5c8e-2000-7001-a001-000000000004',
         'Service de reparation',
         'Petits travaux de reparation a domicile.',
@@ -68,6 +72,7 @@ VALUES (
         'Formation bricolage, maintenance et petits travaux',
         TRUE,
         'Marseille centre et communes voisines',
+        'Artisan',
         CURRENT_TIMESTAMP
     )
 ON CONFLICT (id_service) DO UPDATE
@@ -80,4 +85,5 @@ SET
     experience_years = EXCLUDED.experience_years,
     trainings = EXCLUDED.trainings,
     has_driving_license = EXCLUDED.has_driving_license,
-    service_area = EXCLUDED.service_area;
+    service_area = EXCLUDED.service_area,
+    provider_status = EXCLUDED.provider_status;

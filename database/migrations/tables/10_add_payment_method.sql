@@ -1,5 +1,8 @@
 -- =====================================================================
 -- TABLE: payments (ajout du mode de paiement)
+-- Migration legacy de rattrapage pour une base ancienne.
+-- Ne pas rejouer dans une initialisation complete : la table payments
+-- contient deja cette colonne dans 05_add_payments_table.sql.
 -- =====================================================================
 
 SET CLIENT_ENCODING TO 'UTF8';

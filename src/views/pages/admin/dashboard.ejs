@@ -1,46 +1,192 @@
-<section class="py-10 max-w-6xl mx-auto px-4">
-
-  <div class="flex items-end justify-between gap-4">
+<section class="py-10 max-w-7xl mx-auto px-4">
+  <div class="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
     <div>
-      <h1 class="text-3xl font-semibold tracking-tight">Admin Dashboard</h1>
-      <p class="mt-2 text-slate-400">Vue d’ensemble de la plateforme HomeService.</p>
+      <p class="text-xs uppercase tracking-[0.3em] text-blue-300">Administration</p>
+      <h1 class="mt-2 text-3xl font-semibold tracking-tight">Tableau de bord admin</h1>
+      <p class="mt-2 text-slate-400">
+        Supervision globale, moderation des contenus et historique recent des actions sensibles.
+      </p>
     </div>
 
-    <a href="/" class="px-4 py-2 rounded-lg bg-white/5 border border-white/10 hover:border-white/20 transition">
-      ← Retour site
-    </a>
-  </div>
-
-  <div class="mt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-    <div class="p-6 rounded-2xl bg-white/5 border border-white/10">
-      <div class="text-sm text-slate-400">Utilisateurs</div>
-      <div class="mt-2 text-3xl font-semibold"><%= stats.users %></div>
-    </div>
-
-    <div class="p-6 rounded-2xl bg-white/5 border border-white/10">
-      <div class="text-sm text-slate-400">Catégories</div>
-      <div class="mt-2 text-3xl font-semibold"><%= stats.categories %></div>
-    </div>
-
-    <div class="p-6 rounded-2xl bg-white/5 border border-white/10">
-      <div class="text-sm text-slate-400">Services</div>
-      <div class="mt-2 text-3xl font-semibold"><%= stats.services %></div>
-    </div>
-
-    <div class="p-6 rounded-2xl bg-white/5 border border-white/10">
-      <div class="text-sm text-slate-400">Réservations</div>
-      <div class="mt-2 text-3xl font-semibold"><%= stats.bookings %></div>
+    <div class="flex flex-wrap gap-3">
+      <a href="/services" class="rounded-lg border border-white/10 bg-white/5 px-4 py-2 hover:border-white/20 transition">
+        Retour au site
+      </a>
+      <a href="/admin/users" class="rounded-lg bg-blue-600 px-4 py-2 text-white hover:bg-blue-500 transition">
+        Moderer les comptes
+      </a>
     </div>
   </div>
 
-  <div class="mt-10 p-6 rounded-2xl bg-white/5 border border-white/10">
-    <h2 class="text-lg font-semibold">Actions rapides</h2>
-    <div class="mt-4 flex flex-wrap gap-3">
-      <a href="/users/search" class="px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 transition">Rechercher un utilisateur</a>
-      <a href="/categories" class="px-4 py-2 rounded-lg bg-white/5 border border-white/10 hover:border-white/20 transition">Gérer catégories</a>
-      <a href="/services" class="px-4 py-2 rounded-lg bg-white/5 border border-white/10 hover:border-white/20 transition">Gérer services</a>
-      <a href="/bookings" class="px-4 py-2 rounded-lg bg-white/5 border border-white/10 hover:border-white/20 transition">Voir réservations</a>
-    </div>
+  <div class="mt-8 grid gap-5 sm:grid-cols-2 xl:grid-cols-4">
+    <article
+      class="service-card--interactive rounded-2xl border border-white/10 bg-white/5 p-6"
+      tabindex="0"
+      data-card-link="/admin/users"
+    >
+      <p class="text-sm text-slate-400">Clients actifs</p>
+      <p class="mt-3 text-3xl font-semibold text-white"><%= dashboard.stats.clients %></p>
+    </article>
+
+    <article
+      class="service-card--interactive rounded-2xl border border-white/10 bg-white/5 p-6"
+      tabindex="0"
+      data-card-link="/admin/users"
+    >
+      <p class="text-sm text-slate-400">Prestataires actifs</p>
+      <p class="mt-3 text-3xl font-semibold text-white"><%= dashboard.stats.providers %></p>
+    </article>
+
+    <article
+      class="service-card--interactive rounded-2xl border border-white/10 bg-white/5 p-6"
+      tabindex="0"
+      data-card-link="/admin/services?status=active"
+    >
+      <p class="text-sm text-slate-400">Services actifs</p>
+      <p class="mt-3 text-3xl font-semibold text-white"><%= dashboard.stats.activeServices %></p>
+      <p class="mt-2 text-xs text-slate-500"><%= dashboard.stats.suspendedServices %> suspendus, <%= dashboard.stats.deletedServices %> supprimes</p>
+    </article>
+
+    <article
+      class="service-card--interactive rounded-2xl border border-white/10 bg-white/5 p-6"
+      tabindex="0"
+      data-card-link="/admin/users"
+    >
+      <p class="text-sm text-slate-400">Comptes sanctionnes</p>
+      <p class="mt-3 text-3xl font-semibold text-white"><%= dashboard.stats.sanctionedAccounts %></p>
+    </article>
+
+    <article
+      class="service-card--interactive rounded-2xl border border-white/10 bg-white/5 p-6"
+      tabindex="0"
+      data-card-link="/admin/bookings"
+    >
+      <p class="text-sm text-slate-400">Reservations</p>
+      <p class="mt-3 text-3xl font-semibold text-white"><%= dashboard.stats.totalBookings %></p>
+      <p class="mt-2 text-xs text-slate-500"><%= dashboard.stats.bookingsToday %> aujourd'hui</p>
+    </article>
+
+    <article
+      class="service-card--interactive rounded-2xl border border-white/10 bg-white/5 p-6"
+      tabindex="0"
+      data-card-link="/admin/payments"
+    >
+      <p class="text-sm text-slate-400">Paiements recus</p>
+      <p class="mt-3 text-3xl font-semibold text-emerald-300"><%= Number(dashboard.stats.paidAmount || 0).toString().replace(".", ",") %> EUR</p>
+      <p class="mt-2 text-xs text-slate-500"><%= dashboard.stats.paidPayments %> paiements valides</p>
+    </article>
+
+    <article
+      class="service-card--interactive rounded-2xl border border-white/10 bg-white/5 p-6"
+      tabindex="0"
+      data-card-link="/admin/reviews?visibility=visible"
+    >
+      <p class="text-sm text-slate-400">Avis publics</p>
+      <p class="mt-3 text-3xl font-semibold text-white"><%= dashboard.stats.publicReviews %></p>
+      <p class="mt-2 text-xs text-slate-500"><%= dashboard.stats.hiddenReviews %> masques par l'administration</p>
+    </article>
+
+    <article class="rounded-2xl border border-white/10 bg-white/5 p-6">
+      <p class="text-sm text-slate-400">Acces rapides</p>
+      <div class="mt-3 flex flex-wrap gap-2">
+        <a href="/admin/users" class="rounded-lg bg-blue-600 px-3 py-2 text-sm text-white hover:bg-blue-500 transition">Comptes</a>
+        <a href="/admin/bookings" class="rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm hover:border-white/20 transition">Reservations</a>
+        <a href="/admin/payments" class="rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm hover:border-white/20 transition">Paiements</a>
+        <a href="/admin/services" class="rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm hover:border-white/20 transition">Services</a>
+        <a href="/admin/reviews" class="rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm hover:border-white/20 transition">Avis</a>
+        <a href="/admin/conversations" class="rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm hover:border-white/20 transition">Conversations</a>
+        <a href="/admin/search" class="rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm hover:border-white/20 transition">Recherche</a>
+        <a href="/admin/reports" class="rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm hover:border-white/20 transition">Signalements</a>
+        <a href="/admin/logs" class="rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm hover:border-white/20 transition">Historique</a>
+      </div>
+    </article>
   </div>
 
+  <div class="mt-10 grid gap-6 xl:grid-cols-[1.1fr_0.9fr]">
+    <section class="rounded-2xl border border-white/10 bg-white/5 p-6">
+      <div class="flex items-center justify-between gap-3">
+        <div>
+          <h2 class="text-xl font-semibold">Espaces de moderation</h2>
+          <p class="mt-1 text-sm text-slate-400">Chaque section reste separee du parcours client et prestataire.</p>
+        </div>
+      </div>
+
+      <div class="mt-5 grid gap-4 md:grid-cols-2">
+        <a href="/admin/bookings" class="rounded-2xl border border-white/10 bg-slate-900/30 p-5 transition hover:border-white/20">
+          <h3 class="text-lg font-medium text-white">Reservations</h3>
+          <p class="mt-2 text-sm text-slate-400">Voir toutes les demandes, les statuts, les echanges recents et les paiements lies.</p>
+        </a>
+        <a href="/admin/payments" class="rounded-2xl border border-white/10 bg-slate-900/30 p-5 transition hover:border-white/20">
+          <h3 class="text-lg font-medium text-white">Paiements</h3>
+          <p class="mt-2 text-sm text-slate-400">Retrouver chaque paiement, son mode, son statut et la reservation correspondante.</p>
+        </a>
+        <a href="/admin/users" class="rounded-2xl border border-white/10 bg-slate-900/30 p-5 transition hover:border-white/20">
+          <h3 class="text-lg font-medium text-white">Comptes utilisateurs</h3>
+          <p class="mt-2 text-sm text-slate-400">Avertir, suspendre, bannir, limiter la messagerie ou la publication, et conserver l'historique.</p>
+        </a>
+        <a href="/admin/services" class="rounded-2xl border border-white/10 bg-slate-900/30 p-5 transition hover:border-white/20">
+          <h3 class="text-lg font-medium text-white">Services publies</h3>
+          <p class="mt-2 text-sm text-slate-400">Passer un service en actif, suspendu ou supprime selon le contexte de moderation.</p>
+        </a>
+        <a href="/admin/reviews" class="rounded-2xl border border-white/10 bg-slate-900/30 p-5 transition hover:border-white/20">
+          <h3 class="text-lg font-medium text-white">Avis et commentaires</h3>
+          <p class="mt-2 text-sm text-slate-400">Masquer ou supprimer un avis tout en gardant une trace admin de la moderation.</p>
+        </a>
+        <a href="/admin/conversations" class="rounded-2xl border border-white/10 bg-slate-900/30 p-5 transition hover:border-white/20">
+          <h3 class="text-lg font-medium text-white">Conversations</h3>
+          <p class="mt-2 text-sm text-slate-400">Lecture seule des echanges client / prestataire, meme si les participants les ont effaces de leur cote.</p>
+        </a>
+        <a href="/admin/reports" class="rounded-2xl border border-white/10 bg-slate-900/30 p-5 transition hover:border-white/20">
+          <h3 class="text-lg font-medium text-white">Signalements</h3>
+          <p class="mt-2 text-sm text-slate-400">Suivi simple des problemes internes, avec priorite, statut et resolution.</p>
+        </a>
+        <a href="/admin/logs" class="rounded-2xl border border-white/10 bg-slate-900/30 p-5 transition hover:border-white/20">
+          <h3 class="text-lg font-medium text-white">Historique admin</h3>
+          <p class="mt-2 text-sm text-slate-400">Toutes les actions sensibles de moderation et de consultation dans une vue unique.</p>
+        </a>
+      </div>
+    </section>
+
+    <section class="rounded-2xl border border-white/10 bg-white/5 p-6">
+      <div class="flex items-center justify-between gap-3">
+        <div>
+          <h2 class="text-xl font-semibold">Journal recent</h2>
+          <p class="mt-1 text-sm text-slate-400">Dernieres actions admin tracees.</p>
+        </div>
+      </div>
+
+      <% if (!dashboard.recentLogs?.length) { %>
+        <div class="mt-5 rounded-2xl border border-white/10 bg-slate-900/30 px-4 py-5 text-sm text-slate-400">
+          Aucune action admin enregistree pour le moment.
+        </div>
+      <% } else { %>
+        <div class="admin-recent-log-list mt-5 space-y-3">
+          <% dashboard.recentLogs.forEach((log) => { %>
+            <article
+              class="rounded-2xl border border-white/10 bg-slate-900/30 px-4 py-4 <%= log.display_link ? 'service-card--interactive' : '' %>"
+              <% if (log.display_link) { %>
+                tabindex="0"
+                data-card-link="<%= log.display_link %>"
+              <% } %>
+            >
+              <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                <div class="min-w-0">
+                  <p class="text-base font-semibold text-white"><%= log.display_title %></p>
+                  <p class="mt-1 text-sm text-slate-200"><%= log.display_subject %></p>
+                  <p class="mt-2 text-sm text-slate-400"><%= log.display_detail %></p>
+                </div>
+                <div class="text-left sm:min-w-[11rem] sm:text-right">
+                  <p class="text-xs font-semibold uppercase tracking-[0.18em] text-blue-200"><%= log.admin_name %></p>
+                  <p class="mt-2 text-xs text-slate-500"><%= new Date(log.created_at).toLocaleString("fr-FR") %></p>
+                </div>
+              </div>
+              <% if (log.display_link) { %>
+                <p class="mt-3 text-xs text-slate-500">Cliquer n'importe ou dans la carte pour ouvrir la section concernee.</p>
+              <% } %>
+            </article>
+          <% }) %>
+        </div>
+      <% } %>
+    </section>
+  </div>
 </section>

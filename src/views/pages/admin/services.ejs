@@ -1,0 +1,138 @@
+<section class="py-10 max-w-7xl mx-auto px-4">
+  <%
+    const getInitials = (name) =>
+      String(name || "")
+        .trim()
+        .split(/\s+/)
+        .slice(0, 2)
+        .map((part) => part.charAt(0).toUpperCase())
+        .join("") || "?";
+    const getStatusLabel = (status) => {
+      if (status === "suspended") return "Service suspendu";
+      if (status === "deleted") return "Service supprime";
+      return "Service actif";
+    };
+  %>
+  <div class="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+    <div>
+      <p class="text-xs uppercase tracking-[0.3em] text-blue-300">Administration</p>
+      <h1 class="mt-2 text-3xl font-semibold tracking-tight">Moderation des services</h1>
+      <p class="mt-2 text-slate-400">Chaque service reste publiable librement, mais l'admin peut le suspendre ou le retirer ensuite.</p>
+    </div>
+    <a href="/admin" class="rounded-lg border border-white/10 bg-white/5 px-4 py-2 hover:border-white/20 transition">
+      Retour au dashboard
+    </a>
+  </div>
+
+  <form method="GET" action="/admin/services" class="mt-8 grid gap-4 rounded-2xl border border-white/10 bg-white/5 p-5 md:grid-cols-[1fr_220px_auto]">
+    <input
+      type="text"
+      name="q"
+      value="<%= q || '' %>"
+      placeholder="Rechercher par titre, prestataire ou categorie"
+      class="rounded-xl border border-white/10 bg-slate-900/40 px-4 py-3 text-slate-100 placeholder:text-slate-500"
+    >
+    <select name="status" class="rounded-xl border border-white/10 bg-slate-900/40 px-4 py-3 text-slate-100">
+      <option value="">Tous les statuts</option>
+      <option value="active" <%= status === 'active' ? 'selected' : '' %>>Actifs</option>
+      <option value="suspended" <%= status === 'suspended' ? 'selected' : '' %>>Suspendus</option>
+      <option value="deleted" <%= status === 'deleted' ? 'selected' : '' %>>Supprimes</option>
+    </select>
+    <button type="submit" class="rounded-xl bg-blue-600 px-4 py-3 font-medium text-white hover:bg-blue-500 transition">
+      Filtrer
+    </button>
+  </form>
+
+  <div class="mt-8 space-y-5">
+    <% if (!services.length) { %>
+      <div class="rounded-2xl border border-white/10 bg-white/5 px-5 py-6 text-slate-400">
+        Aucun service ne correspond a cette recherche.
+      </div>
+    <% } else { %>
+      <% services.forEach((service) => { %>
+        <article
+          class="service-card--interactive rounded-2xl border border-white/10 bg-white/5 p-5"
+          tabindex="0"
+          data-card-focus="admin-service-panel-<%= service.id %>"
+        >
+          <div class="flex flex-col gap-5 xl:flex-row xl:items-start xl:justify-between">
+            <div class="min-w-0">
+              <div class="flex flex-wrap items-center gap-3">
+                <h2 class="text-xl font-semibold text-white"><%= service.title %></h2>
+                <span class="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-medium text-slate-200"><%= getStatusLabel(service.admin_status) %></span>
+                <a href="/admin/services/<%= service.id %>" class="text-sm text-blue-300 hover:text-blue-200 transition">Detail admin</a>
+                <a href="/services/<%= service.id %>" class="text-sm text-blue-300 hover:text-blue-200 transition">Voir la fiche</a>
+              </div>
+              <div class="mt-4 flex items-center gap-4 rounded-2xl border border-white/10 bg-slate-900/30 px-4 py-4">
+                <div class="admin-avatar">
+                  <% if (service.provider_profile_photo) { %>
+                    <img
+                      src="<%= service.provider_profile_photo %>"
+                      alt="Photo de profil de <%= service.provider_name %>"
+                      class="admin-avatar__image"
+                    >
+                  <% } else { %>
+                    <span class="admin-avatar__fallback"><%= getInitials(service.provider_name) %></span>
+                  <% } %>
+                </div>
+                <div class="min-w-0">
+                  <p class="text-xs font-semibold uppercase tracking-[0.2em] text-blue-200">Prestataire</p>
+                  <p class="mt-1 text-base font-medium text-white"><%= service.provider_name %></p>
+                  <p class="mt-1 text-sm text-slate-400"><%= service.provider_email %></p>
+                </div>
+              </div>
+              <div class="mt-4 grid gap-2 text-sm text-slate-300 md:grid-cols-2">
+                <p><span class="text-slate-500">Categorie :</span> <%= service.category_name %></p>
+                <p><span class="text-slate-500">Prix :</span> <%= Number(service.price || 0).toString().replace(".", ",") %> EUR</p>
+              </div>
+              <% if (service.admin_status_reason) { %>
+                <p class="mt-3 text-sm text-slate-300">Motif admin : <%= service.admin_status_reason %></p>
+              <% } %>
+            </div>
+
+            <form
+              id="admin-service-panel-<%= service.id %>"
+              action="/admin/services/<%= service.id %>/moderation"
+              method="POST"
+              class="admin-card-panel w-full max-w-xl space-y-3 rounded-2xl border border-white/10 bg-slate-900/30 p-4"
+              data-admin-moderation-form="service"
+            >
+              <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+
+              <select
+                name="action"
+                id="admin-service-action-<%= service.id %>"
+                class="w-full rounded-xl border border-white/10 bg-slate-950/50 px-4 py-3 text-sm text-slate-100"
+                data-admin-action-select
+              >
+                <option value="active">Rendre actif</option>
+                <option value="suspended">Suspendre le service</option>
+                <option value="deleted">Supprimer le service cote admin</option>
+              </select>
+
+              <textarea
+                name="reason"
+                rows="3"
+                placeholder="Motif de moderation du service"
+                class="w-full rounded-xl border border-white/10 bg-slate-950/50 px-4 py-3 text-sm text-slate-100 placeholder:text-slate-500"
+                data-admin-reason-input
+              ></textarea>
+
+              <p class="text-xs text-slate-400" data-admin-action-summary>
+                Vous allez rendre ce service actif.
+              </p>
+
+              <button
+                type="submit"
+                class="rounded-xl bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-500 transition"
+                data-admin-submit-button
+              >
+                Rendre le service actif
+              </button>
+            </form>
+          </div>
+        </article>
+      <% }) %>
+    <% } %>
+  </div>
+</section>
