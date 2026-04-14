@@ -5,13 +5,13 @@ import { validateCategoryPayload } from "../validators/categoryValidator.js";
 import { getFirstValidationMessage } from "../utils/formState.js";
 
 class CategoryController {
-  // Affiche la liste des categories.
+  // Affiche la liste des catégories.
   async index(req, res) {
     try {
       const categories = await CategoryService.list();
 
       res.render("pages/category/index", {
-        title: "Categories - HomeService",
+        title: "Catégories - HomeService",
         categories,
       });
     } catch (error) {
@@ -20,15 +20,15 @@ class CategoryController {
     }
   }
 
-  // Affiche le formulaire de creation de categorie.
+  // Affiche le formulaire de création de catégorie.
   async create(req, res) {
     res.render("pages/category/new", {
-      title: "Creer une categorie",
+      title: "Créer une catégorie",
       csrfToken: res.locals.csrfToken,
     });
   }
 
-  // Traite la soumission du formulaire de creation.
+  // Traite la soumission du formulaire de création.
   async store(req, res) {
     try {
       const validation = validateCategoryPayload(req.body);
@@ -39,7 +39,7 @@ class CategoryController {
       }
 
       await CategoryService.create(validation.data);
-      req.flash?.("success", "Categorie creee.");
+      req.flash?.("success", "Catégorie créée.");
       res.redirect("/categories");
     } catch (error) {
       req.saveOldInput?.(req.body);

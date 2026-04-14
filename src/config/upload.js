@@ -13,7 +13,7 @@ import logger from "./logger.js";
 
 const uploadPath = "public/uploads";
 
-// Creation automatique du dossier si inexistant
+// Création automatique du dossier si inexistant
 if (!fs.existsSync(uploadPath)) {
   fs.mkdirSync(uploadPath, { recursive: true });
   logger.info("Dossier uploads cree");
@@ -37,7 +37,7 @@ const storage = multer.diskStorage({
 });
 
 /**
- * Filtre : uniquement images autorisees
+ * Filtre : uniquement images autorisées
  */
 const fileFilter = (_req, file, cb) => {
   const allowedMimeTypes = [

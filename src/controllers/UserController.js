@@ -89,7 +89,7 @@ class UserController {
       }
 
       if (user.role === "admin") {
-        req.flash("error", "Le compte administrateur se gere depuis l'espace admin.");
+        req.flash("error", "Le compte administrateur se gère depuis l'espace admin.");
         return res.redirect("/admin");
       }
 
@@ -156,24 +156,24 @@ class UserController {
 
       const pageMeta = {
         all: {
-          title: "Reservations recues - HomeService",
-          heading: "Reservations recues",
-          description: "Suivez les reservations recues sur vos services et leur statut.",
+          title: "Réservations reçues - HomeService",
+          heading: "Réservations reçues",
+          description: "Suivez les réservations reçues sur vos services et leur statut.",
         },
         pending: {
-          title: "Reservations en attente - HomeService",
-          heading: "Reservations en attente",
+          title: "Réservations en attente - HomeService",
+          heading: "Réservations en attente",
           description: "Consultez les demandes a confirmer ou a refuser sur vos services.",
         },
         confirmed: {
-          title: "Reservations confirmees - HomeService",
-          heading: "Reservations confirmees",
-          description: "Retrouvez les reservations confirmees en attente de paiement ou deja reglees.",
+          title: "Réservations confirmées - HomeService",
+          heading: "Réservations confirmées",
+          description: "Retrouvez les réservations confirmées en attente de paiement ou déjà réglées.",
         },
         completed: {
-          title: "Reservations terminees - HomeService",
-          heading: "Reservations terminees",
-          description: "Retrouvez les prestations terminees sur vos services.",
+          title: "Réservations terminées - HomeService",
+          heading: "Réservations terminées",
+          description: "Retrouvez les prestations terminées sur vos services.",
         },
       };
 
@@ -214,7 +214,7 @@ class UserController {
       });
 
       return res.render("pages/bookings/show", {
-        title: "Detail de la reservation recue - HomeService",
+        title: "Détail de la réservation reçue - HomeService",
         booking,
         viewerMode: "provider",
         csrfToken: res.locals.csrfToken,
@@ -243,7 +243,7 @@ class UserController {
 
       return res.render("pages/users/reviews", {
         title: "Mes avis - HomeService",
-        sectionLabel: "Activite utilisateur",
+        sectionLabel: "Activité utilisateur",
         heading: "Avis laisses",
         emptyMessage: "Vous n'avez laisse aucun avis pour le moment.",
         reviews,
@@ -275,10 +275,10 @@ class UserController {
       const reviews = await ReviewService.listByProvider(userId);
 
       return res.render("pages/users/reviews", {
-        title: "Avis recus - HomeService",
-        sectionLabel: "Activite de mes services",
-        heading: "Avis recus sur mes services",
-        emptyMessage: "Aucun avis recu pour le moment.",
+        title: "Avis reçus - HomeService",
+        sectionLabel: "Activité de mes services",
+        heading: "Avis reçus sur mes services",
+        emptyMessage: "Aucun avis reçu pour le moment.",
         reviews,
         counterpartLabel: "Laisse par",
         counterpartField: "client_name",
@@ -309,7 +309,7 @@ class UserController {
       const totalRevenue = payments.reduce((total, payment) => total + Number(payment.amount || 0), 0);
 
       return res.render("pages/users/service-payments", {
-        title: "Paiements recus - HomeService",
+        title: "Paiements reçus - HomeService",
         payments,
         totalRevenue,
       });
@@ -339,7 +339,7 @@ class UserController {
       });
 
       return res.render("pages/payments/show", {
-        title: "Detail du paiement recu - HomeService",
+        title: "Détail du paiement reçu - HomeService",
         payment,
         viewerMode: "provider",
       });
@@ -360,7 +360,7 @@ class UserController {
       }
 
       if (user.role === "admin") {
-        req.flash("error", "La suppression libre du compte n'est pas autorisee pour l'administrateur.");
+        req.flash("error", "La suppression libre du compte n'est pas autorisée pour l'administrateur.");
         return res.redirect("/admin");
       }
 

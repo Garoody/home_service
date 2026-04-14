@@ -9,7 +9,7 @@
         .join("") || "?";
     const getStatusLabel = (status) => {
       if (status === "suspended") return "Service suspendu";
-      if (status === "deleted") return "Service supprime";
+      if (status === "deleted") return "Service supprimé";
       return "Service actif";
     };
   %>
@@ -29,7 +29,7 @@
       type="text"
       name="q"
       value="<%= q || '' %>"
-      placeholder="Rechercher par titre, prestataire ou categorie"
+      placeholder="Rechercher par titre, prestataire ou catégorie"
       class="rounded-xl border border-white/10 bg-slate-900/40 px-4 py-3 text-slate-100 placeholder:text-slate-500"
     >
     <select name="status" class="rounded-xl border border-white/10 bg-slate-900/40 px-4 py-3 text-slate-100">
@@ -60,7 +60,7 @@
               <div class="flex flex-wrap items-center gap-3">
                 <h2 class="text-xl font-semibold text-white"><%= service.title %></h2>
                 <span class="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-medium text-slate-200"><%= getStatusLabel(service.admin_status) %></span>
-                <a href="/admin/services/<%= service.id %>" class="text-sm text-blue-300 hover:text-blue-200 transition">Detail admin</a>
+                <a href="/admin/services/<%= service.id %>" class="text-sm text-blue-300 hover:text-blue-200 transition">Détail admin</a>
                 <a href="/services/<%= service.id %>" class="text-sm text-blue-300 hover:text-blue-200 transition">Voir la fiche</a>
               </div>
               <div class="mt-4 flex items-center gap-4 rounded-2xl border border-white/10 bg-slate-900/30 px-4 py-4">
@@ -82,7 +82,7 @@
                 </div>
               </div>
               <div class="mt-4 grid gap-2 text-sm text-slate-300 md:grid-cols-2">
-                <p><span class="text-slate-500">Categorie :</span> <%= service.category_name %></p>
+                <p><span class="text-slate-500">Catégorie :</span> <%= service.category_name %></p>
                 <p><span class="text-slate-500">Prix :</span> <%= Number(service.price || 0).toString().replace(".", ",") %> EUR</p>
               </div>
               <% if (service.admin_status_reason) { %>
@@ -107,13 +107,13 @@
               >
                 <option value="active">Rendre actif</option>
                 <option value="suspended">Suspendre le service</option>
-                <option value="deleted">Supprimer le service cote admin</option>
+                <option value="deleted">Supprimer le service côté admin</option>
               </select>
 
               <textarea
                 name="reason"
                 rows="3"
-                placeholder="Motif de moderation du service"
+                placeholder="Motif de modération du service"
                 class="w-full rounded-xl border border-white/10 bg-slate-950/50 px-4 py-3 text-sm text-slate-100 placeholder:text-slate-500"
                 data-admin-reason-input
               ></textarea>

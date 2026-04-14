@@ -6,25 +6,25 @@ import { requireMember } from "../middlewares/authMiddleware.js";
 
 const router = Router();
 
-// Un compte utilisateur normal peut reserver meme s'il publie aussi des services.
+// Un compte utilisateur normal peut réserver même s'il publie aussi des services.
 router.use(requireMember);
 
-// Liste des reservations de l'utilisateur connecte.
+// Liste des réservations de l'utilisateur connecté.
 router.get("/", BookingController.index);
-// Formulaire de creation d'une reservation.
+// Formulaire de création d'une réservation.
 router.get("/new", BookingController.new);
-// Detail simple d'une reservation du client.
+// Détail simple d'une réservation du client.
 router.get("/:id", BookingController.show);
-// Formulaire d'edition d'une reservation existante.
+// Formulaire d'edition d'une réservation existante.
 router.get("/:id/edit", BookingController.edit);
-// Confirmation/refus d'une reservation par le prestataire.
+// Confirmation/refus d'une réservation par le prestataire.
 router.post("/:id/confirm", BookingController.confirmByProvider);
 router.post("/:id/refuse", BookingController.refuseByProvider);
-// Creation d'une reservation.
+// Création d'une réservation.
 router.post("/", BookingController.store);
-// Mise a jour (date/heure) d'une reservation.
+// Mise a jour (date/heure) d'une réservation.
 router.post("/:id/update", BookingController.update);
-// Suppression d'une reservation.
+// Suppression d'une réservation.
 router.post("/:id/delete", BookingController.destroy);
 // Route de secours pour suppression via lien direct.
 router.get("/:id/delete", BookingController.destroy);

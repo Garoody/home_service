@@ -237,7 +237,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
       if (submitButton instanceof HTMLElement) {
         submitButton.textContent =
-          buttonLabels[selectedMethod] || "Confirmer la reservation";
+          buttonLabels[selectedMethod] || "Confirmer la réservation";
       }
     };
 
@@ -974,9 +974,9 @@ document.addEventListener("DOMContentLoaded", () => {
           reasonPlaceholder: "Commentaire interne facultatif",
         },
         delete: {
-          submitLabel: "Supprimer le compte cote admin",
-          confirmMessage: "Voulez-vous vraiment supprimer ce compte cote admin ?",
-          summary: "Vous allez supprimer ce compte cote admin.",
+          submitLabel: "Supprimer le compte côté admin",
+          confirmMessage: "Voulez-vous vraiment supprimer ce compte côté admin ?",
+          summary: "Vous allez supprimer ce compte côté admin.",
           reasonPlaceholder: "Motif de la suppression admin",
         },
       },
@@ -994,9 +994,9 @@ document.addEventListener("DOMContentLoaded", () => {
           reasonPlaceholder: "Motif du masquage public",
         },
         deleted: {
-          submitLabel: "Supprimer l'avis cote admin",
-          confirmMessage: "Voulez-vous vraiment supprimer cet avis cote admin ?",
-          summary: "Vous allez supprimer cet avis cote admin.",
+          submitLabel: "Supprimer l'avis côté admin",
+          confirmMessage: "Voulez-vous vraiment supprimer cet avis côté admin ?",
+          summary: "Vous allez supprimer cet avis côté admin.",
           reasonPlaceholder: "Motif de la suppression admin",
         },
       },
@@ -1014,9 +1014,9 @@ document.addEventListener("DOMContentLoaded", () => {
           reasonPlaceholder: "Motif de la suspension du service",
         },
         deleted: {
-          submitLabel: "Supprimer le service cote admin",
-          confirmMessage: "Voulez-vous vraiment supprimer ce service cote admin ?",
-          summary: "Vous allez supprimer ce service cote admin.",
+          submitLabel: "Supprimer le service côté admin",
+          confirmMessage: "Voulez-vous vraiment supprimer ce service côté admin ?",
+          summary: "Vous allez supprimer ce service côté admin.",
           reasonPlaceholder: "Motif de la suppression du service",
         },
       },
@@ -1053,7 +1053,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         if (reasonInput instanceof HTMLTextAreaElement) {
           reasonInput.placeholder =
-            meta.reasonPlaceholder || "Motif de moderation";
+            meta.reasonPlaceholder || "Motif de modération";
         }
 
         if (warningField instanceof HTMLElement) {

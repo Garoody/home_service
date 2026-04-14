@@ -1,15 +1,15 @@
 <!--
-  Ecran d'edition d'une reservation client.
+  Ecran d'edition d'une réservation client.
   Cette vue existe pour offrir une vraie page de modification
   quand le client clique sur "Mettre a jour" depuis la liste.
 -->
 <section class="py-10">
   <div class="max-w-3xl mx-auto px-4">
     <div class="mb-6">
-      <p class="text-xs uppercase tracking-[0.25em] text-blue-300">Reservation</p>
-      <h1 class="mt-2 text-2xl md:text-3xl font-semibold">Modifier ma reservation</h1>
+      <p class="text-xs uppercase tracking-[0.25em] text-blue-300">Réservation</p>
+      <h1 class="mt-2 text-2xl md:text-3xl font-semibold">Modifier ma réservation</h1>
       <p class="mt-2 text-slate-400">
-        Retrouvez ici votre formulaire complet pour modifier votre reservation de
+        Retrouvez ici votre formulaire complet pour modifier votre réservation de
         <span class="text-slate-200 font-medium"><%= booking.service_title || "Service" %></span>.
       </p>
     </div>
@@ -103,7 +103,7 @@
       </div>
 
       <p class="text-xs text-slate-400">
-        Les dates passees sont bloquees. Pour aujourd'hui, choisissez uniquement une heure future.
+        Les dates passées sont bloquées. Pour aujourd'hui, choisissez uniquement une heure future.
       </p>
 
       <div class="flex flex-wrap items-center justify-between gap-3 pt-2">
@@ -111,7 +111,7 @@
           href="/bookings"
           class="inline-flex items-center rounded-lg border border-white/10 bg-white/5 px-4 py-2 text-sm font-medium text-slate-200 hover:border-white/20 transition"
         >
-          Retour aux reservations
+          Retour aux réservations
         </a>
 
         <button

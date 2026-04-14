@@ -43,7 +43,7 @@ class AuthService {
     const existingUser = await UserRepository.findByEmail(registerDto.email);
 
     if (existingUser) {
-      return { success: false, status: 409, message: "Cet email est deja utilise." };
+      return { success: false, status: 409, message: "Cet email est déjà utilise." };
     }
 
     const password_hash = await bcrypt.hash(registerDto.password, 10);
@@ -81,7 +81,7 @@ class AuthService {
       profile?.displayName ||
       `${profile?.name?.givenName || "Utilisateur"} ${profile?.name?.familyName || "Google"}`.trim();
 
-    // Le schema actuel impose un password_hash, meme pour un compte OAuth.
+    // Le schema actuel impose un password_hash, même pour un compte OAuth.
     const password_hash = await bcrypt.hash(randomBytes(32).toString("hex"), 10);
 
     const createdUser = await UserRepository.create({

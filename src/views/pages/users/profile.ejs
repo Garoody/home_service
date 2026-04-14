@@ -22,8 +22,8 @@
       <div class="profile-dashboard__intro">
         <h1>Bonjour <%= user?.fullName || "Utilisateur" %></h1>
         <p class="profile-dashboard__lead">
-          Depuis ce compte, vous pouvez reserver des services, publier vos propres annonces
-          et suivre toute votre activite au meme endroit.
+          Depuis ce compte, vous pouvez réserver des services, publier vos propres annonces
+          et suivre toute votre activité au même endroit.
         </p>
       </div>
 
@@ -39,7 +39,7 @@
 
     <div class="profile-stat-grid">
       <a href="/bookings" class="profile-stat-card profile-stat-card--blue">
-        <p class="profile-stat-card__label">Reservations</p>
+        <p class="profile-stat-card__label">Réservations</p>
         <p class="profile-stat-card__value"><%= dashboard.stats.bookings %></p>
       </a>
       <a href="/payments" class="profile-stat-card profile-stat-card--cyan">
@@ -51,11 +51,11 @@
         <p class="profile-stat-card__value"><%= dashboard.stats.services %></p>
       </a>
       <a href="/users/profile/service-bookings" class="profile-stat-card profile-stat-card--pink">
-        <p class="profile-stat-card__label">Reservations recues</p>
+        <p class="profile-stat-card__label">Réservations reçues</p>
         <p class="profile-stat-card__value"><%= dashboard.stats.requests %></p>
       </a>
       <a href="/bookings" class="profile-stat-card profile-stat-card--orange">
-        <p class="profile-stat-card__label">Reservations en attente</p>
+        <p class="profile-stat-card__label">Réservations en attente</p>
         <p class="profile-stat-card__value"><%= dashboard.stats.pending %></p>
       </a>
       <a href="/users/profile/reviews-given" class="profile-stat-card profile-stat-card--sky">
@@ -63,13 +63,13 @@
         <p class="profile-stat-card__value"><%= dashboard.stats.reviewsLeft %></p>
       </a>
       <a href="/users/profile/reviews-received" class="profile-stat-card profile-stat-card--violet">
-        <p class="profile-stat-card__label">Avis recus</p>
+        <p class="profile-stat-card__label">Avis reçus</p>
         <p class="profile-stat-card__value"><%= dashboard.stats.reviewsReceived %></p>
       </a>
       <a href="/users/profile/service-payments" class="profile-stat-card profile-stat-card--emerald">
         <p class="profile-stat-card__label">Total encaisse</p>
         <p class="profile-stat-card__value profile-stat-card__value--money"><%= dashboard.stats.revenue.toString().replace(".", ",") %> EUR</p>
-        <p class="profile-stat-card__helper">Paiements recus sur vos services</p>
+        <p class="profile-stat-card__helper">Paiements reçus sur vos services</p>
       </a>
     </div>
 
@@ -77,7 +77,7 @@
       <section class="profile-panel">
         <div class="profile-panel__head">
           <div>
-            <h2>Reservations recentes</h2>
+            <h2>Réservations récentes</h2>
             <p class="profile-panel__copy">Suivez vos prestations et leur statut.</p>
           </div>
           <a href="/bookings" class="text-link">Tout voir</a>
@@ -86,7 +86,7 @@
         <div class="profile-list">
           <% if (!dashboard.recentBookings.length) { %>
             <div class="profile-empty-card">
-              Aucune reservation pour le moment.
+              Aucune réservation pour le moment.
             </div>
           <% } else { %>
             <% dashboard.recentBookings.forEach((booking) => { %>
@@ -108,7 +108,7 @@
         <div class="profile-panel__head">
           <div>
             <h2>Services publies</h2>
-            <p class="profile-panel__copy">Les annonces que vous avez deja mises en ligne.</p>
+            <p class="profile-panel__copy">Les annonces que vous avez déjà mises en ligne.</p>
           </div>
           <a href="/services/new" class="text-link">Publier</a>
         </div>
@@ -124,7 +124,7 @@
                 <div>
                   <h3><%= service.title %></h3>
                   <p class="profile-list-card__meta">
-                    Categorie : <span><%= service.category_name %></span>
+                    Catégorie : <span><%= service.category_name %></span>
                   </p>
                 </div>
                 <span class="tag tag--price"><%= (service.price ?? 0).toString().replace(".", ",") %> EUR</span>
@@ -152,7 +152,7 @@
             Proposer un service
           </a>
           <a href="/users/profile/service-bookings" class="profile-quick-link">
-            Voir mes reservations recues
+            Voir mes réservations reçues
           </a>
           <a href="/users/profile/conversations" class="profile-quick-link">
             Mes conversations
@@ -161,7 +161,7 @@
             Mes cartes enregistrees
           </a>
           <a href="/users/profile/service-payments" class="profile-quick-link">
-            Voir mes paiements recus
+            Voir mes paiements reçus
           </a>
         </div>
 
@@ -170,7 +170,7 @@
           tabindex="0"
           data-card-link="/users/profile/service-bookings"
         >
-          <p class="profile-card__eyebrow">Notifications et messages recus</p>
+          <p class="profile-card__eyebrow">Notifications et messages reçus</p>
           <div class="profile-activity-list">
             <% if (!providerNotifications.length) { %>
               <p class="profile-activity-empty">Aucune nouvelle demande ou message pour le moment.</p>
@@ -180,7 +180,7 @@
                 <% const bookingTimeValue = String(booking.booking_time || "").slice(0, 5); %>
                 <a href="<%= booking.conversation_id ? `/conversations/${booking.conversation_id}` : '/users/profile/service-bookings' %>" class="profile-activity-item">
                   <span class="profile-activity-item__content">
-                    <span class="profile-activity-item__title"><%= booking.client_name %> souhaite reserver <%= booking.service_title %></span>
+                    <span class="profile-activity-item__title"><%= booking.client_name %> souhaite réserver <%= booking.service_title %></span>
                     <span class="profile-activity-item__meta"><%= bookingDateValue || "N/A" %> a <%= bookingTimeValue || "N/A" %></span>
                   </span>
                   <span class="profile-status-pill"><%= booking.status === "confirmed" ? "Paiement du client attendu" : "A confirmer" %></span>
@@ -283,7 +283,7 @@
                 </div>
 
                 <div>
-                  <label class="profile-form-label" for="phone">Telephone</label>
+                  <label class="profile-form-label" for="phone">Téléphone</label>
                   <input
                     id="phone"
                     name="phone"
@@ -329,7 +329,7 @@
                 </div>
 
                 <div>
-                  <label class="profile-form-label" for="experience_years">Annees d'experience</label>
+                  <label class="profile-form-label" for="experience_years">Annees d'expérience</label>
                   <input
                     id="experience_years"
                     name="experience_years"
@@ -387,7 +387,7 @@
           action="/users/profile/delete"
           method="POST"
           class="profile-delete-form"
-          data-confirm="Voulez-vous vraiment supprimer votre compte utilisateur ? Toutes vos donnees associees seront effacees et cette action est irreversible."
+          data-confirm="Voulez-vous vraiment supprimer votre compte utilisateur ? Toutes vos données associees seront effacees et cette action est irreversible."
         >
           <% if (csrfToken) { %>
             <input type="hidden" name="_csrf" value="<%= csrfToken %>">

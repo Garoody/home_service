@@ -91,7 +91,7 @@ export async function getServicesWithProvider() {
       c.name AS category_name,
       u.full_name AS provider_name
     FROM services s
-    JOIN categories c ON c.id_category = s.category_id
+    JOIN catégories c ON c.id_category = s.category_id
     JOIN users u ON u.id_user = s.provider_id
     ORDER BY s.created_at DESC
     LIMIT 20;

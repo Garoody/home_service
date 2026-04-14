@@ -186,7 +186,7 @@ class AdminController {
       });
 
       return res.render("pages/admin/bookings", {
-        title: "Reservations admin - HomeService",
+        title: "Réservations admin - HomeService",
         bookings,
         q: req.query.q || "",
         status: req.query.status || "",
@@ -205,7 +205,7 @@ class AdminController {
       });
 
       return res.render("pages/admin/booking-show", {
-        title: "Detail de reservation - HomeService",
+        title: "Détail de réservation - HomeService",
         booking,
       });
     } catch (error) {
@@ -243,7 +243,7 @@ class AdminController {
       });
 
       return res.render("pages/admin/payment-show", {
-        title: "Detail du paiement - HomeService",
+        title: "Détail du paiement - HomeService",
         payment,
       });
     } catch (error) {
@@ -260,7 +260,7 @@ class AdminController {
       });
 
       return res.render("pages/admin/user-show", {
-        title: "Detail du compte - HomeService",
+        title: "Détail du compte - HomeService",
         user,
       });
     } catch (error) {
@@ -277,7 +277,7 @@ class AdminController {
       });
 
       return res.render("pages/admin/service-show", {
-        title: "Detail du service - HomeService",
+        title: "Détail du service - HomeService",
         service,
       });
     } catch (error) {
@@ -294,7 +294,7 @@ class AdminController {
       });
 
       return res.render("pages/admin/review-show", {
-        title: "Detail de l'avis - HomeService",
+        title: "Détail de l'avis - HomeService",
         review,
       });
     } catch (error) {
@@ -377,7 +377,7 @@ class AdminController {
         priority: req.body.priority || "moyenne",
       });
 
-      req.flash("success", "Signalement admin cree.");
+      req.flash("success", "Signalement admin créé.");
       return res.redirect("/admin/reports");
     } catch (error) {
       req.flash("error", error.message);

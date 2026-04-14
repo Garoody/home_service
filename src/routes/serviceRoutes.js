@@ -16,7 +16,7 @@ function getUploadErrorMessage(error) {
   }
 
   if (error?.code === "LIMIT_UNEXPECTED_FILE" || error?.code === "LIMIT_FILE_COUNT") {
-    return "Vous pouvez ajouter jusqu'a 6 photos par service.";
+    return "Vous pouvez ajouter jusqu'à 6 photos par service.";
   }
 
   return error?.message || "Impossible d'envoyer les photos du service.";
@@ -48,7 +48,7 @@ router.post(
   ServiceController.store
 );
 
-// Seul le proprietaire connecte avec un compte membre peut modifier son annonce.
+// Seul le proprietaire connecté avec un compte membre peut modifier son annonce.
 router.get(
   "/:slug/edit",
   requireMember,

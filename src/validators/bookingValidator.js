@@ -3,7 +3,7 @@ import { z } from "zod";
 import { validateBookingSlot } from "../utils/bookingSlot.js";
 /**
  * Objectif:
- * Encapsuler la validation de format de date pour les reservations.
+ * Encapsuler la validation de format de date pour les réservations.
  * Entree:
  * - string au format attendu YYYY-MM-DD
  * Sorti
@@ -15,7 +15,7 @@ const bookingDate = z
 
 /**
  * Objectif:
- * Encapsuler la validation de format d'heure pour les reservations.
+ * Encapsuler la validation de format d'heure pour les réservations.
  * Entree:
  * - string au format HH:MM ou HH:MM:SS
  * Sortie:
@@ -25,7 +25,7 @@ const bookingTime = z
   .string()
   .regex(/^\d{2}:\d{2}(:\d{2})?$/, "Heure invalide (HH:MM).");
 
-// Validation complete pour creation (service + date + heure).
+// Validation complete pour création (service + date + heure).
 const bookingCreateSchema = z
   .object({
     service_id: z.string().uuid("Service invalide."),
@@ -78,7 +78,7 @@ const bookingUpdateSchema = z
 
 /**
  * Objectif:
- * Uniformiser le resultat de safeParse pour les controllers.
+ * Uniformiser le résultat de safeParse pour les controllers.
  * Entree:
  * - result: retour de zod.safeParse(...)
  * Sortie:
@@ -99,7 +99,7 @@ function toResult(result) {
 
 /**
  * Objectif:
- * Valider le payload de creation de reservation.
+ * Valider le payload de création de réservation.
  */
 export function validateBookingCreatePayload(payload = {}) {
   const normalized = {
@@ -117,7 +117,7 @@ export function validateBookingCreatePayload(payload = {}) {
 
 /**
  * Objectif:
- * Valider le payload de mise a jour de reservation.
+ * Valider le payload de mise a jour de réservation.
  */
 export function validateBookingUpdatePayload(payload = {}) {
   return toResult(bookingUpdateSchema.safeParse(payload));

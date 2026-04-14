@@ -33,9 +33,9 @@
     <div class="mb-6 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
       <div>
         <p class="text-xs uppercase tracking-[0.25em] text-blue-300">
-          <%= isClientView ? "Paiement client" : "Paiement recu" %>
+          <%= isClientView ? "Paiement client" : "Paiement reçu" %>
         </p>
-        <h1 class="mt-2 text-3xl font-semibold tracking-tight text-white">Detail simple du paiement</h1>
+        <h1 class="mt-2 text-3xl font-semibold tracking-tight text-white">Détail simple du paiement</h1>
         <p class="mt-2 max-w-2xl text-slate-400">
           <%= isClientView
             ? "Ici, vous voyez clairement ce que vous avez regle."
@@ -204,7 +204,7 @@
               href="<%= isClientView ? `/bookings/${payment.booking_id}` : `/users/profile/service-bookings/detail/${payment.booking_id}` %>"
               class="inline-flex min-h-11 items-center justify-center rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm font-medium text-slate-100 transition hover:border-white/20 hover:bg-white/10"
             >
-              Voir la reservation
+              Voir la réservation
             </a>
           </div>
         </div>

@@ -173,7 +173,7 @@ meilleur tri naturel
 
 users (provider) → services : (1,N)
 
-categories → services : (1,N)
+catégories → services : (1,N)
 
 users (client) → bookings : (1,N)
 
@@ -187,7 +187,7 @@ bookings → reviews : (1,1) (unique)
 
 RESTRICT : empêche suppression si dépendances (ex: supprimer un provider ayant des services)
 
-CASCADE : supprime les données liées (ex: bookings → payments/reviews)
+CASCADE : supprimé les données liées (ex: bookings → payments/reviews)
 
 Dans ton schéma :
 

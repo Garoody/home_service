@@ -31,7 +31,7 @@ class ReviewController {
       }
 
       if (booking.review_id) {
-        req.flash("info", "Un avis existe deja pour cette reservation. Vous pouvez encore le modifier.");
+        req.flash("info", "Un avis existe déjà pour cette réservation. Vous pouvez encore le modifier.");
         return res.redirect(`/reviews/${booking.review_id}/edit`);
       }
 
@@ -150,7 +150,7 @@ class ReviewController {
 
       await ReviewService.deleteByClient({ reviewId, clientId });
 
-      req.flash("success", "Avis supprime avec succes.");
+      req.flash("success", "Avis supprimé avec succes.");
       return res.redirect("/users/profile/reviews-given");
     } catch (error) {
       req.flash("error", error.message);
@@ -175,7 +175,7 @@ class ReviewController {
         providerReply: validation.data.provider_reply,
       });
 
-      req.flash("success", "Reponse publiee avec succes.");
+      req.flash("success", "Réponse publiee avec succes.");
       return res.redirect("/users/profile/reviews-received");
     } catch (error) {
       req.flash("error", error.message);

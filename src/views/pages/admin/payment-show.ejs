@@ -15,15 +15,15 @@
   <div class="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
     <div>
       <p class="text-xs uppercase tracking-[0.3em] text-blue-300">Administration</p>
-      <h1 class="mt-2 text-3xl font-semibold tracking-tight">Detail du paiement</h1>
-      <p class="mt-2 text-slate-400">Montant, mode, reservation liee et informations utiles du paiement.</p>
+      <h1 class="mt-2 text-3xl font-semibold tracking-tight">Détail du paiement</h1>
+      <p class="mt-2 text-slate-400">Montant, mode, réservation liée et informations utiles du paiement.</p>
     </div>
     <div class="flex flex-wrap gap-3">
       <a href="/admin/payments" class="rounded-lg border border-white/10 bg-white/5 px-4 py-2 hover:border-white/20 transition">
         Retour aux paiements
       </a>
       <a href="<%= buildReportLink('payment', payment.id, `Paiement ${payment.service_title}`) %>" class="rounded-lg bg-blue-600 px-4 py-2 text-white hover:bg-blue-500 transition">
-        Creer un signalement
+        Créer un signalement
       </a>
     </div>
   </div>
@@ -51,7 +51,7 @@
                 <p class="text-xs font-semibold uppercase tracking-[0.2em] text-blue-200">Client</p>
                 <p class="mt-1 text-base font-medium text-white"><%= payment.client_name %></p>
                 <p class="mt-1 text-sm text-slate-400"><%= payment.client_email %></p>
-                <p class="mt-1 text-sm text-slate-400"><%= payment.client_phone || 'Telephone non renseigne' %></p>
+                <p class="mt-1 text-sm text-slate-400"><%= payment.client_phone || 'Téléphone non renseigne' %></p>
               </div>
             </div>
           </div>
@@ -69,7 +69,7 @@
                 <p class="text-xs font-semibold uppercase tracking-[0.2em] text-slate-200">Prestataire</p>
                 <p class="mt-1 text-base font-medium text-white"><%= payment.provider_name %></p>
                 <p class="mt-1 text-sm text-slate-400"><%= payment.provider_email %></p>
-                <p class="mt-1 text-sm text-slate-400"><%= payment.provider_phone || 'Telephone non renseigne' %></p>
+                <p class="mt-1 text-sm text-slate-400"><%= payment.provider_phone || 'Téléphone non renseigne' %></p>
               </div>
             </div>
           </div>
@@ -77,15 +77,15 @@
 
         <div class="mt-5 grid gap-3 text-sm text-slate-300 md:grid-cols-2 xl:grid-cols-3">
           <p><span class="text-slate-500">Montant :</span> <%= formatMoney(payment.amount) %> EUR</p>
-          <p><span class="text-slate-500">Reservation :</span> <%= payment.booking_status %></p>
-          <p><span class="text-slate-500">Date de reservation :</span> <%= new Date(payment.booking_date).toLocaleDateString('fr-FR') %></p>
+          <p><span class="text-slate-500">Réservation :</span> <%= payment.booking_status %></p>
+          <p><span class="text-slate-500">Date de réservation :</span> <%= new Date(payment.booking_date).toLocaleDateString('fr-FR') %></p>
           <p><span class="text-slate-500">Heure :</span> <%= String(payment.booking_time).slice(0, 5) %></p>
-          <p><span class="text-slate-500">Paiement effectue :</span> <%= payment.payment_date ? new Date(payment.payment_date).toLocaleString('fr-FR') : 'Non confirme' %></p>
-          <p><span class="text-slate-500">Categorie :</span> <%= payment.category_name %></p>
+          <p><span class="text-slate-500">Paiement effectué :</span> <%= payment.payment_date ? new Date(payment.payment_date).toLocaleString('fr-FR') : 'Non confirme' %></p>
+          <p><span class="text-slate-500">Catégorie :</span> <%= payment.category_name %></p>
         </div>
 
         <div class="mt-5 flex flex-wrap gap-3 text-sm">
-          <a href="/admin/bookings/<%= payment.booking_id %>" class="rounded-xl border border-white/10 bg-white/5 px-4 py-2 hover:border-white/20 transition">Voir la reservation</a>
+          <a href="/admin/bookings/<%= payment.booking_id %>" class="rounded-xl border border-white/10 bg-white/5 px-4 py-2 hover:border-white/20 transition">Voir la réservation</a>
           <% if (payment.conversation_id) { %>
             <a href="/admin/conversations/<%= payment.conversation_id %>" class="rounded-xl border border-white/10 bg-white/5 px-4 py-2 hover:border-white/20 transition">Voir la conversation</a>
           <% } %>
@@ -96,10 +96,10 @@
       </article>
 
       <article class="rounded-3xl border border-white/10 bg-white/5 p-6 shadow-xl shadow-black/10">
-        <h2 class="text-xl font-semibold text-white">Details du mode de paiement</h2>
+        <h2 class="text-xl font-semibold text-white">Détails du mode de paiement</h2>
         <% if (!payment.payment_details || !Object.keys(payment.payment_details).length) { %>
           <div class="mt-5 rounded-2xl border border-white/10 bg-slate-900/30 px-4 py-5 text-sm text-slate-400">
-            Aucun detail complementaire enregistre pour ce paiement.
+            Aucun détail complementaire enregistre pour ce paiement.
           </div>
         <% } else { %>
           <div class="mt-5 grid gap-3 md:grid-cols-2">
@@ -122,7 +122,7 @@
         <div class="mt-4 space-y-2 text-sm text-slate-300">
           <p><span class="text-slate-500">Paiement :</span> <%= payment.payment_status %></p>
           <p><span class="text-slate-500">Mode :</span> <%= payment.payment_method %></p>
-          <p><span class="text-slate-500">Reservation :</span> <%= payment.booking_status %></p>
+          <p><span class="text-slate-500">Réservation :</span> <%= payment.booking_status %></p>
           <p><span class="text-slate-500">Avis client :</span> <%= payment.review_id ? `${payment.review_rating || 0}/5` : 'Aucun avis' %></p>
         </div>
       </article>
@@ -131,7 +131,7 @@
         <div class="flex items-center justify-between gap-3">
           <div>
             <h2 class="text-xl font-semibold text-white">Trace admin</h2>
-            <p class="mt-1 text-sm text-slate-400">Dernieres actions liees a ce paiement.</p>
+            <p class="mt-1 text-sm text-slate-400">Dernieres actions liées a ce paiement.</p>
           </div>
           <a href="/admin/logs?q=<%= encodeURIComponent(payment.id) %>" class="text-sm text-blue-300 hover:text-blue-200 transition">Tout voir</a>
         </div>

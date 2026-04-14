@@ -19,17 +19,19 @@
       </a>
 
       <p class="service-footer__copy">
-        Plateforme de reservation de services a domicile.
-        Trouvez rapidement un professionnel qualifie pres de chez vous,
-        puis suivez vos demandes, vos paiements et vos reservations.
+        Plateforme de réservation de services à domicile.
+        Trouvez rapidement un professionnel qualifié pres de chez vous,
+        puis suivez vos demandes, vos paiements et vos réservations.
       </p>
     </div>
 
     <div>
       <h3 class="service-footer__title">Liens rapides</h3>
       <ul class="service-footer__list">
-        <li><a href="/categories">Categories</a></li>
+        <li><a href="/categories">Catégories</a></li>
         <li><a href="/services">Services</a></li>
+        <li><a href="/qui-sommes-nous">Qui sommes-nous</a></li>
+        <li><a href="/mentions-legales">Mentions legales</a></li>
         <% if (currentUser) { %>
           <li>
             <a href="<%= accountHome %>">
@@ -37,14 +39,14 @@
             </a>
           </li>
           <% if (!isAdmin) { %>
-            <li><a href="/bookings">Mes reservations</a></li>
+            <li><a href="/bookings">Mes réservations</a></li>
             <li><a href="/services/new">Proposer un service</a></li>
           <% } %>
           <li>
             <form
               action="/auth/logout"
               method="POST"
-              data-confirm="Voulez-vous vraiment vous deconnecter ?"
+              data-confirm="Voulez-vous vraiment vous déconnecter ?"
             >
               <% if (csrfToken) { %>
                 <input type="hidden" name="_csrf" value="<%= csrfToken %>">
@@ -53,7 +55,7 @@
                 type="submit"
                 class="service-nav__logout bg-transparent"
               >
-                Deconnexion
+                Déconnexion
               </button>
             </form>
           </li>
@@ -68,7 +70,6 @@
       <ul class="service-footer__list">
         <li>France</li>
         <li>cherygaroody@gmail.com</li>
-        <li>+33 758480076</li>
       </ul>
     </div>
   </div>

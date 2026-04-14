@@ -6,8 +6,8 @@ import ConversationService from "./ConversationService.js";
 
 /**
  * PaymentService
- * Gere le paiement d'une reservation et les cartes enregistrees du client.
- * Les donnees sensibles de carte ne sont jamais persistees en clair.
+ * Gère le paiement d'une réservation et les cartes enregistrees du client.
+ * Les données sensibles de carte ne sont jamais persistees en clair.
  */
 class PaymentService {
   static _hasPaymentMethodColumn = null;
@@ -89,7 +89,7 @@ class PaymentService {
     return result.rows;
   }
 
-  // Charge une carte enregistree appartenant bien au client connecte.
+  // Charge une carte enregistree appartenant bien au client connecté.
   static async getSavedMethodById({ clientId, savedMethodId, dbClient = db }) {
     const hasTable = await this.hasSavedPaymentMethodsTable();
     if (!hasTable) {
@@ -121,7 +121,7 @@ class PaymentService {
     return result.rows[0];
   }
 
-  // Enregistre uniquement des metadonnees non sensibles pour reutilisation future.
+  // Enregistre uniquement des métadonnées non sensibles pour reutilisation future.
   static async saveCardForUser({ clientId, brand, last4, exp_month, exp_year, cardholder_name, is_default = false, dbClient = db }) {
     const hasTable = await this.hasSavedPaymentMethodsTable();
     if (!hasTable) {
@@ -337,7 +337,7 @@ class PaymentService {
     return result.rows[0];
   }
 
-  // Verifie qu'une reservation appartient au client avant paiement.
+  // Verifie qu'une réservation appartient au client avant paiement.
   static async getPayContext(bookingId, clientId, dbClient = db) {
     const hasAdminStatusColumn = await BookingService.hasAdminStatusColumn();
     const result = await dbClient.query(
@@ -362,7 +362,7 @@ class PaymentService {
     );
 
     if (!result.rows[0]) {
-      throw new Error("Reservation introuvable ou non autorisee.");
+      throw new Error("Réservation introuvable ou non autorisée.");
     }
 
     const context = result.rows[0];
@@ -372,11 +372,11 @@ class PaymentService {
     }
 
     if (context.service_admin_status !== "active") {
-      throw new Error("Ce service n'est plus disponible suite a une moderation admin.");
+      throw new Error("Ce service n'est plus disponible suite a une modération admin.");
     }
 
     if (context.payment_status === "paid") {
-      throw new Error("Cette reservation a deja ete payee.");
+      throw new Error("Cette réservation a déjà été payée.");
     }
 
     const conflict = await BookingService.findPaidConflictForSlot({
@@ -388,13 +388,13 @@ class PaymentService {
     });
 
     if (conflict) {
-      throw new Error("Ce creneau n'est plus disponible. Une autre reservation a deja ete payee a cette heure.");
+      throw new Error("Ce creneau n'est plus disponible. Une autre réservation a déjà été payée a cette heure.");
     }
 
     return context;
   }
 
-  // Enregistre simplement le mode de paiement choisi lors de la reservation.
+  // Enregistre simplement le mode de paiement choisi lors de la réservation.
   static async registerBookingPaymentSelection({
     bookingId,
     clientId,
@@ -496,7 +496,7 @@ class PaymentService {
       });
 
       if (conflict) {
-        throw new Error("Ce creneau n'est plus disponible. Une autre reservation a deja ete payee a cette heure.");
+        throw new Error("Ce creneau n'est plus disponible. Une autre réservation a déjà été payée a cette heure.");
       }
 
       let finalPaymentMethod = payment_method;

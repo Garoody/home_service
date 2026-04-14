@@ -5,6 +5,33 @@ import PinoHttp, { pinoHttp } from "pino-http";
 import fs from "fs";
 
 const isDevelopment = process.env.NODE_ENV !== "production";
+const ALLOWED_LOG_LEVELS = new Set([
+  "fatal",
+  "error",
+  "warn",
+  "info",
+  "debug",
+  "trace",
+  "silent",
+]);
+
+function resolveLogLevel(rawLevel) {
+  const normalizedLevel =
+    typeof rawLevel === "string" ? rawLevel.trim().toLowerCase() : "";
+
+  if (!normalizedLevel) {
+    return "info";
+  }
+
+  if (ALLOWED_LOG_LEVELS.has(normalizedLevel)) {
+    return normalizedLevel;
+  }
+
+  console.warn(
+    `[logger] LOG_LEVEL invalide "${rawLevel}", fallback sur "info".`
+  );
+  return "info";
+}
 
 // Création automatique du dossier logs s'il n'existe pas (en dev)
 if (isDevelopment && !fs.existsSync("./logs")) {
@@ -16,7 +43,7 @@ if (isDevelopment && !fs.existsSync("./logs")) {
  * @type {pino.LoggerOptions}
  */
 const baseLoggerOptions = {
-  level: process.env.LOG_LEVEL || "info",
+  level: resolveLogLevel(process.env.LOG_LEVEL),
   timestamp: pino.stdTimeFunctions.isoTime,
 };
 

@@ -12,7 +12,7 @@
     <div>
       <p class="text-xs uppercase tracking-[0.3em] text-blue-300">Administration</p>
       <h1 class="mt-2 text-3xl font-semibold tracking-tight">Moderation des avis</h1>
-      <p class="mt-2 text-slate-400">Masquage public, suppression logique et conservation des traces cote admin.</p>
+      <p class="mt-2 text-slate-400">Masquage public, suppression logique et conservation des traces côté admin.</p>
     </div>
     <a href="/admin" class="rounded-lg border border-white/10 bg-white/5 px-4 py-2 hover:border-white/20 transition">
       Retour au dashboard
@@ -54,7 +54,7 @@
             <div class="min-w-0 flex-1">
               <div class="flex flex-wrap items-center gap-3">
                 <h2 class="text-xl font-semibold text-white"><%= review.service_title %></h2>
-                <a href="/admin/reviews/<%= review.id %>" class="text-sm text-blue-300 hover:text-blue-200 transition">Detail admin</a>
+                <a href="/admin/reviews/<%= review.id %>" class="text-sm text-blue-300 hover:text-blue-200 transition">Détail admin</a>
                 <% if (review.deleted_by_admin_at) { %>
                   <span class="rounded-full border border-rose-400/20 bg-rose-500/15 px-3 py-1 text-xs font-medium text-rose-200">Supprime admin</span>
                 <% } else if (review.hidden_by_admin) { %>
@@ -116,7 +116,7 @@
 
               <% if (review.provider_reply) { %>
                 <div class="mt-4 rounded-xl border border-blue-400/20 bg-blue-500/10 px-4 py-3">
-                  <p class="text-xs uppercase tracking-[0.2em] text-blue-200">Reponse du prestataire</p>
+                  <p class="text-xs uppercase tracking-[0.2em] text-blue-200">Réponse du prestataire</p>
                   <p class="mt-2 whitespace-pre-line text-sm text-slate-100"><%= review.provider_reply %></p>
                 </div>
               <% } %>
@@ -142,13 +142,13 @@
               >
                 <option value="visible">Rendre visible</option>
                 <option value="hidden">Masquer publiquement</option>
-                <option value="deleted">Supprimer cote admin</option>
+                <option value="deleted">Supprimer côté admin</option>
               </select>
 
               <textarea
                 name="reason"
                 rows="3"
-                placeholder="Motif de moderation de l'avis"
+                placeholder="Motif de modération de l'avis"
                 class="w-full rounded-xl border border-white/10 bg-slate-950/50 px-4 py-3 text-sm text-slate-100 placeholder:text-slate-500"
                 data-admin-reason-input
               ></textarea>

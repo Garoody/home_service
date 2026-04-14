@@ -8,7 +8,7 @@ const router = Router();
 
 router.use(requireMember);
 
-// Formulaire d'avis pour une reservation du client connecte.
+// Formulaire d'avis pour une réservation du client connecté.
 router.get("/bookings/:bookingId/new", ReviewController.new);
 router.get("/:reviewId/edit", ReviewController.edit);
 

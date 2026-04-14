@@ -61,7 +61,7 @@ class BookingController {
       }));
 
       res.render("pages/bookings/index", {
-        title: "Mes reservations - HomeService",
+        title: "Mes réservations - HomeService",
         bookings,
       });
     } catch (error) {
@@ -77,7 +77,7 @@ class BookingController {
       const booking = await BookingService.getDetailForUser({ bookingId: id, clientId });
 
       return res.render("pages/bookings/show", {
-        title: "Detail de la reservation - HomeService",
+        title: "Détail de la réservation - HomeService",
         booking,
         viewerMode: "client",
         csrfToken: res.locals.csrfToken,
@@ -102,7 +102,7 @@ class BookingController {
       }
 
       res.render("pages/bookings/new", {
-        title: "Nouvelle reservation - HomeService",
+        title: "Nouvelle réservation - HomeService",
         serviceId,
         bookingDateMin: getBookingDateTimeConstraints().minDate,
         csrfToken: res.locals.csrfToken,
@@ -120,12 +120,12 @@ class BookingController {
       const booking = await BookingService.getByIdForUser({ bookingId: id, clientId });
 
       if (booking.status !== "pending") {
-        req.flash("error", "Cette reservation n'est plus modifiable.");
+        req.flash("error", "Cette réservation n'est plus modifiable.");
         return res.redirect("/bookings");
       }
 
       res.render("pages/bookings/edit", {
-        title: "Modifier la reservation - HomeService",
+        title: "Modifier la réservation - HomeService",
         booking,
         bookingDateMin: getBookingDateTimeConstraints().minDate,
         csrfToken: res.locals.csrfToken,
@@ -177,7 +177,7 @@ class BookingController {
 
       req.flash(
         "success",
-        "Demande de reservation envoyee. Le chat est ouvert et le paiement restera bloque jusqu'a la confirmation du prestataire."
+        "Demande de réservation envoyée. Le chat est ouvert et le paiement restera bloqué jusqu'à la confirmation du prestataire."
       );
 
       if (booking?.conversationId) {
@@ -189,7 +189,7 @@ class BookingController {
       req.flash("error", error.message);
       if (
         serviceIdForRedirect &&
-        error.message === "Vous ne pouvez pas reserver votre propre service."
+        error.message === "Vous ne pouvez pas réserver votre propre service."
       ) {
         return res.redirect(`/services/${serviceIdForRedirect}`);
       }
@@ -224,7 +224,7 @@ class BookingController {
         booking_time,
       });
 
-      req.flash("success", "Reservation mise a jour.");
+      req.flash("success", "Réservation mise a jour.");
       res.redirect("/bookings");
     } catch (error) {
       req.saveOldInput(req.body);
@@ -240,7 +240,7 @@ class BookingController {
 
       await BookingService.deleteByClient({ bookingId: id, clientId });
 
-      req.flash("success", "Reservation annulee.");
+      req.flash("success", "Réservation annulée.");
       res.redirect("/bookings");
     } catch (error) {
       req.flash("error", error.message);
@@ -259,7 +259,7 @@ class BookingController {
 
       req.flash(
         "success",
-        "Reservation confirmee. Le client peut maintenant proceder au paiement."
+        "Réservation confirmée. Le client peut maintenant procéder au paiement."
       );
       res.redirect(getSafeReturnPath(req, fallbackPath));
     } catch (error) {
@@ -277,7 +277,7 @@ class BookingController {
 
       await BookingService.refuseByProvider({ bookingId: id, providerId });
 
-      req.flash("success", "Reservation refusee.");
+      req.flash("success", "Réservation refusée.");
       res.redirect(getSafeReturnPath(req, fallbackPath));
     } catch (error) {
       req.flash("error", error.message);

@@ -32,10 +32,10 @@
 
   <div class="surface-card service-categories-panel">
     <div class="service-categories-panel__copy">
-      <p class="section-kicker">Categories</p>
-      <h2>Retrouve rapidement un service par categorie</h2>
+      <p class="section-kicker">Catégories</p>
+      <h2>Retrouve rapidement un service par catégorie</h2>
       <p>
-        Chaque service publie est ajoute automatiquement dans sa categorie pour faciliter la recherche.
+        Chaque service publie est ajoute automatiquement dans sa catégorie pour faciliter la recherche.
       </p>
     </div>
 
@@ -44,7 +44,7 @@
         href="<%= buildServiceQuery() %>"
         class="service-category-card <%= !category_id ? 'service-category-card--active' : '' %>"
       >
-        <span class="service-category-card__title">Toutes les categories</span>
+        <span class="service-category-card__title">Toutes les catégories</span>
         <span class="service-category-card__meta"><%= totalServicesInDirectory %> service<%= totalServicesInDirectory > 1 ? 's' : '' %> dans le catalogue</span>
       </a>
 
@@ -81,7 +81,7 @@
       name="category_id"
       class="service-field"
     >
-      <option value="">Toutes les categories</option>
+      <option value="">Toutes les catégories</option>
       <% if (categories && categories.length) { %>
         <% categories.forEach((c) => { %>
           <option value="<%= c.id %>" <%= String(category_id) === String(c.id) ? "selected" : "" %>>
@@ -106,7 +106,7 @@
       <span>
         Filtres actifs :
         <% if (activeCategory) { %>
-          <strong>Categorie : <%= activeCategory.name %></strong>
+          <strong>Catégorie : <%= activeCategory.name %></strong>
         <% } %>
         <% if (activeCategory && hasActiveCity) { %>
           <span> | </span>
@@ -115,7 +115,7 @@
           <strong>Ville : <%= city %></strong>
         <% } %>
       </span>
-      <a href="/services" class="text-link">Reinitialiser le filtre</a>
+      <a href="/services" class="text-link">Réinitialiser le filtre</a>
     </div>
   <% } %>
 
@@ -124,7 +124,7 @@
       <div class="empty-state">
         <p>Aucun service trouve.</p>
         <% if (currentUser && !isAdmin) { %>
-          <a href="/services/new" class="text-link">Creer le premier service</a>
+          <a href="/services/new" class="text-link">Créer le premier service</a>
         <% } %>
       </div>
     <% } else { %>

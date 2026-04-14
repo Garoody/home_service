@@ -34,7 +34,7 @@
         <span class="service-brand__content">
           <span class="service-brand__eyebrow">Plateforme de services</span>
           <span class="service-brand__title">HomeService</span>
-          <span class="service-brand__baseline">Reservation, paiement et suivi des prestations a domicile</span>
+          <span class="service-brand__baseline">Réservation, paiement et suivi des prestations à domicile</span>
         </span>
       </a>
 
@@ -88,7 +88,7 @@
             action="/auth/logout"
             method="POST"
             class="inline"
-            data-confirm="Voulez-vous vraiment vous deconnecter ?"
+            data-confirm="Voulez-vous vraiment vous déconnecter ?"
           >
             <% if (csrfToken) { %>
               <input type="hidden" name="_csrf" value="<%= csrfToken %>">
@@ -97,7 +97,7 @@
               type="submit"
               class="service-nav__logout bg-transparent"
             >
-              Deconnexion
+              Déconnexion
             </button>
           </form>
         <% } else { %>
@@ -172,7 +172,7 @@
         <form
           action="/auth/logout"
           method="POST"
-          data-confirm="Voulez-vous vraiment vous deconnecter ?"
+          data-confirm="Voulez-vous vraiment vous déconnecter ?"
         >
           <% if (csrfToken) { %>
             <input type="hidden" name="_csrf" value="<%= csrfToken %>">
@@ -181,7 +181,7 @@
             type="submit"
             class="service-nav__logout bg-transparent"
           >
-            Deconnexion
+            Déconnexion
           </button>
         </form>
       <% } else { %>

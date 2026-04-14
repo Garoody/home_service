@@ -7,7 +7,7 @@
         <p class="text-xs uppercase tracking-[0.25em] text-blue-300">Mon espace</p>
         <h1 class="mt-2 text-3xl font-semibold tracking-tight">Mes conversations</h1>
         <p class="mt-2 max-w-2xl text-slate-400">
-          Retrouvez les discussions liees a vos reservations et repondez a vos messages directement ici.
+          Retrouvez les discussions liées a vos réservations et repondez a vos messages directement ici.
         </p>
       </div>
       <a href="/users/profile" class="text-sm text-blue-300 transition hover:text-blue-200">
@@ -56,7 +56,7 @@
                   <% } %>
                   <% if (conversation.is_blocked) { %>
                     <span class="conversation-list-pill conversation-list-pill--blocked">
-                      Conversation bloquee
+                      Conversation bloquée
                     </span>
                   <% } %>
                 </div>
@@ -66,7 +66,7 @@
                 </h2>
 
                 <p class="mt-2 text-sm text-slate-400">
-                  Reservation du <span class="text-slate-200"><%= bookingDateLabel || "Date a definir" %></span>
+                  Réservation du <span class="text-slate-200"><%= bookingDateLabel || "Date a definir" %></span>
                   <% if (conversation.booking_time) { %>
                     a <span class="text-slate-200"><%= String(conversation.booking_time).slice(0, 5) %></span>
                   <% } %>

@@ -96,7 +96,7 @@ class DashboardService {
   }
 
   // Tableau de bord unique pour un compte utilisateur normal.
-  // Le meme compte peut reserver et publier des services.
+  // Le même compte peut réserver et publier des services.
   static async getUserDashboard(userId) {
     const [clientDashboard, providerDashboard] = await Promise.all([
       this.getClientDashboard(userId),

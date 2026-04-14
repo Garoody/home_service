@@ -55,7 +55,7 @@ function getRegisterErrorFeedback(error) {
   ) {
     return {
       status: 409,
-      message: "Cet email est deja utilise.",
+      message: "Cet email est déjà utilise.",
     };
   }
 
@@ -155,7 +155,7 @@ class AuthController {
       req.session.user = registerResult.user.toSession();
       req.session.userId = registerResult.user.id;
 
-      req.flash?.("success", "Compte cree. Vous pourrez reserver ou publier un service avec ce meme compte.");
+      req.flash?.("success", "Compte créé. Vous pourrez réserver ou publier un service avec ce même compte.");
       return res.redirect("/");
     } catch (error) {
       const feedback = getRegisterErrorFeedback(error);

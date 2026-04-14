@@ -113,7 +113,7 @@ Tables principales
 
 users → Clients / Prestataires / Admin
 
-categories → Types de services
+catégories → Types de services
 
 services → Services proposés
 

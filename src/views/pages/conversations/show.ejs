@@ -24,10 +24,10 @@
       }
 
       if (isClientViewer) {
-        return "Votre demande a bien ete envoyee. Vous pouvez deja echanger avec le prestataire pendant qu'il etudie votre reservation.";
+        return "Votre demande a bien été envoyée. Vous pouvez déjà échanger avec le prestataire pendant qu'il étudie votre réservation.";
       }
 
-      return "La demande est encore en attente. Les echanges peuvent continuer avant la decision finale.";
+      return "La demande est encore en attente. Les échanges peuvent continuer avant la decision finale.";
     }
 
     if (conversation.booking_status === "confirmed") {
@@ -37,40 +37,40 @@
         }
 
         if (isClientViewer) {
-          return "Votre paiement est valide. Le creneau est maintenant bloque et votre discussion reste disponible.";
+          return "Votre paiement est valide. Le creneau est maintenant bloqué et votre discussion reste disponible.";
         }
 
-        return "Le paiement est valide et la reservation est maintenant engagee.";
+        return "Le paiement est valide et la réservation est maintenant engagee.";
       }
 
       if (isProviderViewer) {
-        return "La reservation est confirmee. Le client peut maintenant proceder au paiement du service.";
+        return "La réservation est confirmée. Le client peut maintenant procéder au paiement du service.";
       }
 
       if (isClientViewer) {
-        return "Votre reservation est confirmee. Vous pouvez maintenant passer au paiement.";
+        return "Votre réservation est confirmée. Vous pouvez maintenant passer au paiement.";
       }
 
-      return "La reservation est confirmee. Le paiement peut maintenant etre effectue.";
+      return "La réservation est confirmée. Le paiement peut maintenant être effectué.";
     }
 
     if (conversation.booking_status === "completed") {
       if (isClientViewer) {
-        return "La prestation est terminee. Vous pouvez retrouver ici les echanges avec le prestataire.";
+        return "La prestation est terminée. Vous pouvez retrouver ici les échanges avec le prestataire.";
       }
 
-      return "La prestation est terminee. La conversation reste disponible si vous avez besoin de retrouver les echanges.";
+      return "La prestation est terminée. La conversation reste disponible si vous avez besoin de retrouver les échanges.";
     }
 
     if (conversation.booking_status === "cancelled") {
       if (isClientViewer) {
-        return "Cette reservation a ete refusee ou annulee. Vous pouvez reprendre contact ou choisir une autre prestation si besoin.";
+        return "Cette réservation a été refusée ou annulée. Vous pouvez reprendre contact ou choisir une autre prestation si besoin.";
       }
 
-      return "Cette reservation a ete refusee ou annulee. Ce creneau n'engage plus le prestataire.";
+      return "Cette réservation a été refusée ou annulée. Ce creneau n'engage plus le prestataire.";
     }
 
-    return "Suivez ici l'avancement de cette reservation.";
+    return "Suivez ici l'avancement de cette réservation.";
   })();
 %>
 
@@ -93,15 +93,15 @@
 
           <div class="flex flex-wrap gap-2">
             <span class="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs text-slate-300">
-              Reservation <%= bookingStatusLabels[conversation.booking_status] || conversation.booking_status %>
+              Réservation <%= bookingStatusLabels[conversation.booking_status] || conversation.booking_status %>
             </span>
             <% if (conversation.blocked_by_me) { %>
               <span class="rounded-full border border-rose-400/20 bg-rose-500/10 px-3 py-1 text-xs text-rose-200">
-                Vous avez bloque cette conversation
+                Vous avez bloqué cette conversation
               </span>
             <% } else if (conversation.blocked_by_other) { %>
               <span class="rounded-full border border-rose-400/20 bg-rose-500/10 px-3 py-1 text-xs text-rose-200">
-                Conversation bloquee par l'autre personne
+                Conversation bloquée par l'autre personne
               </span>
             <% } %>
           </div>
@@ -116,7 +116,7 @@
         >
           <% if (!conversation.messages.length) { %>
             <div class="rounded-2xl border border-dashed border-white/10 bg-slate-900/30 px-4 py-5 text-sm text-slate-400" data-conversation-empty-state>
-              La conversation est ouverte. Vous pouvez maintenant discuter du rendez-vous, de l'adresse, du materiel ou des horaires.
+              La conversation est ouverte. Vous pouvez maintenant discuter du rendez-vous, de l'adresse, du matériel ou des horaires.
             </div>
           <% } else { %>
             <% conversation.messages.forEach((message) => { %>
@@ -153,7 +153,7 @@
       <div class="border-t border-white/10 px-6 py-6">
         <% if (isBlocked) { %>
           <div class="rounded-2xl border border-rose-400/20 bg-rose-500/10 px-4 py-4 text-sm text-rose-100">
-            Cette conversation est bloquee. Aucun nouveau message ne peut etre envoye.
+            Cette conversation est bloquée. Aucun nouveau message ne peut être envoye.
           </div>
         <% } else { %>
           <form
@@ -204,17 +204,17 @@
 
     <aside class="space-y-4">
       <div class="rounded-3xl border border-white/10 bg-white/5 px-5 py-5 shadow-xl shadow-black/10">
-        <p class="text-xs uppercase tracking-[0.25em] text-blue-300">Reservation</p>
+        <p class="text-xs uppercase tracking-[0.25em] text-blue-300">Réservation</p>
         <h2 class="mt-3 text-lg font-semibold text-white"><%= conversation.service_title %></h2>
         <p class="mt-3 text-sm text-slate-300">
           Date :
           <span class="text-slate-100">
-            <%= conversation.booking_date ? new Date(conversation.booking_date).toLocaleDateString("fr-FR") : "A definir" %>
+            <%= conversation.booking_date ? new Date(conversation.booking_date).toLocaleDateString("fr-FR") : "À définir" %>
           </span>
         </p>
         <p class="mt-2 text-sm text-slate-300">
           Heure :
-          <span class="text-slate-100"><%= conversation.booking_time ? String(conversation.booking_time).slice(0, 5) : "A definir" %></span>
+          <span class="text-slate-100"><%= conversation.booking_time ? String(conversation.booking_time).slice(0, 5) : "À définir" %></span>
         </p>
         <p class="mt-2 text-sm text-slate-300">
           Montant :
@@ -241,9 +241,9 @@
       <% if (canClientPay) { %>
         <div class="rounded-3xl border border-white/10 bg-white/5 px-5 py-5 shadow-xl shadow-black/10">
           <p class="text-xs uppercase tracking-[0.25em] text-blue-300">Paiement</p>
-          <h2 class="mt-3 text-lg font-semibold text-white">Reservation confirmee</h2>
+          <h2 class="mt-3 text-lg font-semibold text-white">Réservation confirmée</h2>
           <p class="mt-2 text-sm text-slate-400">
-            Votre reservation est confirmee. Vous pouvez maintenant passer au paiement.
+            Votre réservation est confirmée. Vous pouvez maintenant passer au paiement.
           </p>
           <a
             href="/payments/<%= conversation.booking_id %>"
@@ -257,9 +257,9 @@
       <% if (canProviderDecide) { %>
         <div class="rounded-3xl border border-white/10 bg-white/5 px-5 py-5 shadow-xl shadow-black/10">
           <p class="text-xs uppercase tracking-[0.25em] text-blue-300">Decision</p>
-          <h2 class="mt-3 text-lg font-semibold text-white">Reponse au client</h2>
+          <h2 class="mt-3 text-lg font-semibold text-white">Réponse au client</h2>
           <p class="mt-2 text-sm text-slate-400">
-            Apres vos echanges, vous pouvez maintenant confirmer ou refuser ce creneau.
+            Apres vos échanges, vous pouvez maintenant confirmer ou refuser ce creneau.
           </p>
 
           <div class="mt-4 grid gap-3 sm:grid-cols-2">
@@ -279,7 +279,7 @@
             <form
               action="/bookings/<%= conversation.booking_id %>/refuse"
               method="POST"
-              data-confirm="Voulez-vous vraiment refuser cette reservation ?"
+              data-confirm="Voulez-vous vraiment refuser cette réservation ?"
             >
               <% if (csrfToken) { %>
                 <input type="hidden" name="_csrf" value="<%= csrfToken %>">
@@ -329,7 +329,7 @@
             <form
               action="/conversations/<%= conversation.id %>/block"
               method="POST"
-              data-confirm="Voulez-vous vraiment bloquer cette conversation ? Aucun nouveau message ne pourra etre envoye."
+              data-confirm="Voulez-vous vraiment bloquer cette conversation ? Aucun nouveau message ne pourra être envoye."
             >
               <% if (csrfToken) { %>
                 <input type="hidden" name="_csrf" value="<%= csrfToken %>">

@@ -29,7 +29,7 @@ class Payment {
   }
 
   /**
-   * Filtre les donnees sensibles pour l'exposition en API/vue
+   * Filtre les données sensibles pour l'exposition en API/vue
    */
   toJSON() {
     return {

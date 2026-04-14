@@ -14,12 +14,12 @@ import { z } from "zod";
  */
 const paymentSchema = z.object({
   // Cle etrangere vers bookings.id_booking.
-  booking_id: z.string().uuid("Reservation invalide."),
+  booking_id: z.string().uuid("Réservation invalide."),
   // Montant non negatif.
-  amount: z.number().min(0, "Le montant doit etre positif."),
+  amount: z.number().min(0, "Le montant doit être positif."),
   // Source du paiement: carte enregistree ou nouvelle carte.
   payment_source: z.enum(["saved", "new"]).default("new"),
-  // Identifiant d'une carte deja enregistree.
+  // Identifiant d'une carte déjà enregistree.
   saved_method_id: z.string().uuid("Carte enregistree invalide.").optional().or(z.literal("")),
   // Mode de paiement choisi par le client.
   payment_method: z.enum(["cb", "visa", "mastercard", "other", "paypal", "bank_transfer", "cash"]),
@@ -32,11 +32,11 @@ const paymentSchema = z.object({
   exp_year: z.number().int().min(new Date().getFullYear(), "Annee d'expiration invalide.").max(new Date().getFullYear() + 20, "Annee d'expiration invalide.").optional(),
   // CVC utilise seulement a la soumission, jamais persiste.
   cvc: z.string().regex(/^[0-9]{3,4}$/, "CVC invalide.").optional().or(z.literal("")),
-  // Coordonnees PayPal.
+  // Coordonnées PayPal.
   paypal_full_name: z.string().trim().min(2, "Nom PayPal invalide.").max(120, "Nom PayPal trop long.").optional().or(z.literal("")),
   paypal_email: z.string().trim().max(160, "Adresse PayPal trop longue.").optional().or(z.literal("")),
   paypal_reference: z.string().trim().max(80, "Reference PayPal trop longue.").optional().or(z.literal("")),
-  // Coordonnees de virement.
+  // Coordonnées de virement.
   bank_account_name: z.string().trim().min(2, "Nom du titulaire du compte invalide.").max(120, "Nom du titulaire du compte trop long.").optional().or(z.literal("")),
   bank_name: z.string().trim().min(2, "Nom de la banque invalide.").max(120, "Nom de la banque trop long.").optional().or(z.literal("")),
   iban: z.string().trim().regex(/^[A-Za-z0-9\s]{14,34}$/, "IBAN invalide.").optional().or(z.literal("")),

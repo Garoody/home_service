@@ -26,12 +26,12 @@ class CategoryService {
     return this._hasAdminStatusColumn;
   }
 
-  // Alias metier: liste des categories (utilise par les controllers).
+  // Alias metier: liste des catégories (utilise par les controllers).
   static async list() {
     return this.getAll();
   }
 
-  // Recupere toutes les categories triees par nom.
+  // Recupere toutes les catégories triees par nom.
   static async getAll() {
     const hasAdminStatusColumn = await this.hasAdminStatusColumn();
     const result = await db.query(
@@ -60,7 +60,7 @@ class CategoryService {
     return result.rows;
   }
 
-  // Cree une nouvelle categorie.
+  // Cree une nouvelle catégorie.
   static async create({ name, description }) {
     const result = await db.query(
       `
@@ -80,11 +80,11 @@ class CategoryService {
     return result.rows[0];
   }
 
-  // Reutilise une categorie existante par nom ou en cree une nouvelle au besoin.
+  // Reutilise une catégorie existante par nom ou en cree une nouvelle au besoin.
   static async findOrCreateByName(name) {
     const normalizedName = String(name || "").trim();
     if (!normalizedName) {
-      throw new Error("Le nom de la categorie est obligatoire.");
+      throw new Error("Le nom de la catégorie est obligatoire.");
     }
 
     const existing = await db.query(
@@ -109,7 +109,7 @@ class CategoryService {
 
     return this.create({
       name: normalizedName,
-      description: `Categorie creee depuis la publication d'un service : ${normalizedName}.`,
+      description: `Catégorie creee depuis la publication d'un service : ${normalizedName}.`,
     });
   }
 }

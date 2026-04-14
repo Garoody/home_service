@@ -23,7 +23,7 @@ function getModerationMessage(user) {
   }
 
   if (user.bannedAt) {
-    return "Ce compte a ete banni par l'administration.";
+    return "Ce compte a été banni par l'administration.";
   }
 
   if (user.suspendedAt) {
@@ -157,7 +157,7 @@ export const requireRole = (...roles) => {
   };
 };
 
-// Compte utilisateur normal: il peut reserver et publier.
-// Le role "provider" reste accepte comme role legacy deja present en base.
+// Compte utilisateur normal: il peut réserver et publier.
+// Le role "provider" reste accepte comme role legacy déjà present en base.
 export const requireMember = requireRole("client", "provider");
 export const requireAdmin = requireRole("admin");

@@ -14,15 +14,15 @@ import { PROVIDER_STATUS_VALUES } from "../constants/providerStatuses.js";
  * - contrat uniforme { success, data, message }
  */
 const serviceSchema = z.object({
-  // Cle etrangere vers categories.id_category ou option "other".
-  category_id: z.string().trim().min(1, "La categorie est obligatoire."),
-  custom_category_name: z.string().trim().max(100, "Le nom de la categorie est trop long.").optional().default(""),
+  // Cle etrangere vers catégories.id_category ou option "other".
+  category_id: z.string().trim().min(1, "La catégorie est obligatoire."),
+  custom_category_name: z.string().trim().max(100, "Le nom de la catégorie est trop long.").optional().default(""),
   // Limite SQL: varchar(150).
   title: z.string().trim().min(2, "Le titre est obligatoire.").max(150, "Le titre est trop long."),
   // Champ texte obligatoire pour expliquer le service.
   description: z.string().trim().min(5, "La description est obligatoire."),
   // Prix numerique >= 0.
-  price: z.number().min(0, "Le prix doit etre positif."),
+  price: z.number().min(0, "Le prix doit être positif."),
   // Informations professionnelles ajoutees au service.
   provider_status: z
     .string()
@@ -31,7 +31,7 @@ const serviceSchema = z.object({
       (value) => PROVIDER_STATUS_VALUES.includes(value),
       "Le statut du prestataire est obligatoire."
     ),
-  experience_years: z.number().int().min(0, "L'annee d'experience est invalide.").max(60, "L'annee d'experience est invalide."),
+  experience_years: z.number().int().min(0, "L'annee d'expérience est invalide.").max(60, "L'annee d'expérience est invalide."),
   trainings: z.string().trim().max(500, "Les formations sont trop longues.").optional(),
   has_driving_license: z.boolean(),
   service_area: z.string().trim().min(2, "La zone d'intervention est obligatoire.").max(255, "La zone d'intervention est trop longue."),
@@ -41,7 +41,7 @@ const serviceSchema = z.object({
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         path: ["custom_category_name"],
-        message: "Precise le type de service si la categorie n'existe pas.",
+        message: "Precise le type de service si la catégorie n'existe pas.",
       });
     }
     return;
@@ -51,7 +51,7 @@ const serviceSchema = z.object({
     ctx.addIssue({
       code: z.ZodIssueCode.custom,
       path: ["category_id"],
-      message: "Categorie invalide.",
+      message: "Catégorie invalide.",
     });
   }
 });

@@ -5,7 +5,7 @@ import { Strategy as GoogleStrategy } from "passport-google-oauth20";
 import authService from "../services/AuthService.js";
 
 // Ce fichier centralise toute la configuration de Passport.
-// On le place dans src/config car son role n'est pas de gerer une route
+// On le place dans src/config car son role n'est pas de gérer une route
 // ou de contenir de la logique metier: il sert uniquement a brancher
 // une librairie externe sur l'application.
 //
@@ -15,8 +15,8 @@ import authService from "../services/AuthService.js";
 // routes ou les controllers, ce qui melangerait la config technique avec
 // le code applicatif. Ici, on garde une separation propre :
 // - les routes declenchent l'authentification
-// - le controller gere la suite de la connexion
-// - le service auth gere la liaison avec l'utilisateur local
+// - le controller gère la suite de la connexion
+// - le service auth gère la liaison avec l'utilisateur local
 // - ce fichier configure Passport une seule fois
 
 // Evite d'enregistrer la strategie plusieurs fois en dev ou en hot-reload.
@@ -25,7 +25,7 @@ import authService from "../services/AuthService.js";
 let isConfigured = false;
 
 export function configurePassport() {
-  // Si la config a deja ete faite, on renvoie simplement l'instance existante.
+  // Si la config a déjà été faite, on renvoie simplement l'instance existante.
   // Cela permet d'appeler configurePassport() au demarrage sans risque.
   if (isConfigured) return passport;
 
@@ -53,22 +53,22 @@ export function configurePassport() {
         try {
           // Google renvoie le profil OAuth de l'utilisateur authentifie.
           // On delegue ensuite au service metier la logique applicative :
-          // retrouver un utilisateur local existant ou en creer un nouveau.
+          // retrouver un utilisateur local existant ou en créer un nouveau.
           const result = await authService.authenticateWithGoogle(profile);
 
           // done(null, user) indique a Passport que l'authentification a reussi
-          // et que cet utilisateur doit etre transmis a la suite du flux.
+          // et que cet utilisateur doit être transmis a la suite du flux.
           return done(null, result.user);
         } catch (error) {
           // En cas d'erreur technique ou metier, Passport interrompra
-          // le processus d'authentification et laissera la route gerer l'echec.
+          // le processus d'authentification et laissera la route gérer l'echec.
           return done(error);
         }
       }
     )
   );
 
-  // Marque la configuration comme terminee pour eviter toute double initialisation.
+  // Marque la configuration comme terminée pour eviter toute double initialisation.
   isConfigured = true;
   return passport;
 }

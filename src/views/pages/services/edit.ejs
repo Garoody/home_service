@@ -6,7 +6,7 @@
       <input type="hidden" name="_csrf" value="<%= csrfToken %>">
 
       <div>
-        <label class="block text-sm mb-1 text-slate-300">Categorie</label>
+        <label class="block text-sm mb-1 text-slate-300">Catégorie</label>
         <select
           name="category_id"
           required
@@ -20,8 +20,8 @@
           <option value="other">Autres services</option>
         </select>
         <p class="mt-2 text-xs text-slate-400">
-          Si la bonne categorie n'existe pas, choisis <strong>Autres services</strong>
-          puis precise-la ci-dessous.
+          Si la bonne catégorie n'existe pas, choisis <strong>Autres services</strong>
+          puis précise-la ci-dessous.
         </p>
         <div class="mt-3 rounded-xl border border-dashed border-slate-700/80 bg-slate-900/40 p-4">
           <label class="block text-sm mb-1 text-slate-300">Autres services</label>
@@ -89,7 +89,7 @@
         </div>
 
         <div>
-          <label class="block text-sm mb-1 text-slate-300">Annee d'experience</label>
+          <label class="block text-sm mb-1 text-slate-300">Année d'expérience</label>
           <input
             type="number"
             min="0"
@@ -126,7 +126,7 @@
       <% if (service.photos?.length) { %>
         <div>
           <div class="flex items-center justify-between gap-3">
-            <label class="block text-sm text-slate-300">Photos deja publiees</label>
+            <label class="block text-sm text-slate-300">Photos déjà publiees</label>
             <span class="text-xs text-slate-500"><%= service.photos.length %>/6</span>
           </div>
           <div class="mt-3 grid grid-cols-2 gap-3 md:grid-cols-3">
@@ -150,7 +150,7 @@
       <% } %>
 
       <div class="rounded-xl border border-dashed border-slate-700/80 bg-slate-900/40 p-4">
-        <label class="block text-sm mb-1 text-slate-300">Ajouter des photos de realisations</label>
+        <label class="block text-sm mb-1 text-slate-300">Ajouter des photos de réalisations</label>
         <p class="text-xs text-slate-400">
           Optionnel. Tu peux garder ton service tel quel ou ajouter d'autres photos, dans la limite de 6 au total.
         </p>

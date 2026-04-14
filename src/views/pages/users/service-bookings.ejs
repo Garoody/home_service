@@ -7,10 +7,10 @@
 
     <div class="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
       <div>
-        <p class="text-xs uppercase tracking-[0.25em] text-blue-300">Activite de mes services</p>
-        <h1 class="mt-2 text-3xl font-semibold tracking-tight"><%= heading || "Reservations recues" %></h1>
+        <p class="text-xs uppercase tracking-[0.25em] text-blue-300">Activité de mes services</p>
+        <h1 class="mt-2 text-3xl font-semibold tracking-tight"><%= heading || "Réservations reçues" %></h1>
         <p class="mt-2 text-slate-400">
-          <%= description || "Suivez les reservations recues sur vos services et leur statut." %>
+          <%= description || "Suivez les réservations reçues sur vos services et leur statut." %>
         </p>
       </div>
       <a href="/users/profile" class="text-sm text-blue-300 hover:text-blue-200 transition">
@@ -23,7 +23,7 @@
         href="/users/profile/service-bookings"
         class="<%= isAllActive ? 'bg-blue-600 text-white border-blue-600' : 'border-white/10 bg-white/5' %> rounded-full border px-4 py-2 text-sm hover:border-white/20 transition"
       >
-        Toutes les reservations
+        Toutes les réservations
       </a>
       <a
         href="/users/profile/service-bookings/pending"
@@ -48,7 +48,7 @@
     <div class="mt-8 space-y-4">
       <% if (!bookings.length) { %>
         <div class="rounded-2xl border border-white/10 bg-white/5 px-5 py-6 text-slate-400">
-          Aucune reservation trouvee pour ce filtre.
+          Aucune réservation trouvee pour ce filtre.
         </div>
       <% } else { %>
         <% bookings.forEach((booking) => { %>
@@ -82,15 +82,15 @@
 
             <div class="mt-4 rounded-xl border border-white/10 bg-slate-900/30 px-4 py-3 text-sm text-slate-300">
               <% if (booking.status === "pending") { %>
-                Cette demande attend votre reponse. Le client peut deja vous ecrire, puis vous pouvez confirmer ou refuser le creneau.
+                Cette demande attend votre réponse. Le client peut déjà vous ecrire, puis vous pouvez confirmer ou refuser le creneau.
               <% } else if (booking.status === "confirmed" && booking.payment_status !== "paid") { %>
-                La reservation est confirmee. Le client peut maintenant proceder au paiement du service. Le creneau ne sera bloque qu'apres un paiement valide.
+                La réservation est confirmée. Le client peut maintenant procéder au paiement du service. Le creneau ne sera bloqué qu'apres un paiement valide.
               <% } else if (booking.payment_status === "paid" && booking.conversation_id) { %>
                 Paiement valide. Vous etes maintenant engage sur ce creneau et la discussion avec le client reste ouverte.
               <% } else if (booking.status === "cancelled") { %>
-                Cette reservation a ete annulee.
+                Cette réservation a été annulée.
               <% } else { %>
-                Retrouvez ici le suivi de la reservation et les prochaines etapes.
+                Retrouvez ici le suivi de la réservation et les prochaines etapes.
               <% } %>
             </div>
 
@@ -106,7 +106,7 @@
                 href="/users/profile/service-bookings/detail/<%= booking.id %>"
                 class="inline-flex items-center rounded-lg border border-white/10 bg-white/5 px-4 py-2 text-sm transition hover:border-white/20"
               >
-                Voir le detail
+                Voir le détail
               </a>
 
               <% if (booking.conversation_id) { %>
@@ -135,7 +135,7 @@
                   action="/bookings/<%= booking.id %>/refuse"
                   method="POST"
                   class="inline-flex"
-                  data-confirm="Voulez-vous vraiment refuser cette reservation ?"
+                  data-confirm="Voulez-vous vraiment refuser cette réservation ?"
                 >
                   <% if (csrfToken) { %>
                     <input type="hidden" name="_csrf" value="<%= csrfToken %>">
@@ -153,7 +153,7 @@
                 </span>
               <% } else { %>
                 <span class="inline-flex items-center rounded-lg border border-white/10 bg-white/5 px-4 py-2 text-sm text-slate-400">
-                  La discussion reste disponible depuis la reservation
+                  La discussion reste disponible depuis la réservation
                 </span>
               <% } %>
             </div>

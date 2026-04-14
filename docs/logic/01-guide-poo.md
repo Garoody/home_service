@@ -140,7 +140,7 @@ la logique de calcul d’un prix
 
 le comportement d’un utilisateur
 
-On modifie uniquement la classe concernée.
+On modifié uniquement la classe concernée.
 
 4️⃣ Auto-complétion dans VS Code
 

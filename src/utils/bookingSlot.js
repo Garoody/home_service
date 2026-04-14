@@ -107,7 +107,7 @@ export function validateBookingSlot({
   if (String(bookingDate) < minDate) {
     return {
       valid: false,
-      message: "La date de reservation ne peut pas etre dans le passe.",
+      message: "La date de réservation ne peut pas être dans le passe.",
     };
   }
 

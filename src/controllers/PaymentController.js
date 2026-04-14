@@ -52,7 +52,7 @@ function buildPaymentOldInput(payload = {}) {
 }
 
 class PaymentController {
-  // Affiche l'historique des paiements du client connecte.
+  // Affiche l'historique des paiements du client connecté.
   async index(req, res) {
     try {
       const clientId = getUserId(req);
@@ -75,7 +75,7 @@ class PaymentController {
       const payment = await PaymentService.getByIdForUser({ paymentId, clientId });
 
       return res.render("pages/payments/show", {
-        title: "Detail du paiement - HomeService",
+        title: "Détail du paiement - HomeService",
         payment,
         viewerMode: "client",
       });
@@ -85,7 +85,7 @@ class PaymentController {
     }
   }
 
-  // Affiche les cartes deja memorisees pour les paiements futurs.
+  // Affiche les cartes déjà memorisees pour les paiements futurs.
   async cards(req, res) {
     try {
       const clientId = getUserId(req);
@@ -101,7 +101,7 @@ class PaymentController {
     }
   }
 
-  // Affiche l'ecran de paiement d'une reservation.
+  // Affiche l'ecran de paiement d'une réservation.
   async pay(req, res) {
     try {
       const clientId = getUserId(req);

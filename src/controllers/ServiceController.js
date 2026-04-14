@@ -107,7 +107,7 @@ class ServiceController {
       }
 
       res.render("pages/services/show", {
-        title: "Detail du service - HomeService",
+        title: "Détail du service - HomeService",
         service,
         reviews,
         csrfToken: res.locals.csrfToken,
@@ -137,12 +137,13 @@ class ServiceController {
       }
 
       res.render("pages/services/new", {
-        title: "Creer un service - HomeService",
+        title: "Créer un service - HomeService",
         categories,
         providerStatusOptions: PROVIDER_STATUS_OPTIONS,
         defaultProviderStatus: user?.providerStatus || "",
         csrfToken: res.locals.csrfToken,
       });
+      
     } catch (error) {
       req.flash("error", error.message);
       res.redirect("/services");
@@ -156,7 +157,7 @@ class ServiceController {
       const providerId = req.session?.user?.id ?? req.session?.userId;
 
       if (!providerId) {
-        req.flash("error", "Vous devez etre connecte pour publier un service.");
+        req.flash("error", "Vous devez être connecté pour publier un service.");
         return res.redirect("/auth/login");
       }
 
@@ -190,7 +191,7 @@ class ServiceController {
       if (!categoryId) {
         await cleanupUploadedFiles(uploadedFiles);
         req.saveOldInput(req.body);
-        req.flash("error", "La categorie du service est introuvable.");
+        req.flash("error", "La catégorie du service est introuvable.");
         return res.redirect("/services/new");
       }
 
@@ -201,7 +202,7 @@ class ServiceController {
       ) {
         await cleanupUploadedFiles(uploadedFiles);
         req.saveOldInput(req.body);
-        req.flash("error", "Les photos de realisations ne sont pas encore disponibles.");
+        req.flash("error", "Les photos de réalisations ne sont pas encore disponibles.");
         return res.redirect("/services/new");
       }
 
@@ -230,7 +231,7 @@ class ServiceController {
         );
       }
 
-      req.flash("success", "Service cree et ajoute automatiquement dans sa categorie.");
+      req.flash("success", "Service créé et ajouté automatiquement dans sa catégorie.");
       res.redirect(`/services?category_id=${encodeURIComponent(String(categoryId))}`);
     } catch (error) {
       await cleanupUploadedFiles(uploadedFiles);
@@ -311,7 +312,7 @@ class ServiceController {
       if (!categoryId) {
         await cleanupUploadedFiles(uploadedFiles);
         req.saveOldInput(req.body);
-        req.flash("error", "La categorie du service est introuvable.");
+        req.flash("error", "La catégorie du service est introuvable.");
         return res.redirect(`/services/${slug}/edit`);
       }
 
@@ -325,7 +326,7 @@ class ServiceController {
       ) {
         await cleanupUploadedFiles(uploadedFiles);
         req.saveOldInput(req.body);
-        req.flash("error", "Les photos de realisations ne sont pas encore disponibles.");
+        req.flash("error", "Les photos de réalisations ne sont pas encore disponibles.");
         return res.redirect(`/services/${slug}/edit`);
       }
 
@@ -339,7 +340,7 @@ class ServiceController {
           req.saveOldInput(req.body);
           req.flash(
             "error",
-            "Vous pouvez publier jusqu'a 6 photos de realisations par service."
+            "Vous pouvez publier jusqu'à 6 photos de réalisations par service."
           );
           return res.redirect(`/services/${slug}/edit`);
         }

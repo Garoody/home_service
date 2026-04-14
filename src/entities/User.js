@@ -55,7 +55,7 @@ class User {
   }
 
   /**
-   * Donnees minimales pour session utilisateur
+   * Données minimales pour session utilisateur
    */
   toSession() {
     return {
@@ -69,7 +69,7 @@ class User {
   }
 
   /**
-   * Filtre les donnees sensibles pour l'exposition en API/vue
+   * Filtre les données sensibles pour l'exposition en API/vue
    */
   toJSON() {
     return {

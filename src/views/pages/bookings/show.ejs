@@ -38,9 +38,9 @@
     <div class="mb-6 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
       <div>
         <p class="text-xs uppercase tracking-[0.25em] text-blue-300">
-          <%= isClientView ? "Reservation client" : "Reservation recue" %>
+          <%= isClientView ? "Réservation client" : "Réservation reçue" %>
         </p>
-        <h1 class="mt-2 text-3xl font-semibold tracking-tight text-white">Detail simple de la reservation</h1>
+        <h1 class="mt-2 text-3xl font-semibold tracking-tight text-white">Détail simple de la réservation</h1>
         <p class="mt-2 max-w-2xl text-slate-400">
           <%= isClientView
             ? "Ici, vous voyez quoi, quand, ou et quelle est la prochaine etape."
@@ -86,7 +86,7 @@
         <div class="rounded-2xl border border-white/10 bg-slate-900/40 p-4">
           <p class="text-xs uppercase tracking-[0.18em] text-slate-400">Combien ?</p>
           <p class="mt-2 text-base font-semibold text-emerald-300"><%= (booking.total_price ?? 0).toString().replace(".", ",") %> EUR</p>
-          <p class="mt-1 text-sm text-slate-300">Prix de la reservation</p>
+          <p class="mt-1 text-sm text-slate-300">Prix de la réservation</p>
         </div>
 
         <div class="rounded-2xl border border-white/10 bg-slate-900/40 p-4">
@@ -103,7 +103,7 @@
           <p class="text-xs uppercase tracking-[0.18em] text-slate-400">Paiement</p>
           <p class="mt-2 text-base font-semibold text-slate-100"><%= paymentMethodLabel %></p>
           <p class="mt-1 text-sm text-slate-300">
-            <%= booking.payment_status === "paid" ? "Paiement deja valide" : "Paiement pas encore termine" %>
+            <%= booking.payment_status === "paid" ? "Paiement déjà valide" : "Paiement pas encore termine" %>
           </p>
         </div>
       </div>
@@ -127,8 +127,8 @@
           <p class="mt-3 text-sm leading-7 text-slate-200">
             <% if (booking.status === "pending") { %>
               <%= isClientView
-                ? "Votre demande est partie. Vous pouvez deja parler avec le prestataire. Le paiement attend sa confirmation."
-                : "Le client attend votre reponse. Vous pouvez parler avec lui puis confirmer ou refuser." %>
+                ? "Votre demande est partie. Vous pouvez déjà parler avec le prestataire. Le paiement attend sa confirmation."
+                : "Le client attend votre réponse. Vous pouvez parler avec lui puis confirmer ou refuser." %>
             <% } else if (canPayNow) { %>
               <%= isClientView
                 ? "Bonne nouvelle. Le prestataire a dit oui. Vous pouvez maintenant payer."
@@ -138,9 +138,9 @@
                 ? "Le paiement est valide. Le creneau est garde pour vous."
                 : "Le paiement est valide. Vous etes maintenant engage sur ce creneau." %>
             <% } else if (booking.status === "cancelled") { %>
-              Cette reservation est annulee.
+              Cette réservation est annulée.
             <% } else { %>
-              La reservation suit son cours.
+              La réservation suit son cours.
             <% } %>
           </p>
 
@@ -195,10 +195,10 @@
         <% if (isClientView && canCancel) { %>
           <a
             href="/bookings/<%= booking.id %>/delete"
-            data-confirm="Voulez-vous vraiment annuler cette reservation ?"
+            data-confirm="Voulez-vous vraiment annuler cette réservation ?"
             class="inline-flex min-h-11 items-center justify-center rounded-xl bg-red-600 px-4 py-2.5 text-sm font-medium text-white transition hover:bg-red-500"
           >
-            Annuler la reservation
+            Annuler la réservation
           </a>
         <% } %>
 
@@ -232,7 +232,7 @@
             </button>
           </form>
 
-          <form action="/bookings/<%= booking.id %>/refuse" method="POST" class="inline-flex" data-confirm="Voulez-vous vraiment refuser cette reservation ?">
+          <form action="/bookings/<%= booking.id %>/refuse" method="POST" class="inline-flex" data-confirm="Voulez-vous vraiment refuser cette réservation ?">
             <% if (csrfToken) { %>
               <input type="hidden" name="_csrf" value="<%= csrfToken %>">
             <% } %>

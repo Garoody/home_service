@@ -1,6 +1,6 @@
 "use strict";
 /**
- * @fileoverview Modele Booking - Gestion des reservations
+ * @fileoverview Modele Booking - Gestion des réservations
  */
 class Booking {
   constructor(data = {}) {
@@ -31,7 +31,7 @@ class Booking {
   }
 
   /**
-   * Filtre les donnees sensibles pour l'exposition en API/vue
+   * Filtre les données sensibles pour l'exposition en API/vue
    */
   toJSON() {
     return {

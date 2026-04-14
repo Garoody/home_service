@@ -164,7 +164,7 @@ class ConversationController {
         conversationId: req.params.id,
         userId: getUserId(req),
       });
-      req.flash("success", "Conversation supprimee de votre espace.");
+      req.flash("success", "Conversation supprimée de votre espace.");
       return res.redirect("/conversations");
     } catch (error) {
       req.flash("error", error.message);
@@ -178,7 +178,7 @@ class ConversationController {
         conversationId: req.params.id,
         userId: getUserId(req),
       });
-      req.flash("success", "Conversation bloquee.");
+      req.flash("success", "Conversation bloquée.");
       return res.redirect(`/conversations/${req.params.id}`);
     } catch (error) {
       req.flash("error", error.message);

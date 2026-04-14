@@ -2,10 +2,10 @@
   <div class="max-w-5xl mx-auto px-4">
     <div class="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
       <div>
-        <p class="text-xs uppercase tracking-[0.25em] text-blue-300">Activite de mes services</p>
-        <h1 class="mt-2 text-3xl font-semibold tracking-tight">Paiements recus</h1>
+        <p class="text-xs uppercase tracking-[0.25em] text-blue-300">Activité de mes services</p>
+        <h1 class="mt-2 text-3xl font-semibold tracking-tight">Paiements reçus</h1>
         <p class="mt-2 text-slate-400">
-          Retrouvez les paiements deja enregistres sur vos services.
+          Retrouvez les paiements déjà enregistres sur vos services.
         </p>
       </div>
       <a href="/users/profile" class="text-sm text-blue-300 hover:text-blue-200 transition">
@@ -20,13 +20,13 @@
     >
       <p class="payment-summary-card__label">Total encaisse</p>
       <p class="payment-summary-card__value"><%= totalRevenue.toString().replace(".", ",") %> EUR</p>
-      <p class="payment-summary-card__copy">Montant total deja recu sur vos services payes.</p>
+      <p class="payment-summary-card__copy">Montant total déjà reçu sur vos services payes.</p>
     </div>
 
     <div id="service-payments-list" class="mt-8 space-y-4">
       <% if (!payments.length) { %>
         <div class="rounded-2xl border border-white/10 bg-white/5 px-5 py-6 text-slate-400">
-          Aucun paiement recu pour le moment.
+          Aucun paiement reçu pour le moment.
         </div>
       <% } else { %>
         <% payments.forEach((payment) => { %>

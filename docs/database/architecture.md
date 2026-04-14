@@ -338,7 +338,7 @@ homeservice/
 │ │ ├── index.ejs
 │ │ ├── show.ejs
 │ │ └── new.ejs
-│ ├── categories/
+│ ├── catégories/
 │ │ ├── index.ejs
 │ │ ├── new.ejs
 │ │ └── edit.ejs

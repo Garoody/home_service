@@ -34,7 +34,7 @@ function requireReason(action, reason) {
 function formatActionLabel(actionType) {
   const labels = {
     read_conversation: "Lecture de la conversation",
-    read_booking: "Lecture de la reservation",
+    read_booking: "Lecture de la réservation",
     read_payment: "Lecture du paiement",
     read_user: "Lecture du compte",
     read_service: "Lecture du service",
@@ -44,17 +44,17 @@ function formatActionLabel(actionType) {
     unsuspend_user: "Suspension levee",
     ban_user: "Compte banni",
     unban_user: "Bannissement leve",
-    disable_messages: "Messagerie coupee",
+    disable_messages: "Messagerie coupée",
     enable_messages: "Messagerie retablie",
-    disable_publishing: "Publication coupee",
+    disable_publishing: "Publication coupée",
     enable_publishing: "Publication retablie",
-    delete_user: "Compte supprime cote admin",
+    delete_user: "Compte supprimé côté admin",
     active_service: "Service rendu actif",
     suspended_service: "Service suspendu",
-    deleted_service: "Service supprime cote admin",
+    deleted_service: "Service supprimé côté admin",
     visible_review: "Avis rendu visible",
     hidden_review: "Avis masque publiquement",
-    deleted_review: "Avis supprime cote admin",
+    deleted_review: "Avis supprimé côté admin",
     create_report: "Signalement cree",
     update_report_status: "Signalement mis a jour",
   };
@@ -140,11 +140,11 @@ function formatRecentLog(log) {
       display_subject:
         log.target_booking_service_title ||
         metadata.serviceTitle ||
-        `Reservation #${log.target_id}`,
+        `Réservation #${log.target_id}`,
       display_detail:
         log.target_booking_client_name && log.target_booking_provider_name
           ? `Client : ${log.target_booking_client_name} - Prestataire : ${log.target_booking_provider_name}`
-          : log.reason || "Action admin sur la reservation.",
+          : log.reason || "Action admin sur la réservation.",
       display_link: log.target_id ? `/admin/bookings/${log.target_id}` : "/admin/bookings",
     };
   }
@@ -621,7 +621,7 @@ class AdminService {
       }
 
       if (user.role === "admin") {
-        throw new Error("La moderation d'un autre compte admin n'est pas autorisee ici.");
+        throw new Error("La modération d'un autre compte admin n'est pas autorisée ici.");
       }
 
       const warningLabel = String(warningLevel || "").trim() || "Avertissement";
@@ -1338,7 +1338,7 @@ class AdminService {
 
     const booking = bookingResult.rows[0];
     if (!booking) {
-      throw new Error("Reservation introuvable.");
+      throw new Error("Réservation introuvable.");
     }
 
     const [messagesResult, logs] = await Promise.all([
@@ -1367,7 +1367,7 @@ class AdminService {
       actionType: "read_booking",
       targetType: "booking",
       targetId: bookingId,
-      reason: "Consultation admin du detail de reservation",
+      reason: "Consultation admin du détail de réservation",
       metadata: {
         serviceTitle: booking.service_title,
         clientName: booking.client_name,
@@ -1500,7 +1500,7 @@ class AdminService {
       actionType: "read_payment",
       targetType: "payment",
       targetId: paymentId,
-      reason: "Consultation admin du detail de paiement",
+      reason: "Consultation admin du détail de paiement",
       metadata: {
         serviceTitle: payment.service_title,
         clientName: payment.client_name,
@@ -1899,7 +1899,7 @@ class AdminService {
       actionType: "read_review",
       targetType: "review",
       targetId: reviewId,
-      reason: "Consultation admin du detail d'avis",
+      reason: "Consultation admin du détail d'avis",
       metadata: { serviceTitle: review.service_title },
     });
 

@@ -4,7 +4,7 @@
       <div class="mb-6 text-center">
         <h1 class="text-2xl font-semibold tracking-tight">Proposer un service</h1>
         <p class="text-sm text-slate-400 mt-1">
-          Publie un service depuis le meme compte que celui utilise pour reserver.
+          Publie un service depuis le même compte que celui utilisé pour réserver.
         </p>
       </div>
 
@@ -17,7 +17,7 @@
             type="text"
             name="title"
             required
-            placeholder="Ex: Menage 2h (appartement)"
+            placeholder="Ex: Ménage 2h (appartement)"
             class="w-full px-4 py-2 rounded-lg bg-slate-900/70 border border-slate-700 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition"
           >
         </div>
@@ -37,21 +37,22 @@
           </div>
 
           <div>
-            <label class="block text-sm mb-1 text-slate-300">Categorie</label>
+            <label class="block text-sm mb-1 text-slate-300">Catégorie</label>
             <select
               name="category_id"
               required
               class="w-full px-4 py-2 rounded-lg bg-slate-900/70 border border-slate-700 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition"
             >
-              <option value="" disabled selected>Choisir une categorie</option>
+              <option value="" disabled selected>Choisir une catégorie</option>
               <% (categories || []).forEach((category) => { %>
                 <option value="<%= category.id %>"><%= category.name %></option>
               <% }) %>
               <option value="other">Autres services</option>
+
             </select>
             <p class="mt-2 text-xs text-slate-400">
-              Si ton service n'apparait pas dans la liste, choisis <strong>Autres services</strong>
-              puis precise-le ci-dessous. Il sera ajoute automatiquement dans le catalogue et les filtres de categories.
+              Si ton service n'apparaît pas dans la liste, choisis <strong>Autres services</strong>
+              puis précise-le ci-dessous. Il sera ajoute automatiquement dans le catalogue et les filtres de catégories.
             </p>
             <div class="mt-3 rounded-xl border border-dashed border-slate-700/80 bg-slate-900/40 p-4">
               <label class="block text-sm mb-1 text-slate-300">Autres services</label>
@@ -71,7 +72,7 @@
             name="description"
             rows="6"
             required
-            placeholder="Decris ce que tu proposes, la duree, le materiel et la zone d'intervention."
+            placeholder="Décris ce que tu proposes, la durée, le matériel et la zone d'intervention."
             class="w-full px-4 py-2 rounded-lg bg-slate-900/70 border border-slate-700 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition"
           ></textarea>
         </div>
@@ -93,6 +94,7 @@
                   <%= option.label %>
                 </option>
               <% }) %>
+              
             </select>
             <p class="mt-2 text-xs text-slate-400">
               Ce statut sera visible sur ton service et ton profil public.
@@ -100,7 +102,7 @@
           </div>
 
           <div>
-            <label class="block text-sm mb-1 text-slate-300">Annee d'experience</label>
+            <label class="block text-sm mb-1 text-slate-300">Année d'expérience</label>
             <input
               type="number"
               name="experience_years"
@@ -136,9 +138,9 @@
         </div>
 
         <div class="rounded-xl border border-dashed border-slate-700/80 bg-slate-900/40 p-4">
-          <label class="block text-sm mb-1 text-slate-300">Photos de realisations</label>
+          <label class="block text-sm mb-1 text-slate-300">Photos de réalisations</label>
           <p class="text-xs text-slate-400">
-            Optionnel. Ajoute jusqu'a 6 photos de services deja realises pour rassurer les futurs clients.
+            Optionnel. Ajoute jusqu'à 6 photos de services déjà réalisés pour rassurer les futurs clients.
           </p>
           <div class="mt-4 flex flex-wrap items-center gap-3">
             <button
@@ -156,8 +158,7 @@
             type="file"
             accept="image/png,image/jpeg,image/webp,image/gif"
             multiple
-            class="hidden"
-          >
+            class="hidden">
         </div>
 
         <label class="inline-flex items-center gap-3 text-sm text-slate-300">
@@ -173,17 +174,16 @@
           <div class="flex gap-3">
             <button
               type="reset"
-              class="px-4 py-2 rounded-lg bg-slate-700 hover:bg-slate-600 transition"
-            >
-              Reinitialiser
+              class="px-4 py-2 rounded-lg bg-slate-700 hover:bg-slate-600 transition">
+              Réinitialiser
             </button>
 
             <button
               type="submit"
-              class="px-5 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 active:bg-blue-700 transition font-medium shadow-lg shadow-blue-600/20"
-            >
+              class="px-5 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 active:bg-blue-700 transition font-medium shadow-lg shadow-blue-600/20">
               Publier
             </button>
+
           </div>
         </div>
       </form>

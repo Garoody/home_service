@@ -3,7 +3,7 @@
     <div class="p-8 rounded-2xl bg-white/5 border border-white/10 shadow-xl">
       <% const formValues = oldInput || {}; %>
       <% const selectedPaymentMethod = formValues.payment_method || "cb"; %>
-      <h1 class="text-2xl font-semibold">Nouvelle demande de reservation</h1>
+      <h1 class="text-2xl font-semibold">Nouvelle demande de réservation</h1>
       <p class="mt-2 text-sm text-slate-400">
         Renseignez votre demande. Le prestataire recevra votre date et votre heure proposees,
         puis vous paierez seulement apres sa confirmation.
@@ -95,7 +95,7 @@
           </div>
         </div>
         <p class="text-xs text-slate-400">
-          Les dates passees sont bloquees. Pour aujourd'hui, choisissez uniquement une heure future.
+          Les dates passées sont bloquées. Pour aujourd'hui, choisissez uniquement une heure future.
         </p>
 
         <section class="booking-payment-box" data-booking-payment-form>
@@ -166,7 +166,7 @@
               <span class="payment-choice__radio"></span>
               <span class="payment-choice__content">
                 <span class="payment-choice__title">Paiement en especes</span>
-                <span class="payment-choice__copy">Le reglement sera effectue directement avec le prestataire au bon moment.</span>
+                <span class="payment-choice__copy">Le reglement sera effectué directement avec le prestataire au bon moment.</span>
               </span>
             </label>
           </div>
@@ -177,7 +177,7 @@
             style="<%= selectedPaymentMethod === 'cb' ? 'display:block' : 'display:none' %>"
           >
             <div class="booking-payment-panel__note">
-              Vous ne payez pas encore. Vous renseignez simplement la preference que vous souhaitez utiliser si la reservation est confirmee.
+              Vous ne payez pas encore. Vous renseignez simplement la preference que vous souhaitez utiliser si la réservation est confirmée.
             </div>
 
             <div class="booking-payment-summary-strip">
@@ -250,7 +250,7 @@
             </div>
 
             <div class="booking-payment-summary-strip">
-              <span>Compte PayPal memorise pour votre reservation</span>
+              <span>Compte PayPal memorise pour votre réservation</span>
               <strong>Validation du paiement plus tard dans votre espace</strong>
             </div>
 
@@ -300,7 +300,7 @@
             </div>
 
             <div class="booking-payment-summary-strip">
-              <span>Coordonnees bancaires associees a votre demande</span>
+              <span>Coordonnées bancaires associees a votre demande</span>
               <strong>Le virement sera confirme seulement apres accord du prestataire</strong>
             </div>
 
@@ -384,8 +384,8 @@
           <h2 class="text-sm font-semibold text-blue-100">Ce qui se passe ensuite</h2>
           <ol class="mt-3 space-y-2 text-sm text-slate-200">
             <li>1. Le prestataire recoit votre demande avec le creneau propose.</li>
-            <li>2. Le chat est disponible tout de suite pour echanger.</li>
-            <li>3. Le prestataire confirme ou refuse la reservation.</li>
+            <li>2. Le chat est disponible tout de suite pour échanger.</li>
+            <li>3. Le prestataire confirme ou refuse la réservation.</li>
             <li>4. S'il confirme, vous pourrez regler le service.</li>
           </ol>
         </div>

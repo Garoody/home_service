@@ -50,7 +50,7 @@ class BookingService {
     return this._hasAdminStatusColumn;
   }
 
-  // Recupere l'id du client proprietaire d'une reservation.
+  // Recupere l'id du client proprietaire d'une réservation.
   static async getOwnerIdByBookingId(bookingId) {
     const result = await db.query(
       `
@@ -87,7 +87,7 @@ class BookingService {
 
   static async assertClientCanBookService({ serviceId, clientId }) {
     if (!clientId) {
-      throw new Error("Utilisateur non connecte.");
+      throw new Error("Utilisateur non connecté.");
     }
 
     const service = await this.getServiceForBooking(serviceId);
@@ -96,20 +96,20 @@ class BookingService {
     }
 
     if (String(service.provider_id) === String(clientId)) {
-      throw new Error("Vous ne pouvez pas reserver votre propre service.");
+      throw new Error("Vous ne pouvez pas réserver votre propre service.");
     }
 
     return service;
   }
 
-  // Verifie qu'une reservation appartient bien au client connecte.
+  // Verifie qu'une réservation appartient bien au client connecté.
   static async assertOwnership(bookingId, clientId) {
     const ownerId = await this.getOwnerIdByBookingId(bookingId);
     if (!ownerId) {
-      throw new Error("Reservation introuvable.");
+      throw new Error("Réservation introuvable.");
     }
     if (String(ownerId) !== String(clientId)) {
-      throw new Error("Action non autorisee sur cette reservation.");
+      throw new Error("Action non autorisée sur cette réservation.");
     }
   }
 
@@ -172,16 +172,16 @@ class BookingService {
   static async assertNoPaidConflictForSlot(options) {
     const conflict = await this.findPaidConflictForSlot(options);
     if (conflict) {
-      throw new Error("Vous etes deja engage sur ce creneau. Une autre reservation a deja ete payee a cette heure.");
+      throw new Error("Vous etes déjà engage sur ce creneau. Une autre réservation a déjà été payée a cette heure.");
     }
 
     return null;
   }
 
-  // Retourne uniquement les reservations du client connecte.
+  // Retourne uniquement les réservations du client connecté.
   static async listForUser(clientId) {
     if (!clientId) {
-      throw new Error("Utilisateur non connecte.");
+      throw new Error("Utilisateur non connecté.");
     }
 
     await BookingMaintenanceService.expirePendingBookings();
@@ -234,10 +234,10 @@ class BookingService {
     return result.rows;
   }
 
-  // Charge une reservation precise du client pour l'ecran d'edition.
+  // Charge une réservation précise du client pour l'ecran d'edition.
   static async getByIdForUser({ bookingId, clientId }) {
     if (!clientId) {
-      throw new Error("Utilisateur non connecte.");
+      throw new Error("Utilisateur non connecté.");
     }
 
     await BookingMaintenanceService.expirePendingBookings();
@@ -269,7 +269,7 @@ class BookingService {
     );
 
     if (!result.rows[0]) {
-      throw new Error("Reservation introuvable.");
+      throw new Error("Réservation introuvable.");
     }
 
     return result.rows[0];
@@ -277,7 +277,7 @@ class BookingService {
 
   static async getDetailForUser({ bookingId, clientId }) {
     if (!clientId) {
-      throw new Error("Utilisateur non connecte.");
+      throw new Error("Utilisateur non connecté.");
     }
 
     await BookingMaintenanceService.expirePendingBookings();
@@ -336,7 +336,7 @@ class BookingService {
     );
 
     if (!result.rows[0]) {
-      throw new Error("Reservation introuvable.");
+      throw new Error("Réservation introuvable.");
     }
 
     return result.rows[0];
@@ -410,10 +410,10 @@ class BookingService {
     return viewerStates;
   }
 
-  // Retourne les demandes recues par un prestataire sur ses services.
+  // Retourne les demandes reçues par un prestataire sur ses services.
   static async listForProvider(providerId, { status } = {}) {
     if (!providerId) {
-      throw new Error("Utilisateur non connecte.");
+      throw new Error("Utilisateur non connecté.");
     }
 
     await BookingMaintenanceService.expirePendingBookings();
@@ -465,7 +465,7 @@ class BookingService {
 
   static async getDetailForProvider({ bookingId, providerId }) {
     if (!providerId) {
-      throw new Error("Utilisateur non connecte.");
+      throw new Error("Utilisateur non connecté.");
     }
 
     await BookingMaintenanceService.expirePendingBookings();
@@ -519,19 +519,19 @@ class BookingService {
     );
 
     if (!result.rows[0]) {
-      throw new Error("Reservation introuvable.");
+      throw new Error("Réservation introuvable.");
     }
 
     return result.rows[0];
   }
 
-  // Cree une reservation avec le prix recopie depuis le service.
+  // Cree une réservation avec le prix recopie depuis le service.
   static async create({ client_id, service_id, first_name, last_name, city, address, booking_date, booking_time }) {
     if (!client_id) {
-      throw new Error("Utilisateur non connecte.");
+      throw new Error("Utilisateur non connecté.");
     }
     if (!service_id || !booking_date || !booking_time) {
-      throw new Error("Champs manquants pour la reservation.");
+      throw new Error("Champs manquants pour la réservation.");
     }
 
     const slotValidation = validateBookingSlot({
@@ -609,7 +609,7 @@ class BookingService {
     }
   }
 
-  // Met a jour les informations principales d'une reservation appartenant au client.
+  // Met a jour les informations principales d'une réservation appartenant au client.
   static async updateByClient({
     bookingId,
     clientId,
@@ -621,7 +621,7 @@ class BookingService {
     booking_time,
   }) {
     if (!clientId) {
-      throw new Error("Utilisateur non connecte.");
+      throw new Error("Utilisateur non connecté.");
     }
     if (!first_name || !last_name || !city || !address || !booking_date || !booking_time) {
       throw new Error("Tous les champs du formulaire sont obligatoires.");
@@ -637,13 +637,13 @@ class BookingService {
 
     const booking = await this.getBookingContext(bookingId);
     if (!booking) {
-      throw new Error("Reservation introuvable.");
+      throw new Error("Réservation introuvable.");
     }
     if (String(booking.client_id) !== String(clientId)) {
-      throw new Error("Action non autorisee sur cette reservation.");
+      throw new Error("Action non autorisée sur cette réservation.");
     }
     if (booking.status !== "pending") {
-      throw new Error("Seules les reservations en attente peuvent encore etre modifiees.");
+      throw new Error("Seules les réservations en attente peuvent encore être modifiées.");
     }
 
     const hasContactColumns = await this.hasContactColumns();
@@ -679,30 +679,30 @@ class BookingService {
         );
 
     if (!result.rows[0]) {
-      throw new Error("Reservation introuvable.");
+      throw new Error("Réservation introuvable.");
     }
 
     return result.rows[0];
   }
 
-  // Annule une reservation tant qu'elle n'est pas encore payee.
+  // Annule une réservation tant qu'elle n'est pas encore payée.
   static async deleteByClient({ bookingId, clientId }) {
     if (!clientId) {
-      throw new Error("Utilisateur non connecte.");
+      throw new Error("Utilisateur non connecté.");
     }
 
     const booking = await this.getBookingContext(bookingId);
     if (!booking) {
-      throw new Error("Reservation introuvable.");
+      throw new Error("Réservation introuvable.");
     }
     if (String(booking.client_id) !== String(clientId)) {
-      throw new Error("Vous ne pouvez supprimer que votre reservation.");
+      throw new Error("Vous ne pouvez supprimer que votre réservation.");
     }
     if (booking.payment_status === "paid") {
-      throw new Error("Une reservation deja payee ne peut plus etre annulee ici.");
+      throw new Error("Une réservation déjà payée ne peut plus être annulée ici.");
     }
     if (!["pending", "confirmed"].includes(booking.status)) {
-      throw new Error("Cette reservation ne peut plus etre annulee.");
+      throw new Error("Cette réservation ne peut plus être annulée.");
     }
 
     const result = await db.query(
@@ -720,9 +720,9 @@ class BookingService {
     if (!result.rows[0]) {
       const ownerId = await this.getOwnerIdByBookingId(bookingId);
       if (!ownerId) {
-        throw new Error("Reservation introuvable.");
+        throw new Error("Réservation introuvable.");
       }
-      throw new Error("Vous ne pouvez annuler que votre reservation.");
+      throw new Error("Vous ne pouvez annuler que votre réservation.");
     }
 
     return result.rows[0];
@@ -730,24 +730,24 @@ class BookingService {
 
   static async confirmByProvider({ bookingId, providerId }) {
     if (!providerId) {
-      throw new Error("Utilisateur non connecte.");
+      throw new Error("Utilisateur non connecté.");
     }
 
     const booking = await this.getBookingContext(bookingId);
     if (!booking) {
-      throw new Error("Reservation introuvable.");
+      throw new Error("Réservation introuvable.");
     }
     if (String(booking.provider_id) !== String(providerId)) {
-      throw new Error("Action non autorisee sur cette reservation.");
+      throw new Error("Action non autorisée sur cette réservation.");
     }
     if (booking.status === "cancelled" && isBookingSlotExpired({
       bookingDate: booking.booking_date,
       bookingTime: booking.booking_time,
     })) {
-      throw new Error("La date demandee est depassee. La reservation a ete annulee automatiquement.");
+      throw new Error("La date demandee est dépassée. La réservation a été annulée automatiquement.");
     }
     if (booking.status !== "pending") {
-      throw new Error("Cette reservation a deja ete traitee.");
+      throw new Error("Cette réservation a déjà été traitee.");
     }
 
     await this.assertNoPaidConflictForSlot({
@@ -772,24 +772,24 @@ class BookingService {
 
   static async refuseByProvider({ bookingId, providerId }) {
     if (!providerId) {
-      throw new Error("Utilisateur non connecte.");
+      throw new Error("Utilisateur non connecté.");
     }
 
     const booking = await this.getBookingContext(bookingId);
     if (!booking) {
-      throw new Error("Reservation introuvable.");
+      throw new Error("Réservation introuvable.");
     }
     if (String(booking.provider_id) !== String(providerId)) {
-      throw new Error("Action non autorisee sur cette reservation.");
+      throw new Error("Action non autorisée sur cette réservation.");
     }
     if (booking.status === "cancelled" && isBookingSlotExpired({
       bookingDate: booking.booking_date,
       bookingTime: booking.booking_time,
     })) {
-      throw new Error("La date demandee est depassee. La reservation a ete annulee automatiquement.");
+      throw new Error("La date demandee est dépassée. La réservation a été annulée automatiquement.");
     }
     if (booking.status !== "pending") {
-      throw new Error("Cette reservation a deja ete traitee.");
+      throw new Error("Cette réservation a déjà été traitee.");
     }
 
     const result = await db.query(

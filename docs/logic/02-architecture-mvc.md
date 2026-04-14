@@ -202,7 +202,7 @@ On sait immédiatement où chercher.
 
 ✅ Maintenance
 
-Si la base change → on modifie le Repository uniquement.
+Si la base change → on modifié le Repository uniquement.
 
 ✅ Évolutivité
 

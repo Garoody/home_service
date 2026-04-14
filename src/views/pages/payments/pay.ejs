@@ -12,12 +12,12 @@
     <h1 class="checkout-page__title">Selectionner un mode de paiement</h1>
 
     <div class="checkout-summary">
-      <p class="checkout-summary__eyebrow">Reservation confirmee</p>
+      <p class="checkout-summary__eyebrow">Réservation confirmée</p>
       <h2 class="checkout-summary__title"><%= booking.service_title || "Service" %></h2>
       <p class="checkout-summary__text">
-        Votre reservation est confirmee. Vous pouvez maintenant regler
+        Votre réservation est confirmée. Vous pouvez maintenant regler
         <strong><%= (booking.amount ?? 0).toString().replace(".", ",") %> EUR</strong>.
-        La discussion est deja ouverte et le creneau sera verrouille apres validation du paiement.
+        La discussion est déjà ouverte et le creneau sera verrouille apres validation du paiement.
       </p>
     </div>
 
@@ -252,7 +252,7 @@
               <div class="checkout-option__divider"></div>
 
               <div class="checkout-method-note">
-                Ce mode enregistre votre choix de virement pour cette reservation et garde un recapitulatif clair dans votre espace.
+                Ce mode enregistre votre choix de virement pour cette réservation et garde un recapitulatif clair dans votre espace.
               </div>
 
               <div class="checkout-grid">
@@ -350,7 +350,7 @@
 
           <div class="checkout-option__body checkout-option__body--compact">
             <div class="checkout-option__inner">
-              <div class="checkout-message">Le paiement sera effectue directement a l'intervenant lors du service.</div>
+              <div class="checkout-message">Le paiement sera effectué directement a l'intervenant lors du service.</div>
               <div class="checkout-button-row">
                 <button type="submit" class="checkout-button">Confirmer le paiement en especes</button>
               </div>

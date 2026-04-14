@@ -31,7 +31,7 @@ class ConversationService {
     }
 
     if (user.banned_at) {
-      throw new Error("Ce compte a ete banni par l'administration.");
+      throw new Error("Ce compte a été banni par l'administration.");
     }
 
     if (user.suspended_at) {
@@ -86,7 +86,7 @@ class ConversationService {
 
     const context = contextResult.rows[0];
     if (!context) {
-      throw new Error("Reservation introuvable pour la conversation.");
+      throw new Error("Réservation introuvable pour la conversation.");
     }
 
     const conversationResult = await dbClient.query(
@@ -102,7 +102,7 @@ class ConversationService {
 
     const conversationId = conversationResult.rows[0]?.id;
     if (!conversationId) {
-      throw new Error("Impossible d'ouvrir la conversation de reservation.");
+      throw new Error("Impossible d'ouvrir la conversation de réservation.");
     }
 
     const participantIds = [context.client_id, context.provider_id];
@@ -148,10 +148,10 @@ class ConversationService {
     const location = [address, city].filter(Boolean).join(", ");
 
     return [
-      `${fullName} a envoye une nouvelle demande de reservation.`,
+      `${fullName} a envoye une nouvelle demande de réservation.`,
       `Creneau propose : ${dateLabel} a ${timeLabel}.`,
       location ? `Adresse indiquee : ${location}.` : null,
-      "Vous pouvez repondre ici pour echanger avant la confirmation.",
+      "Vous pouvez repondre ici pour échanger avant la confirmation.",
     ]
       .filter(Boolean)
       .join("\n");
@@ -487,7 +487,7 @@ class ConversationService {
       }
 
       if (access.blocked_by_me_at || access.blocked_by_other_at) {
-        throw new Error("Cette conversation est bloquee.");
+        throw new Error("Cette conversation est bloquée.");
       }
 
       const messageResult = await client.query(

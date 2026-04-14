@@ -15,8 +15,8 @@ import { z } from "zod";
 const userCategorySchema = z.object({
   // Cle etrangere vers users.id_user.
   id_user: z.string().uuid("Utilisateur invalide."),
-  // Cle etrangere vers categories.id_category.
-  id_category: z.string().uuid("Categorie invalide."),
+  // Cle etrangere vers catégories.id_category.
+  id_category: z.string().uuid("Catégorie invalide."),
 });
 
 /**

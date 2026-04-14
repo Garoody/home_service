@@ -1,10 +1,10 @@
-﻿"use strict";
+"use strict";
 
 /**
  * UserDTO : format expose aux vues / API publiques.
  *
  * - Ne contient jamais password, password_hash, token, ou champs internes.
- * - N'effectue pas de validation Zod ; il suppose une donnee deja validee.
+ * - N'effectué pas de validation Zod ; il suppose une donnee déjà validee.
  */
 
 /**
@@ -44,7 +44,7 @@ export function toRegisterDTO(payload = {}) {
     email: String(payload.email || "").trim().toLowerCase(),
     password: String(payload.password || ""),
     // Valeur technique par defaut pour un compte utilisateur standard.
-    // Le meme compte pourra ensuite reserver et publier des services.
+    // Le même compte pourra ensuite réserver et publier des services.
     role: "client",
     gdpr_consent: payload.gdpr_consent === true,
   };

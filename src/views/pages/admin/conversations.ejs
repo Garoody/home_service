@@ -13,7 +13,7 @@
       <p class="text-xs uppercase tracking-[0.3em] text-blue-300">Administration</p>
       <h1 class="mt-2 text-3xl font-semibold tracking-tight">Conversations client / prestataire</h1>
       <p class="mt-2 text-slate-400">
-        Consultation en lecture seule des echanges lies aux reservations, avec conservation admin meme si les utilisateurs effacent leur fil de leur cote.
+        Consultation en lecture seule des échanges liés aux réservations, avec conservation admin même si les utilisateurs effacent leur fil de leur côté.
       </p>
     </div>
     <a href="/admin" class="rounded-lg border border-white/10 bg-white/5 px-4 py-2 hover:border-white/20 transition">
@@ -26,7 +26,7 @@
       type="text"
       name="q"
       value="<%= q || '' %>"
-      placeholder="Rechercher par client, prestataire, service ou mot-cle"
+      placeholder="Rechercher par client, prestataire, service ou mot-clé"
       class="rounded-xl border border-white/10 bg-slate-900/40 px-4 py-3 text-slate-100 placeholder:text-slate-500"
     >
     <button type="submit" class="rounded-xl bg-blue-600 px-4 py-3 font-medium text-white hover:bg-blue-500 transition">
@@ -103,8 +103,8 @@
               </div>
 
               <div class="mt-4 grid gap-2 text-sm text-slate-300 md:grid-cols-2">
-                <p><span class="text-slate-500">Date :</span> <%= conversation.booking_date ? new Date(conversation.booking_date).toLocaleDateString("fr-FR") : "A definir" %></p>
-                <p><span class="text-slate-500">Heure :</span> <%= conversation.booking_time ? String(conversation.booking_time).slice(0, 5) : "A definir" %></p>
+                <p><span class="text-slate-500">Date :</span> <%= conversation.booking_date ? new Date(conversation.booking_date).toLocaleDateString("fr-FR") : "À définir" %></p>
+                <p><span class="text-slate-500">Heure :</span> <%= conversation.booking_time ? String(conversation.booking_time).slice(0, 5) : "À définir" %></p>
               </div>
 
               <div class="mt-4 rounded-2xl border border-white/10 bg-slate-900/30 px-4 py-4">
@@ -113,14 +113,14 @@
                   <%= conversation.last_message || "Aucun message enregistre pour le moment." %>
                 </p>
                 <p class="mt-2 text-xs text-slate-500">
-                  <%= conversation.last_message_at ? new Date(conversation.last_message_at).toLocaleString("fr-FR") : "Aucune activite recente" %>
+                  <%= conversation.last_message_at ? new Date(conversation.last_message_at).toLocaleString("fr-FR") : "Aucune activité récente" %>
                 </p>
               </div>
             </div>
 
             <div class="w-full max-w-xs space-y-3 rounded-2xl border border-white/10 bg-slate-900/30 p-4">
               <p class="text-sm text-slate-300">
-                La lecture admin reste disponible meme si la conversation est archivee ou supprimee cote utilisateur.
+                La lecture admin reste disponible même si la conversation est archivee ou supprimée côté utilisateur.
               </p>
               <a
                 href="/admin/conversations/<%= conversation.id %>"

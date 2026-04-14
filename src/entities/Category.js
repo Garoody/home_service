@@ -1,6 +1,6 @@
 "use strict";
 /**
- * @fileoverview Modele Category - Gestion des categories
+ * @fileoverview Modele Category - Gestion des catégories
  */
 class Category {
   constructor(data = {}) {
@@ -27,7 +27,7 @@ class Category {
   }
 
   /**
-   * Filtre les donnees sensibles pour l'exposition en API/vue
+   * Filtre les données sensibles pour l'exposition en API/vue
    */
   toJSON() {
     return {

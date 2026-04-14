@@ -8,7 +8,7 @@ const router = Router();
 
 router.get("/", CategoryController.index);
 
-// La creation de categories est reservee a l'administration.
+// La création de catégories est reservee a l'administration.
 router.get("/new", requireAdmin, CategoryController.create);
 router.post("/", requireAdmin, CategoryController.store);
 

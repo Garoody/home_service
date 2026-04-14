@@ -36,7 +36,7 @@ Lecture synchrone (bloquante)
 const data = fs.readFileSync("data.txt", "utf8");
 console.log(data);
 
-⚠️ readFileSync() bloque le thread principal.
+⚠️ readFileSync() bloqué le thread principal.
 
 Écriture de fichier
 fs.writeFile("output.txt", "Contenu écrit", (err) => {

@@ -3,7 +3,7 @@
     <div class="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
       <div>
         <p class="text-xs uppercase tracking-[0.25em] text-blue-300">
-          <%= sectionLabel || "Activite utilisateur" %>
+          <%= sectionLabel || "Activité utilisateur" %>
         </p>
         <h1 class="mt-2 text-3xl font-semibold tracking-tight"><%= heading %></h1>
       </div>
@@ -47,7 +47,7 @@
 
                 <% if (review.provider_reply) { %>
                   <div class="mt-4 rounded-xl border border-blue-400/20 bg-blue-500/10 px-4 py-3">
-                    <p class="text-xs uppercase tracking-[0.2em] text-blue-200">Reponse du prestataire</p>
+                    <p class="text-xs uppercase tracking-[0.2em] text-blue-200">Réponse du prestataire</p>
                     <p class="mt-2 whitespace-pre-line text-sm text-slate-100"><%= review.provider_reply %></p>
                   </div>
                 <% } %>
@@ -87,21 +87,21 @@
             <% if (pageMode === "provider") { %>
               <div class="mt-5 border-t border-white/10 pt-5">
                 <p class="text-sm font-medium text-slate-200">
-                  <%= review.provider_reply ? "Mettre a jour votre reponse publique" : "Repondre publiquement a cet avis" %>
+                  <%= review.provider_reply ? "Mettre a jour votre réponse publique" : "Repondre publiquement a cet avis" %>
                 </p>
                 <form action="/reviews/<%= review.id %>/reply" method="POST" class="mt-3 space-y-3">
                   <input type="hidden" name="_csrf" value="<%= csrfToken %>">
                   <textarea
                     name="provider_reply"
                     rows="4"
-                    placeholder="Ecrivez une reponse visible publiquement sous l'avis du client."
+                    placeholder="Ecrivez une réponse visible publiquement sous l'avis du client."
                     class="w-full rounded-xl border border-white/10 bg-slate-900/60 px-4 py-3 text-sm text-slate-100 placeholder:text-slate-500 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition"
                   ><%= review.provider_reply || "" %></textarea>
                   <button
                     type="submit"
                     class="inline-flex items-center rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-blue-500"
                   >
-                    <%= review.provider_reply ? "Mettre a jour ma reponse" : "Publier ma reponse" %>
+                    <%= review.provider_reply ? "Mettre a jour ma réponse" : "Publier ma réponse" %>
                   </button>
                 </form>
               </div>

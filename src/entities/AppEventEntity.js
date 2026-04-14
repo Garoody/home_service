@@ -30,7 +30,7 @@ class AppEventEntity {
   }
 
   /**
-   * Filtre les donnees sensibles pour l'exposition en API
+   * Filtre les données sensibles pour l'exposition en API
    */
   toJSON() {
     return {

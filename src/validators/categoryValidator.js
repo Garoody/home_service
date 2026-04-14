@@ -4,7 +4,7 @@ import { z } from "zod";
 
 /**
  * Objectif:
- * Valider le payload de creation/mise a jour d'une categorie.
+ * Valider le payload de création/mise a jour d'une catégorie.
  * Entree:
  * - payload: objet brut (souvent req.body)
  * Sortie:
@@ -12,7 +12,7 @@ import { z } from "zod";
  * - { success: false, data: null, message } sinon
  */
 const categorySchema = z.object({
-  // Nom unique de categorie (limite SQL: varchar(100)).
+  // Nom unique de catégorie (limite SQL: varchar(100)).
   name: z.string().trim().min(2, "Le nom est obligatoire.").max(100, "Le nom est trop long."),
   // Description optionnelle (alignement avec type text en base).
   description: z
@@ -27,7 +27,7 @@ const categorySchema = z.object({
  * Objectif:
  * Executer la validation Zod et normaliser le format de retour.
  * Entree:
- * - payload: objet categorie
+ * - payload: objet catégorie
  * Sortie:
  * - contrat uniforme { success, data, message }
  */

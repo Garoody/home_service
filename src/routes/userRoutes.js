@@ -62,7 +62,7 @@ router.post(
   verifyMultipartProfileCsrf,
   UserController.updateProfile
 );
-// Droit a l'oubli: suppression du compte utilisateur connecte.
+// Droit a l'oubli: suppression du compte utilisateur connecté.
 router.post("/profile/delete", requireAuth, UserController.deleteAccount);
 
 export default router;

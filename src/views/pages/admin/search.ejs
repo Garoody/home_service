@@ -3,7 +3,7 @@
     <div>
       <p class="text-xs uppercase tracking-[0.3em] text-blue-300">Administration</p>
       <h1 class="mt-2 text-3xl font-semibold tracking-tight">Recherche globale admin</h1>
-      <p class="mt-2 text-slate-400">Une seule recherche pour retrouver un compte, un service, une reservation, un paiement, un avis ou une conversation.</p>
+      <p class="mt-2 text-slate-400">Une seule recherche pour retrouver un compte, un service, une réservation, un paiement, un avis ou une conversation.</p>
     </div>
     <a href="/admin" class="rounded-lg border border-white/10 bg-white/5 px-4 py-2 hover:border-white/20 transition">
       Retour au dashboard
@@ -15,7 +15,7 @@
       type="text"
       name="q"
       value="<%= q || '' %>"
-      placeholder="Nom, email, service, conversation, reservation..."
+      placeholder="Nom, email, service, conversation, réservation..."
       class="rounded-xl border border-white/10 bg-slate-900/40 px-4 py-3 text-slate-100 placeholder:text-slate-500"
     >
     <button type="submit" class="rounded-xl bg-blue-600 px-4 py-3 font-medium text-white hover:bg-blue-500 transition">
@@ -26,7 +26,7 @@
   <% const sections = [
     { title: 'Comptes', items: results.users, link: (item) => `/admin/users/${item.id}` },
     { title: 'Services', items: results.services, link: (item) => `/admin/services/${item.id}` },
-    { title: 'Reservations', items: results.bookings, link: (item) => `/admin/bookings/${item.id}` },
+    { title: 'Réservations', items: results.bookings, link: (item) => `/admin/bookings/${item.id}` },
     { title: 'Paiements', items: results.payments, link: (item) => `/admin/payments/${item.id}` },
     { title: 'Avis', items: results.reviews, link: (item) => `/admin/reviews/${item.id}` },
     { title: 'Conversations', items: results.conversations, link: (item) => `/admin/conversations/${item.id}` },
@@ -41,9 +41,9 @@
         </div>
 
         <% if (!q) { %>
-          <p class="mt-4 text-sm text-slate-400">Lance une recherche pour afficher les resultats.</p>
+          <p class="mt-4 text-sm text-slate-400">Lance une recherche pour afficher les résultats.</p>
         <% } else if (!section.items.length) { %>
-          <p class="mt-4 text-sm text-slate-400">Aucun resultat dans cette section.</p>
+          <p class="mt-4 text-sm text-slate-400">Aucun résultat dans cette section.</p>
         <% } else { %>
           <div class="mt-4 space-y-3">
             <% section.items.forEach((item) => { %>
@@ -54,7 +54,7 @@
                 <% } else if (section.title === 'Services') { %>
                   <p class="text-sm font-semibold text-white"><%= item.title %></p>
                   <p class="mt-1 text-sm text-slate-400"><%= item.provider_name %> · <%= item.admin_status %></p>
-                <% } else if (section.title === 'Reservations') { %>
+                <% } else if (section.title === 'Réservations') { %>
                   <p class="text-sm font-semibold text-white"><%= item.service_title %></p>
                   <p class="mt-1 text-sm text-slate-400"><%= item.client_name %> · <%= item.provider_name %> · <%= item.status %></p>
                 <% } else if (section.title === 'Paiements') { %>

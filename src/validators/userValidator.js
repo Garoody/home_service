@@ -17,7 +17,7 @@ const unicodeEmailSchema = z
 const phoneSchema = z
   .string()
   .trim()
-  .max(50, "Le telephone est trop long.")
+  .max(50, "Le téléphone est trop long.")
   .superRefine((value, context) => {
     if (value === "") {
       return;
@@ -26,7 +26,7 @@ const phoneSchema = z
     if (!PHONE_DIGITS_REGEX.test(value)) {
       context.addIssue({
         code: z.ZodIssueCode.custom,
-        message: "Seuls les chiffres sont autorises pour le telephone.",
+        message: "Seuls les chiffres sont autorises pour le téléphone.",
       });
       return;
     }
@@ -34,7 +34,7 @@ const phoneSchema = z
     if (!PHONE_FRENCH_FORMAT_REGEX.test(value)) {
       context.addIssue({
         code: z.ZodIssueCode.custom,
-        message: "Le telephone doit contenir exactement 10 chiffres et commencer par 0.",
+        message: "Le téléphone doit contenir exactement 10 chiffres et commencer par 0.",
       });
     }
   });
@@ -72,8 +72,8 @@ const serviceProfileSchema = z.object({
   experience_years: z
     .number()
     .int()
-    .min(0, "L'annee d'experience est invalide.")
-    .max(60, "L'annee d'experience est invalide.")
+    .min(0, "L'annee d'expérience est invalide.")
+    .max(60, "L'annee d'expérience est invalide.")
     .nullable(),
   trainings: z.string().trim().max(500, "Les formations sont trop longues."),
   has_driving_license: z.boolean(),

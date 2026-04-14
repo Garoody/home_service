@@ -20,8 +20,8 @@ const reviewContentSchema = z.object({
 });
 
 const reviewCreateSchema = reviewContentSchema.extend({
-  // Reservation ciblee par l'avis.
-  booking_id: z.string().uuid("Reservation invalide."),
+  // Réservation ciblee par l'avis.
+  booking_id: z.string().uuid("Réservation invalide."),
   // Prestataire evalue.
   provider_id: z.string().uuid("Prestataire invalide."),
 });
@@ -30,8 +30,8 @@ const reviewReplySchema = z.object({
   provider_reply: z
     .string()
     .trim()
-    .min(1, "La reponse du prestataire est obligatoire.")
-    .max(5000, "La reponse du prestataire est trop longue."),
+    .min(1, "La réponse du prestataire est obligatoire.")
+    .max(5000, "La réponse du prestataire est trop longue."),
 });
 
 function buildValidationResult(result) {

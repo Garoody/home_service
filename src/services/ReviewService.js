@@ -61,7 +61,7 @@ class ReviewService {
     );
 
     if (!result.rows[0]) {
-      throw new Error("Reservation introuvable ou non autorisee.");
+      throw new Error("Réservation introuvable ou non autorisée.");
     }
 
     return result.rows[0];
@@ -158,11 +158,11 @@ class ReviewService {
     }
 
     if (String(context.provider_id) !== String(provider_id)) {
-      throw new Error("Prestataire invalide pour cette reservation.");
+      throw new Error("Prestataire invalide pour cette réservation.");
     }
 
     if (context.review_id) {
-      throw new Error("Un avis existe deja pour cette reservation.");
+      throw new Error("Un avis existe déjà pour cette réservation.");
     }
 
     const result = await db.query(
@@ -218,7 +218,7 @@ class ReviewService {
 
   static async replyByProvider({ reviewId, providerId, providerReply }) {
     if (!(await this.hasProviderReplyColumns())) {
-      throw new Error("Les reponses aux avis ne sont pas encore disponibles.");
+      throw new Error("Les réponses aux avis ne sont pas encore disponibles.");
     }
 
     await this.getReviewByIdForProvider({ reviewId, providerId });

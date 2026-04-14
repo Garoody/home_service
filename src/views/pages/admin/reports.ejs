@@ -56,7 +56,7 @@
                     <p><span class="text-slate-500">Cible :</span> <%= report.target_type %> #<%= report.target_id %></p>
                     <p><span class="text-slate-500">Cree par :</span> <%= report.created_by_name %></p>
                     <p><span class="text-slate-500">Assigne a :</span> <%= report.assigned_admin_name || 'Non assigne' %></p>
-                    <p><span class="text-slate-500">Cree le :</span> <%= new Date(report.created_at).toLocaleString('fr-FR') %></p>
+                    <p><span class="text-slate-500">Créé le :</span> <%= new Date(report.created_at).toLocaleString('fr-FR') %></p>
                   </div>
                   <p class="mt-4 whitespace-pre-wrap text-sm text-slate-300"><%= report.description %></p>
                   <% if (report.resolution_note) { %>
@@ -95,7 +95,7 @@
       <form action="/admin/reports" method="POST" class="rounded-3xl border border-white/10 bg-white/5 p-6 shadow-xl shadow-black/10">
         <input type="hidden" name="_csrf" value="<%= csrfToken %>">
 
-        <h2 class="text-xl font-semibold text-white">Creer un signalement</h2>
+        <h2 class="text-xl font-semibold text-white">Créer un signalement</h2>
         <p class="mt-2 text-sm text-slate-400">Un formulaire volontairement simple pour noter un probleme et le suivre.</p>
 
         <div class="mt-5 space-y-4">
@@ -149,7 +149,7 @@
           </div>
 
           <button type="submit" class="rounded-xl bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-500 transition">
-            Creer le signalement
+            Créer le signalement
           </button>
         </div>
       </form>
