@@ -322,12 +322,12 @@ app.listen(PORT, () => {
   console.log(`
 ╔═══════════════════════════════════════════════════════════╗
 ║                                                           ║
-║   🏠 HomeServices - Plateforme de services à domicile     ║
+║   🏠 HomeServices - Plateforme de services à domicile      ║
 ║                                                           ║
-║   🚀 Serveur lancé avec succès !                          ║
-║   📍 URL: http://localhost:${PORT}                          ║
-║   🌐 Environnement: ${process.env.NODE_ENV || "development"}                      ║
-║   ⏰ Démarré le: ${new Date().toLocaleString("fr-FR")}     ║
+║   🚀 Serveur lancé avec succès !                           ║
+║   📍 URL: http://localhost:${PORT}                            ║
+║   🌐 Environnement: ${process.env.NODE_ENV || "development"}                            ║
+║   ⏰ Démarré le: ${new Date().toLocaleString("fr-FR")}                       ║
 ║                                                           ║
 ╚═══════════════════════════════════════════════════════════╝
   `);

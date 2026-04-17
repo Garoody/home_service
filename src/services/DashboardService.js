@@ -37,8 +37,10 @@ class DashboardService {
   static async getProviderDashboard(userId, { publicOnly = false } = {}) {
     const hasAdminStatusColumn = await ServiceService.hasAdminStatusColumn();
     const serviceVisibilitySql =
-      publicOnly && hasAdminStatusColumn
-        ? "AND COALESCE(s.admin_status, 'active') = 'active'"
+      hasAdminStatusColumn
+        ? publicOnly
+          ? "AND COALESCE(s.admin_status, 'active') = 'active'"
+          : "AND COALESCE(s.admin_status, 'active') <> 'deleted'"
         : "";
 
     const [servicesResult, bookings, reviewsResult, payments] = await Promise.all([

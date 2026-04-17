@@ -378,6 +378,29 @@ class ServiceController {
       res.redirect(`/services/${req.params.slug}/edit`);
     }
   }
+
+  async destroy(req, res) {
+    try {
+      const { slug } = req.params;
+      const providerId = req.session?.user?.id ?? req.session?.userId;
+
+      if (!providerId) {
+        req.flash("error", "Vous devez etre connecte pour supprimer ce service.");
+        return res.redirect("/auth/login");
+      }
+
+      await ServiceService.deleteBySlug({
+        slug,
+        providerId,
+      });
+
+      req.flash("success", "Service supprime.");
+      return res.redirect("/users/profile");
+    } catch (error) {
+      req.flash("error", error.message);
+      return res.redirect(`/services/${req.params.slug}`);
+    }
+  }
 }
 
 export default new ServiceController();

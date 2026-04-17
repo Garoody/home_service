@@ -32,3 +32,15 @@ VALUES (
 ON CONFLICT (name) DO UPDATE
 SET
     description = EXCLUDED.description;
+
+INSERT INTO
+    categories (
+        id_category,
+        name,
+        description
+    )
+VALUES (
+        '018d5c8e-2000-7001-a001-000000000005',
+        'Bricolage',
+        'Nettoyage et entretien'
+    )

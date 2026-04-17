@@ -1,4 +1,4 @@
--- Active: 1771510940833@@127.0.0.1@5432@service_db_dev
+-- Active: 1767954162611@@127.0.0.1@5432@service_db_dev
 -- =====================================================================
 -- TABLE: users
 -- =====================================================================
@@ -24,6 +24,15 @@ ALTER TABLE users
 ADD CONSTRAINT chk_email_format CHECK (
     email ~* '^[^@\s]+@[^@\s]+\.[^@\s]+$'
 );
+
+-- exemple ajout et suppression de colonnes
+-- ALTER TABLE  users 
+-- ADD pseudo VARCHAR (100) 
+
+-- ALTER TABLE users 
+-- DROP COLUMN pseudo 
+
+
 
 -- Trigger updated_at
 DROP TRIGGER IF EXISTS set_timestamp_users ON users;

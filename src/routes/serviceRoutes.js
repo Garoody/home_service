@@ -63,6 +63,12 @@ router.post(
   verifyMultipartServiceCsrf((req) => `/services/${req.params.slug}/edit`),
   ServiceController.update
 );
+router.post(
+  "/:slug/delete",
+  requireMember,
+  requireOwnership((req) => ServiceService.getOwnerIdBySlug(req.params.slug)),
+  ServiceController.destroy
+);
 
 router.get("/:slug", ServiceController.show);
 

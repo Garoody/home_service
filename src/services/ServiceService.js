@@ -461,6 +461,67 @@ class ServiceService {
 
     return result.rows[0];
   }
+
+  static async deleteBySlug({ slug, providerId }) {
+    if (!providerId) {
+      throw new Error("Utilisateur non connecte.");
+    }
+
+    const hasAdminStatusColumn = await this.hasAdminStatusColumn();
+
+    if (!hasAdminStatusColumn) {
+      throw new Error("La suppression du service n'est pas disponible sur cette version de la base.");
+    }
+
+    const result = await db.query(
+      `
+      UPDATE public.services
+      SET
+        admin_status = 'deleted',
+        admin_status_reason = COALESCE(admin_status_reason, 'Supprime par le prestataire.'),
+        admin_status_updated_at = NOW(),
+        updated_at = NOW()
+      WHERE id_service::text = $1
+        AND provider_id::text = $2
+        AND COALESCE(admin_status, 'active') <> 'deleted'
+      RETURNING id_service::text AS id, title
+      `,
+      [slug, String(providerId)]
+    );
+
+    if (result.rows[0]) {
+      return result.rows[0];
+    }
+
+    const existing = await db.query(
+      `
+      SELECT
+        id_service::text AS id,
+        provider_id::text AS provider_id,
+        COALESCE(admin_status, 'active') AS admin_status
+      FROM public.services
+      WHERE id_service::text = $1
+      LIMIT 1
+      `,
+      [slug]
+    );
+
+    const service = existing.rows[0];
+
+    if (!service) {
+      throw new Error("Service introuvable.");
+    }
+
+    if (String(service.provider_id) !== String(providerId)) {
+      throw new Error("Action non autorisee sur ce service.");
+    }
+
+    if (service.admin_status === "deleted") {
+      throw new Error("Ce service est deja supprime.");
+    }
+
+    throw new Error("Impossible de supprimer ce service.");
+  }
 }
 
 export default ServiceService;

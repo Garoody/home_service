@@ -81,6 +81,23 @@
             >
               Modifier
             </a>
+
+            <form
+              action="/services/<%= service.slug %>/delete"
+              method="POST"
+              class="inline-block"
+              data-confirm="Voulez-vous vraiment supprimer ce service ?"
+            >
+              <% if (csrfToken) { %>
+                <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+              <% } %>
+              <button
+                type="submit"
+                class="mt-4 px-4 py-2 rounded-lg bg-red-600 hover:bg-red-500 transition font-medium text-white"
+              >
+                Supprimer
+              </button>
+            </form>
           <% } %>
         </div>
       </div>
