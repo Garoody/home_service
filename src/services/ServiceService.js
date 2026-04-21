@@ -177,28 +177,23 @@ class ServiceService {
     if (hasAdminStatusColumn) {
       where.push(`COALESCE(s.admin_status, 'active') = 'active'`);
     }
-
     if (q) {
       values.push(`%${q}%`);
-      where.push(
+      where.push(           
         `(s.title ILIKE $${values.length} OR s.description ILIKE $${values.length})`
       );
     }
-
     if (category_id) {
       values.push(category_id);
       where.push(`s.category_id = $${values.length}`);
     }
-
-    if (city) {
+    if (city) { 
       if (!hasProviderDetailsColumns) {
         return [];
       }
-
       values.push(`%${city}%`);
       where.push(`s.service_area ILIKE $${values.length}`);
     }
-
     const whereSql = where.length ? `WHERE ${where.join(" AND ")}` : "";
 
     const result = await db.query(
@@ -230,11 +225,10 @@ class ServiceService {
       `,
       values
     );
-
     return result.rows;
   }
 
-  // Recupere l'id du prestataire proprietaire d'un service.
+  // Récupère l'id du prestataire propriétaire d'un service.
   static async getOwnerIdBySlug(slug) {
     const result = await db.query(
       `

@@ -14,3 +14,5 @@
 CREATE DATABASE service_db_dev WITH ENCODING = 'UTF8';
 
 COMMENT ON DATABASE service_db_dev IS 'Base de données principales du projet service - Coffre-fort numérique';
+
+

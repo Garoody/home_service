@@ -13,28 +13,22 @@ class AuthService {
     if (!user) {
       return { success: false, status: 401, message: INVALID_LOGIN_MESSAGE };
     }
-
     if (user.deletedByAdminAt) {
       return { success: false, status: 401, message: INVALID_LOGIN_MESSAGE };
     }
-
     if (user.bannedAt) {
       return { success: false, status: 401, message: INVALID_LOGIN_MESSAGE };
     }
-
     if (user.suspendedAt) {
       return { success: false, status: 401, message: INVALID_LOGIN_MESSAGE };
     }
-
     // Compare le mot de passe saisi avec le hash stocke en base.
     const isValidPassword = user.passwordHash
       ? await bcrypt.compare(loginDto.password, user.passwordHash)
       : false;
-
     if (!isValidPassword) {
       return { success: false, status: 401, message: INVALID_LOGIN_MESSAGE };
     }
-
     return { success: true, user };
   }
 
@@ -56,7 +50,6 @@ class AuthService {
       role: registerDto.role,
       gdpr_consent: true,
     });
-
     return { success: true, user: createdUser };
   }
 

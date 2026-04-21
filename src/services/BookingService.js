@@ -172,9 +172,8 @@ class BookingService {
   static async assertNoPaidConflictForSlot(options) {
     const conflict = await this.findPaidConflictForSlot(options);
     if (conflict) {
-      throw new Error("Vous etes déjà engage sur ce creneau. Une autre réservation a déjà été payée a cette heure.");
+      throw new Error("Vous êtes déjà engage sur ce créneau. Une autre réservation a déjà été payée a cette heure.");
     }
-
     return null;
   }
 

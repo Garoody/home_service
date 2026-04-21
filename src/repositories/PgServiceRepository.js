@@ -21,7 +21,8 @@ class PgServiceRepository {
     const whereSql = where.length ? `WHERE ${where.join(" AND ")}` : "";
 
     const query = /*sql*/`
-      SELECT s.id_service, s.provider_id, s.category_id, s.title, s.description, s.price, s.created_at, s.updated_at
+      SELECT s.id_service, s.provider_id, s.category_id, s.title,
+       s.description, s.price, s.created_at, s.updated_at
       FROM public.services s
       ${whereSql}
       ORDER BY s.created_at DESC;
@@ -33,7 +34,8 @@ class PgServiceRepository {
 
   static async findBySlug(slug) {
     const query = /*sql*/`
-      SELECT s.id_service, s.provider_id, s.category_id, s.title, s.description, s.price, s.created_at, s.updated_at
+      SELECT s.id_service, s.provider_id, s.category_id, s.title, 
+      s.description, s.price, s.created_at, s.updated_at
       FROM public.services s
       WHERE s.id_service::text = $1
       LIMIT 1;

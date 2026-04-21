@@ -21,3 +21,8 @@ AS $function$
 $function$;
 
 COMMENT ON FUNCTION uuidv7() IS 'Helper UUID compatible avec les migrations HomeServices.';
+
+
+
+
+
