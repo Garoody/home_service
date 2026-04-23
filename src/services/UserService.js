@@ -1,21 +1,21 @@
 "use strict";
 
-import UserRepository from "../repositories/UserRepository.js";
+import PgUserRepository from "../repositories/PgUserRepository.js";
 
 /**
  * UserService
  */
 class UserService {
   async getById(userId) {
-    return UserRepository.findById(userId);
+    return PgUserRepository.findById(userId);
   }
 
   async getByEmail(email) {
-    return UserRepository.findByEmail(email);
+    return PgUserRepository.findByEmail(email);
   }
 
   async create({ full_name, email, password_hash, phone, role, gdpr_consent }) {
-    return UserRepository.create({
+    return PgUserRepository.create({
       full_name,
       email,
       password_hash,
@@ -26,19 +26,19 @@ class UserService {
   }
 
   async deleteById(userId) {
-    return UserRepository.deleteById(userId);
+    return PgUserRepository.deleteById(userId);
   }
 
   async updateServiceProfile(payload) {
-    return UserRepository.updateServiceProfile(payload);
+    return PgUserRepository.updateServiceProfile(payload);
   }
 
   async updateProviderStatus(payload) {
-    return UserRepository.updateProviderStatus(payload);
+    return PgUserRepository.updateProviderStatus(payload);
   }
 
   async updateUserProfile(payload) {
-    return UserRepository.updateUserProfile(payload);
+    return PgUserRepository.updateUserProfile(payload);
   }
 }
 

@@ -16,10 +16,11 @@ vi.mock("../../src/config/database.js", () => ({
 }));
 
 const { default: ServiceService } = await import("../../src/services/ServiceService.js");
+const { default: PgServiceRepository } = await import("../../src/repositories/PgServiceRepository.js");
 
 describe("ServiceService.hasProviderDetailsColumns", () => {
   beforeEach(() => {
-    ServiceService._hasProviderDetailsColumns = null;
+    PgServiceRepository._hasProviderDetailsColumns = null;
     vi.clearAllMocks();
   });
 

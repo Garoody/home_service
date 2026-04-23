@@ -21,7 +21,7 @@ vi.mock("bcrypt", () => ({
   },
 }));
 
-vi.mock("../../src/repositories/UserRepository.js", () => ({
+vi.mock("../../src/repositories/PgUserRepository.js", () => ({
   default: {
     findByEmail: findByEmailMock,
     create: createMock,

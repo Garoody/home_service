@@ -2,14 +2,14 @@
 
 import bcrypt from "bcrypt";
 import { randomBytes } from "crypto";
-import UserRepository from "../repositories/UserRepository.js";
+import PgUserRepository from "../repositories/PgUserRepository.js";
 
 const INVALID_LOGIN_MESSAGE = "Email ou mot de passe invalide.";
 
 class AuthService {
   // Authentifie un utilisateur via email et mot de passe.
   async authenticate(loginDto) {
-    const user = await UserRepository.findByEmail(loginDto.email);
+    const user = await PgUserRepository.findByEmail(loginDto.email);
     if (!user) {
       return { success: false, status: 401, message: INVALID_LOGIN_MESSAGE };
     }
@@ -34,7 +34,7 @@ class AuthService {
 
   // Cree un compte local apres verification de l'email.
   async register(registerDto) {
-    const existingUser = await UserRepository.findByEmail(registerDto.email);
+    const existingUser = await PgUserRepository.findByEmail(registerDto.email);
 
     if (existingUser) {
       return { success: false, status: 409, message: "Cet email est déjà utilise." };
@@ -42,7 +42,7 @@ class AuthService {
 
     const password_hash = await bcrypt.hash(registerDto.password, 10);
 
-    const createdUser = await UserRepository.create({
+    const createdUser = await PgUserRepository.create({
       full_name: registerDto.full_name,
       email: registerDto.email,
       password_hash,
@@ -65,7 +65,7 @@ class AuthService {
       };
     }
 
-    const existingUser = await UserRepository.findByEmail(email);
+    const existingUser = await PgUserRepository.findByEmail(email);
     if (existingUser) {
       return { success: true, user: existingUser };
     }
@@ -77,7 +77,7 @@ class AuthService {
     // Le schema actuel impose un password_hash, même pour un compte OAuth.
     const password_hash = await bcrypt.hash(randomBytes(32).toString("hex"), 10);
 
-    const createdUser = await UserRepository.create({
+    const createdUser = await PgUserRepository.create({
       full_name: fullName,
       email,
       password_hash,
