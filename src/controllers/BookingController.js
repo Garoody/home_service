@@ -46,7 +46,6 @@ function getSafeReturnPath(req, fallbackPath) {
   if (returnTo.startsWith("/") && !returnTo.startsWith("//")) {
     return returnTo;
   }
-
   return fallbackPath;
 }
 
