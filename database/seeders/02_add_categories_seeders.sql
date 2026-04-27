@@ -22,7 +22,7 @@ VALUES (
     (
         '018d5c8e-2000-7001-a001-000000000003',
         'Plomberie',
-        'Depannage plomberie'
+        'Dépannage plomberie'
     ),
     (
         '018d5c8e-2000-7001-a001-000000000004',

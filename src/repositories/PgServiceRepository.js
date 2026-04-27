@@ -15,6 +15,7 @@ class PgServiceRepository {
       return this._hasProviderDetailsColumns;
     }
 
+    // Requêtes sql
     const query = /*sql*/`
       SELECT COUNT(*)::int AS count
       FROM information_schema.columns

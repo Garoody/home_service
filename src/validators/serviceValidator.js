@@ -18,7 +18,11 @@ const serviceSchema = z.object({
   category_id: z.string().trim().min(1, "La catégorie est obligatoire."),
   custom_category_name: z.string().trim().max(100, "Le nom de la catégorie est trop long.").optional().default(""),
   // Limite SQL: varchar(150).
-  title: z.string().trim().min(2, "Le titre est obligatoire.").max(150, "Le titre est trop long."),
+  title: z
+      .string()
+      .trim()
+      .min(2, "Le titre est obligatoire.")
+      .max(150, "Le titre est trop long."),
   // Champ texte obligatoire pour expliquer le service.
   description: z.string().trim().min(5, "La description est obligatoire."),
   // Prix numerique >= 0.
