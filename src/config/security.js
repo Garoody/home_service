@@ -45,9 +45,8 @@ export const securityHeaders = (req, res, next) => {
   const nonce =
     res.locals.cspNonce ||
     randomBytes(16).toString("base64");
-
   res.locals.cspNonce = nonce;
-
+  
   return helmet({
     contentSecurityPolicy: buildContentSecurityPolicy(nonce),
     referrerPolicy: { policy: "no-referrer" },

@@ -19,8 +19,8 @@ const requireGoogleOAuthConfig = (req, res, next) => {
 
 router.get("/register", requireGuest, AuthController.showRegister);
 router.post("/register", authLimiter, requireGuest, AuthController.register);
-
 router.get("/login", requireGuest, AuthController.showLogin);
+
 router.post("/login", authLimiter, requireGuest, AuthController.login);
 
 // Redirection vers Google (demande d'acces au profil + email).

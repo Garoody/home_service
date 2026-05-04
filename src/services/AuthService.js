@@ -35,13 +35,10 @@ class AuthService {
   // Cree un compte local apres verification de l'email.
   async register(registerDto) {
     const existingUser = await PgUserRepository.findByEmail(registerDto.email);
-
     if (existingUser) {
       return { success: false, status: 409, message: "Cet email est déjà utilise." };
     }
-
     const password_hash = await bcrypt.hash(registerDto.password, 10);
-
     const createdUser = await PgUserRepository.create({
       full_name: registerDto.full_name,
       email: registerDto.email,

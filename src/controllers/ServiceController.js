@@ -385,7 +385,7 @@ class ServiceController {
       const providerId = req.session?.user?.id ?? req.session?.userId;
 
       if (!providerId) {
-        req.flash("error", "Vous devez etre connecte pour supprimer ce service.");
+        req.flash("error", "Vous devez être connecte pour supprimer ce service.");
         return res.redirect("/auth/login");
       }
 

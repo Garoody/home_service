@@ -132,7 +132,6 @@ class UserRepository {
       WHERE email = $1
       LIMIT 1;
     `;
-
     const { rows } = await db.query(query, [email]);
     return User.fromDatabase(rows[0]);
   }
@@ -216,7 +215,6 @@ class UserRepository {
         created_at,
         updated_at;
     `;
-
     const values = [full_name, email, password_hash, phone, role, gdpr_consent];
     const { rows } = await db.query(query, values);
     return User.fromDatabase(rows[0]);

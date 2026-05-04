@@ -29,11 +29,9 @@ if (!process.env.SESSION_SECRET && isProd) {
  */
 export const sessionMiddleware = session({
   name: isProd ? "__Host-homeservice.sid" : "homeservice.sid",
-
   secret: process.env.SESSION_SECRET || "CHANGE_ME_IN_PRODUCTION",
   resave: false,
   saveUninitialized: false,
-
   cookie: {
     secure: isProd,        // nécessite app.set("trust proxy", 1) en prod
     httpOnly: true,

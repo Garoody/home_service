@@ -45,7 +45,8 @@
         class="service-category-card <%= !category_id ? 'service-category-card--active' : '' %>"
       >
         <span class="service-category-card__title">Toutes les catégories</span>
-        <span class="service-category-card__meta"><%= totalServicesInDirectory %> service<%= totalServicesInDirectory > 1 ? 's' : '' %> dans le catalogue</span>
+        <span class="service-category-card__meta"><%= totalServicesInDirectory %> service<%= 
+        totalServicesInDirectory > 1 ? 's' : '' %> dans le catalogue</span>
       </a>
 
       <% (categories || []).forEach((category) => { %>
@@ -54,9 +55,11 @@
           class="service-category-card <%= String(category_id) === String(category.id) ? 'service-category-card--active' : '' %>"
         >
           <span class="service-category-card__title"><%= category.name %></span>
-          <span class="service-category-card__meta"><%= category.total_services || 0 %> service<%= Number(category.total_services || 0) > 1 ? 's' : '' %></span>
+          <span class="service-category-card__meta"><%= category.total_services || 0 %> service<%= 
+          Number(category.total_services || 0) > 1 ? 's' : '' %></span>
         </a>
       <% }) %>
+      
     </div>
   </div>
 

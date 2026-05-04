@@ -1,13 +1,6 @@
 "use strict";
 
 import db from "../config/database.js";
-import ConversationService from "../services/ConversationService.js";
-import BookingMaintenanceService from "../services/BookingMaintenanceService.js";
-import { isBookingSlotExpired, validateBookingSlot } from "../utils/bookingSlot.js";
-import {
-  buildServiceViewerState,
-  pickRelevantServiceBooking,
-} from "../utils/serviceViewerState.js";
 
 class PgBookingRepository {
   static _hasContactColumns = null;
@@ -50,7 +43,7 @@ class PgBookingRepository {
     return this._hasAdminStatusColumn;
   }
 
-  // Recupere l'id du client proprietaire d'une réservation.
+  // Recupere l'id du client proprietaire d'une reservation.
   static async getOwnerIdByBookingId(bookingId) {
     const result = await db.query(
       `
@@ -85,37 +78,7 @@ class PgBookingRepository {
     return result.rows[0] || null;
   }
 
-  static async assertClientCanBookService({ serviceId, clientId }) {
-    if (!clientId) {
-      throw new Error("Utilisateur non connecté.");
-    }
-
-    const service = await this.getServiceForBooking(serviceId);
-    if (!service) {
-      throw new Error("Service introuvable ou indisponible.");
-    }
-
-    if (String(service.provider_id) === String(clientId)) {
-      throw new Error("Vous ne pouvez pas réserver votre propre service.");
-    }
-
-    return service;
-  }
-
-  // Verifie qu'une réservation appartient bien au client connecté.
-  static async assertOwnership(bookingId, clientId) {
-    const ownerId = await this.getOwnerIdByBookingId(bookingId);
-    if (!ownerId) {
-      throw new Error("Réservation introuvable.");
-    }
-    if (String(ownerId) !== String(clientId)) {
-      throw new Error("Action non autorisée sur cette réservation.");
-    }
-  }
-
   static async getBookingContext(bookingId, dbClient = db) {
-    await BookingMaintenanceService.expirePendingBookings({ dbClient });
-
     const result = await dbClient.query(
       `
       SELECT
@@ -169,24 +132,9 @@ class PgBookingRepository {
     return result.rows[0] || null;
   }
 
-  static async assertNoPaidConflictForSlot(options) {
-    const conflict = await this.findPaidConflictForSlot(options);
-    if (conflict) {
-      throw new Error("Vous êtes déjà engage sur ce créneau. Une autre réservation a déjà été payée a cette heure.");
-    }
-    return null;
-  }
-
-  // Retourne uniquement les réservations du client connecté.
-  static async listForUser(clientId) {
-    if (!clientId) {
-      throw new Error("Utilisateur non connecté.");
-    }
-
-    await BookingMaintenanceService.expirePendingBookings();
-
+  // Retourne uniquement les reservations du client connecte.
+  static async listForUser(clientId, { hasConversationTables = false } = {}) {
     const hasContactColumns = await this.hasContactColumns();
-    const hasConversationTables = await ConversationService.hasConversationTables();
 
     const result = await db.query(
       `
@@ -233,14 +181,8 @@ class PgBookingRepository {
     return result.rows;
   }
 
-  // Charge une réservation précise du client pour l'ecran d'edition.
+  // Charge une reservation precise du client pour l'ecran d'edition.
   static async getByIdForUser({ bookingId, clientId }) {
-    if (!clientId) {
-      throw new Error("Utilisateur non connecté.");
-    }
-
-    await BookingMaintenanceService.expirePendingBookings();
-
     const hasContactColumns = await this.hasContactColumns();
 
     const result = await db.query(
@@ -267,22 +209,15 @@ class PgBookingRepository {
       [bookingId, clientId]
     );
 
-    if (!result.rows[0]) {
-      throw new Error("Réservation introuvable.");
-    }
-
-    return result.rows[0];
+    return result.rows[0] || null;
   }
 
-  static async getDetailForUser({ bookingId, clientId }) {
-    if (!clientId) {
-      throw new Error("Utilisateur non connecté.");
-    }
-
-    await BookingMaintenanceService.expirePendingBookings();
-
+  static async getDetailForUser({
+    bookingId,
+    clientId,
+    hasConversationTables = false,
+  }) {
     const hasContactColumns = await this.hasContactColumns();
-    const hasConversationTables = await ConversationService.hasConversationTables();
 
     const result = await db.query(
       `
@@ -334,29 +269,17 @@ class PgBookingRepository {
       [bookingId, clientId]
     );
 
-    if (!result.rows[0]) {
-      throw new Error("Réservation introuvable.");
-    }
-
-    return result.rows[0];
+    return result.rows[0] || null;
   }
 
-  static async getServiceViewerStatesForUser({ clientId, serviceIds = [] }) {
+  static async listServiceViewerBookingsForUser({
+    clientId,
+    serviceIds = [],
+    hasConversationTables = false,
+  }) {
     if (!clientId || !Array.isArray(serviceIds) || serviceIds.length === 0) {
-      return new Map();
+      return [];
     }
-
-    await BookingMaintenanceService.expirePendingBookings();
-
-    const normalizedServiceIds = Array.from(
-      new Set(serviceIds.map((serviceId) => String(serviceId || "").trim()).filter(Boolean))
-    );
-
-    if (normalizedServiceIds.length === 0) {
-      return new Map();
-    }
-
-    const hasConversationTables = await ConversationService.hasConversationTables();
 
     const result = await db.query(
       `
@@ -382,44 +305,19 @@ class PgBookingRepository {
         AND b.service_id = ANY($2::uuid[])
       ORDER BY b.created_at DESC
       `,
-      [String(clientId), normalizedServiceIds]
+      [String(clientId), serviceIds]
     );
 
-    const groupedByService = result.rows.reduce((accumulator, row) => {
-      const key = String(row.service_id);
-      if (!accumulator.has(key)) {
-        accumulator.set(key, []);
-      }
-
-      accumulator.get(key).push(row);
-      return accumulator;
-    }, new Map());
-
-    const viewerStates = new Map();
-
-    groupedByService.forEach((bookings, serviceId) => {
-      const booking = pickRelevantServiceBooking(bookings);
-      const viewerState = buildServiceViewerState(booking);
-
-      if (viewerState) {
-        viewerStates.set(serviceId, viewerState);
-      }
-    });
-
-    return viewerStates;
+    return result.rows;
   }
 
-  // Retourne les demandes reçues par un prestataire sur ses services.
-  static async listForProvider(providerId, { status } = {}) {
-    if (!providerId) {
-      throw new Error("Utilisateur non connecté.");
-    }
-
-    await BookingMaintenanceService.expirePendingBookings();
-
+  // Retourne les demandes recues par un prestataire sur ses services.
+  static async listForProvider(
+    providerId,
+    { status, hasConversationTables = false } = {}
+  ) {
     const values = [providerId];
     let statusSql = "";
-    const hasConversationTables = await ConversationService.hasConversationTables();
 
     if (status) {
       values.push(status);
@@ -462,15 +360,11 @@ class PgBookingRepository {
     return result.rows;
   }
 
-  static async getDetailForProvider({ bookingId, providerId }) {
-    if (!providerId) {
-      throw new Error("Utilisateur non connecté.");
-    }
-
-    await BookingMaintenanceService.expirePendingBookings();
-
-    const hasConversationTables = await ConversationService.hasConversationTables();
-
+  static async getDetailForProvider({
+    bookingId,
+    providerId,
+    hasConversationTables = false,
+  }) {
     const result = await db.query(
       `
       SELECT
@@ -517,98 +411,58 @@ class PgBookingRepository {
       [bookingId, providerId]
     );
 
-    if (!result.rows[0]) {
-      throw new Error("Réservation introuvable.");
-    }
-
-    return result.rows[0];
+    return result.rows[0] || null;
   }
 
-  // Cree une réservation avec le prix recopie depuis le service.
-  static async create({ client_id, service_id, first_name, last_name, city, address, booking_date, booking_time }) {
-    if (!client_id) {
-      throw new Error("Utilisateur non connecté.");
-    }
-    if (!service_id || !booking_date || !booking_time) {
-      throw new Error("Champs manquants pour la réservation.");
-    }
-
-    const slotValidation = validateBookingSlot({
-      bookingDate: booking_date,
-      bookingTime: booking_time,
-    });
-    if (!slotValidation.valid) {
-      throw new Error(slotValidation.message);
-    }
-
+  // Cree une reservation avec le prix recopie depuis le service.
+  static async create({
+    client_id,
+    service_id,
+    first_name,
+    last_name,
+    city,
+    address,
+    booking_date,
+    booking_time,
+    total_price,
+    dbClient = db,
+  }) {
     const hasContactColumns = await this.hasContactColumns();
 
-    // On lit le service pour recuperer le prix officiel en base.
-    const service = await this.assertClientCanBookService({
-      serviceId: service_id,
-      clientId: client_id,
-    });
+    const result = hasContactColumns
+      ? await dbClient.query(
+          `
+          INSERT INTO public.bookings
+          (client_id, service_id, first_name, last_name, city, address, booking_date, booking_time, status, total_price)
+          VALUES ($1, $2, $3, $4, $5, $6, $7, $8, 'pending', $9)
+          RETURNING id_booking::text AS id
+          `,
+          [
+            client_id,
+            service_id,
+            first_name,
+            last_name,
+            city,
+            address,
+            booking_date,
+            booking_time,
+            total_price,
+          ]
+        )
+      : await dbClient.query(
+          `
+          INSERT INTO public.bookings
+          (client_id, service_id, booking_date, booking_time, status, total_price)
+          VALUES ($1, $2, $3, $4, 'pending', $5)
+          RETURNING id_booking::text AS id
+          `,
+          [client_id, service_id, booking_date, booking_time, total_price]
+        );
 
-    const client = await db.connect();
-
-    try {
-      await client.query("BEGIN");
-
-      const result = hasContactColumns
-        ? await client.query(
-            `
-            INSERT INTO public.bookings
-            (client_id, service_id, first_name, last_name, city, address, booking_date, booking_time, status, total_price)
-            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, 'pending', $9)
-            RETURNING id_booking::text AS id
-            `,
-            [client_id, service.id_service, first_name, last_name, city, address, booking_date, booking_time, service.price]
-          )
-        : await client.query(
-            `
-            INSERT INTO public.bookings
-            (client_id, service_id, booking_date, booking_time, status, total_price)
-            VALUES ($1, $2, $3, $4, 'pending', $5)
-            RETURNING id_booking::text AS id
-            `,
-            [client_id, service.id_service, booking_date, booking_time, service.price]
-          );
-
-      const booking = result.rows[0];
-      const conversation = await ConversationService.ensureBookingConversation({
-        bookingId: booking.id,
-        dbClient: client,
-      });
-
-      if (conversation?.id) {
-        await ConversationService.addBookingIntroMessage({
-          conversationId: conversation.id,
-          senderId: client_id,
-          bookingDate: booking_date,
-          bookingTime: booking_time,
-          firstName: first_name,
-          lastName: last_name,
-          address,
-          city,
-          dbClient: client,
-        });
-      }
-
-      await client.query("COMMIT");
-
-      return {
-        ...booking,
-        conversationId: conversation?.id || null,
-      };
-    } catch (error) {
-      await client.query("ROLLBACK");
-      throw error;
-    } finally {
-      client.release();
-    }
+    return result.rows[0] || null;
   }
 
-  // Met a jour les informations principales d'une réservation appartenant au client.
+  // Met a jour les informations principales d'une reservation appartenant au client.
   static async updateByClient({
     bookingId,
     clientId,
@@ -618,37 +472,12 @@ class PgBookingRepository {
     address,
     booking_date,
     booking_time,
+    dbClient = db,
   }) {
-    if (!clientId) {
-      throw new Error("Utilisateur non connecté.");
-    }
-    if (!first_name || !last_name || !city || !address || !booking_date || !booking_time) {
-      throw new Error("Tous les champs du formulaire sont obligatoires.");
-    }
-
-    const slotValidation = validateBookingSlot({
-      bookingDate: booking_date,
-      bookingTime: booking_time,
-    });
-    if (!slotValidation.valid) {
-      throw new Error(slotValidation.message);
-    }
-
-    const booking = await this.getBookingContext(bookingId);
-    if (!booking) {
-      throw new Error("Réservation introuvable.");
-    }
-    if (String(booking.client_id) !== String(clientId)) {
-      throw new Error("Action non autorisée sur cette réservation.");
-    }
-    if (booking.status !== "pending") {
-      throw new Error("Seules les réservations en attente peuvent encore être modifiées.");
-    }
-
     const hasContactColumns = await this.hasContactColumns();
 
     const result = hasContactColumns
-      ? await db.query(
+      ? await dbClient.query(
           `
           UPDATE public.bookings
           SET
@@ -664,7 +493,7 @@ class PgBookingRepository {
           `,
           [first_name, last_name, city, address, booking_date, booking_time, bookingId]
         )
-      : await db.query(
+      : await dbClient.query(
           `
           UPDATE public.bookings
           SET
@@ -677,34 +506,12 @@ class PgBookingRepository {
           [booking_date, booking_time, bookingId]
         );
 
-    if (!result.rows[0]) {
-      throw new Error("Réservation introuvable.");
-    }
-
-    return result.rows[0];
+    return result.rows[0] || null;
   }
 
-  // Annule une réservation tant qu'elle n'est pas encore payée.
-  static async deleteByClient({ bookingId, clientId }) {
-    if (!clientId) {
-      throw new Error("Utilisateur non connecté.");
-    }
-
-    const booking = await this.getBookingContext(bookingId);
-    if (!booking) {
-      throw new Error("Réservation introuvable.");
-    }
-    if (String(booking.client_id) !== String(clientId)) {
-      throw new Error("Vous ne pouvez supprimer que votre réservation.");
-    }
-    if (booking.payment_status === "paid") {
-      throw new Error("Une réservation déjà payée ne peut plus être annulée ici.");
-    }
-    if (!["pending", "confirmed"].includes(booking.status)) {
-      throw new Error("Cette réservation ne peut plus être annulée.");
-    }
-
-    const result = await db.query(
+  // Annule une reservation tant qu'elle n'est pas encore payee.
+  static async deleteByClient({ bookingId, clientId, dbClient = db }) {
+    const result = await dbClient.query(
       `
       UPDATE public.bookings
       SET status = 'cancelled', updated_at = NOW()
@@ -716,47 +523,11 @@ class PgBookingRepository {
       [bookingId, clientId]
     );
 
-    if (!result.rows[0]) {
-      const ownerId = await this.getOwnerIdByBookingId(bookingId);
-      if (!ownerId) {
-        throw new Error("Réservation introuvable.");
-      }
-      throw new Error("Vous ne pouvez annuler que votre réservation.");
-    }
-
-    return result.rows[0];
+    return result.rows[0] || null;
   }
 
-  static async confirmByProvider({ bookingId, providerId }) {
-    if (!providerId) {
-      throw new Error("Utilisateur non connecté.");
-    }
-
-    const booking = await this.getBookingContext(bookingId);
-    if (!booking) {
-      throw new Error("Réservation introuvable.");
-    }
-    if (String(booking.provider_id) !== String(providerId)) {
-      throw new Error("Action non autorisée sur cette réservation.");
-    }
-    if (booking.status === "cancelled" && isBookingSlotExpired({
-      bookingDate: booking.booking_date,
-      bookingTime: booking.booking_time,
-    })) {
-      throw new Error("La date demandee est dépassée. La réservation a été annulée automatiquement.");
-    }
-    if (booking.status !== "pending") {
-      throw new Error("Cette réservation a déjà été traitee.");
-    }
-
-    await this.assertNoPaidConflictForSlot({
-      providerId,
-      bookingDate: booking.booking_date,
-      bookingTime: booking.booking_time,
-      excludeBookingId: bookingId,
-    });
-
-    const result = await db.query(
+  static async confirmByProvider({ bookingId, dbClient = db }) {
+    const result = await dbClient.query(
       `
       UPDATE public.bookings
       SET status = 'confirmed', updated_at = NOW()
@@ -766,32 +537,11 @@ class PgBookingRepository {
       [bookingId]
     );
 
-    return result.rows[0];
+    return result.rows[0] || null;
   }
 
-  static async refuseByProvider({ bookingId, providerId }) {
-    if (!providerId) {
-      throw new Error("Utilisateur non connecté.");
-    }
-
-    const booking = await this.getBookingContext(bookingId);
-    if (!booking) {
-      throw new Error("Réservation introuvable.");
-    }
-    if (String(booking.provider_id) !== String(providerId)) {
-      throw new Error("Action non autorisée sur cette réservation.");
-    }
-    if (booking.status === "cancelled" && isBookingSlotExpired({
-      bookingDate: booking.booking_date,
-      bookingTime: booking.booking_time,
-    })) {
-      throw new Error("La date demandee est dépassée. La réservation a été annulée automatiquement.");
-    }
-    if (booking.status !== "pending") {
-      throw new Error("Cette réservation a déjà été traitee.");
-    }
-
-    const result = await db.query(
+  static async refuseByProvider({ bookingId, dbClient = db }) {
+    const result = await dbClient.query(
       `
       UPDATE public.bookings
       SET status = 'cancelled', updated_at = NOW()
@@ -801,7 +551,7 @@ class PgBookingRepository {
       [bookingId]
     );
 
-    return result.rows[0];
+    return result.rows[0] || null;
   }
 }
 

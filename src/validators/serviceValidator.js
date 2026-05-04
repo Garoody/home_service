@@ -25,9 +25,9 @@ const serviceSchema = z.object({
       .max(150, "Le titre est trop long."),
   // Champ texte obligatoire pour expliquer le service.
   description: z.string().trim().min(5, "La description est obligatoire."),
-  // Prix numerique >= 0.
+  // Prix numérique >= 0.
   price: z.number().min(0, "Le prix doit être positif."),
-  // Informations professionnelles ajoutees au service.
+  // Informations professionnelles ajoutées au service.
   provider_status: z
     .string()
     .trim()
