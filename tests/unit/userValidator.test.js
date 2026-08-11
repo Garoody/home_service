@@ -56,7 +56,7 @@ describe("validateRegisterPayload", () => {
     });
 
     expect(result.success).toBe(false);
-    expect(result.message).toBe("Seuls les chiffres sont autorises pour le telephone.");
+    expect(result.message).toBe("Seuls les chiffres sont autorises pour le téléphone.");
   });
 
   it("rejette un telephone qui ne contient pas exactement 10 chiffres et ne commence pas par 0", () => {
@@ -69,7 +69,7 @@ describe("validateRegisterPayload", () => {
     });
 
     expect(result.success).toBe(false);
-    expect(result.message).toBe("Le telephone doit contenir exactement 10 chiffres et commencer par 0.");
+    expect(result.message).toBe("Le téléphone doit contenir exactement 10 chiffres et commencer par 0.");
   });
 
   it("accepte un telephone francais sur 10 chiffres", () => {
@@ -106,7 +106,7 @@ describe("validateUserProfilePayload", () => {
     });
 
     expect(result.success).toBe(false);
-    expect(result.message).toBe("Seuls les chiffres sont autorises pour le telephone.");
+    expect(result.message).toBe("Seuls les chiffres sont autorises pour le téléphone.");
   });
 
   it("rejette aussi un telephone trop court dans le profil", () => {
@@ -117,6 +117,6 @@ describe("validateUserProfilePayload", () => {
     });
 
     expect(result.success).toBe(false);
-    expect(result.message).toBe("Le telephone doit contenir exactement 10 chiffres et commencer par 0.");
+    expect(result.message).toBe("Le téléphone doit contenir exactement 10 chiffres et commencer par 0.");
   });
 });
