@@ -319,25 +319,32 @@ app.use(errorHandler);
 const PORT = process.env.PORT || 3000;
 
 app.listen(PORT, () => {
-  console.log(`
-╔═══════════════════════════════════════════════════════════╗
-║                                                           ║
-║   🏠 HomeServices - Plateforme de services à domicile      ║
-║                                                           ║
-║   🚀 Serveur lancé avec succès !                           ║
-║   📍 URL: http://localhost:${PORT}                            ║
-║   🌐 Environnement: ${process.env.NODE_ENV || "development"}                            ║
-║   ⏰ Démarré le: ${new Date().toLocaleString("fr-FR")}                       ║
-║                                                           ║
-╚═══════════════════════════════════════════════════════════╝
-  `);
+  const startupLines = [
+    "HomeServices - Plateforme de services a domicile",
+    "",
+    "Serveur lance avec succes",
+    `URL: http://localhost:${PORT}`,
+    `Environnement: ${process.env.NODE_ENV || "development"}`,
+    `Demarre le: ${new Date().toLocaleString("fr-FR")}`,
+  ];
+
+  const contentWidth = Math.max(...startupLines.map((line) => line.length));
+  const border = `+${"-".repeat(contentWidth + 2)}+`;
+  const startupBox = [
+    "",
+    border,
+    ...startupLines.map((line) => `| ${line.padEnd(contentWidth)} |`),
+    border,
+  ].join("\n");
+
+  console.log(startupBox);
 });
 
 // ─────────────────────────────────────────────────────────────
 // ARRÊT PROPRE
 // ─────────────────────────────────────────────────────────────
 process.on("SIGINT", () => {
-  console.log("\n\n👋 Arrêt du serveur HomeServices...");
+  console.log("\n\nArret du serveur HomeServices...");
   process.exit(0);
 });
 

@@ -10,7 +10,7 @@ const { Pool } = pg;
  */
 if (!process.env.DATABASE_URL) {
   const errorMsg =
-    "❌ DATABASE_URL est manquante dans le fichier .env (HomeService)";
+    "[ERROR] DATABASE_URL est manquante dans le fichier .env (HomeService)";
 
   logger.fatal({ error: errorMsg }, "Database configuration error");
   throw new Error(errorMsg);
@@ -37,7 +37,7 @@ export const pool = new Pool({
  * Log quand une connexion est établie
  */
 pool.on("connect", () => {
-  logger.debug("🐘 HomeService - PostgreSQL connected");
+  logger.debug("[DB] HomeService - PostgreSQL connected");
 });
 
 /**
@@ -46,7 +46,7 @@ pool.on("connect", () => {
 pool.on("error", (err) => {
   logger.error(
     { err },
-    "❌ HomeService - Unexpected error on idle database client"
+    "[ERROR] HomeService - Unexpected error on idle database client"
   );
 
   // En production on redémarre proprement
@@ -61,11 +61,11 @@ pool.on("error", (err) => {
 export const testDatabaseConnection = async () => {
   try {
     await pool.query("SELECT 1");
-    logger.info("✅ HomeService - Database connection successful");
+    logger.info("[OK] HomeService - Database connection successful");
   } catch (error) {
     logger.fatal(
       { error: error.message },
-      "❌ HomeService - Database connection failed"
+      "[ERROR] HomeService - Database connection failed"
     );
     process.exit(1);
   }
@@ -78,9 +78,9 @@ pool.query(`
     inet_server_port() AS port
 `)
 .then(res => {
-  console.log("🔎 CONNECTED TO:", res.rows[0]);
+  console.log("[DB] CONNECTED TO:", res.rows[0]);
 })
 .catch(err => {
-  console.error("❌ DB ERROR:", err.message);
+  console.error("[DB ERROR]", err.message);
 });
 export default pool;

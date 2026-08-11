@@ -21,3 +21,6 @@ FROM
     JOIN categories c ON c.id_category = s.category_id
     LEFT JOIN payments p ON p.booking_id = b.id_booking
     LEFT JOIN reviews r ON r.booking_id = b.id_booking;
+
+
+    

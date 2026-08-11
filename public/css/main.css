@@ -2284,12 +2284,10 @@ strong {
     grid-template-columns: 1.3fr 1fr 1fr;
     gap: 2rem;
 }
-
 .service-footer__brand {
     display: grid;
     gap: 1rem;
 }
-
 .service-footer__logo {
     display: inline-flex;
     align-items: center;

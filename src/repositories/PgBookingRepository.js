@@ -99,7 +99,6 @@ class PgBookingRepository {
       `,
       [bookingId]
     );
-
     return result.rows[0] || null;
   }
 

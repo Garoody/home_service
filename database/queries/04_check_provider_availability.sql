@@ -9,3 +9,4 @@ GROUP BY
     u.id_user,
     u.full_name
 ORDER BY total_bookings ASC;
+

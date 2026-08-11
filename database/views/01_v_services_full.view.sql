@@ -19,3 +19,4 @@ FROM
     services s
     JOIN categories c ON c.id_category = s.category_id
     JOIN users p ON p.id_user = s.provider_id;
+    
