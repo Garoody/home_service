@@ -1,6 +1,6 @@
 "use strict";
 
-import { describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { setupUnitTestEnvironment } from "../bootstrap.js";
 
 const authenticateMock = vi.fn();
@@ -17,6 +17,10 @@ const { default: AuthController } = await import("../../src/controllers/auth/Aut
 
 setupUnitTestEnvironment();
 
+afterEach(() => {
+  vi.unstubAllEnvs();
+});
+
 function createResponse() {
   const res = {
     locals: { csrfToken: "csrf-token" },
@@ -28,6 +32,38 @@ function createResponse() {
   res.status.mockReturnValue(res);
   return res;
 }
+
+describe("AuthController.showLogin", () => {
+  it("indique à la vue quand la connexion Google est configurée", () => {
+    vi.stubEnv("GOOGLE_CLIENT_ID", "test-client-id");
+    vi.stubEnv("GOOGLE_CLIENT_SECRET", "test-client-secret");
+    const res = createResponse();
+
+    AuthController.showLogin({}, res);
+
+    expect(res.render).toHaveBeenCalledWith(
+      "pages/auth/login",
+      expect.objectContaining({
+        title: "Connexion - HomeService",
+        csrfToken: "csrf-token",
+        googleAuthAvailable: true,
+      })
+    );
+  });
+
+  it("indique à la vue quand la connexion Google n'est pas configurée", () => {
+    vi.stubEnv("GOOGLE_CLIENT_ID", "");
+    vi.stubEnv("GOOGLE_CLIENT_SECRET", "");
+    const res = createResponse();
+
+    AuthController.showLogin({}, res);
+
+    expect(res.render).toHaveBeenCalledWith(
+      "pages/auth/login",
+      expect.objectContaining({ googleAuthAvailable: false })
+    );
+  });
+});
 
 describe("AuthController.register", () => {
   it("re-affiche le formulaire si une contrainte email remonte de PostgreSQL", async () => {

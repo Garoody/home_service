@@ -2,6 +2,7 @@
 
 import authService from "../../services/AuthService.js";
 import UserDTO from "../../dto/UserDTO.js";
+import { isGoogleOAuthEnabled } from "../../config/passport.js";
 import {
   validateLoginPayload,
   validateRegisterPayload,
@@ -20,6 +21,7 @@ function renderLogin(res, { csrfToken, error = null, email = "" } = {}) {
     csrfToken: csrfToken ?? null,
     error,
     formData: { email },
+    googleAuthAvailable: isGoogleOAuthEnabled(),
   });
 }
 

@@ -24,6 +24,13 @@ import authService from "../services/AuthService.js";
 // identiques et provoquer des comportements difficiles a deboguer.
 let isConfigured = false;
 
+export function isGoogleOAuthEnabled() {
+  return Boolean(
+    String(process.env.GOOGLE_CLIENT_ID || "").trim() &&
+      String(process.env.GOOGLE_CLIENT_SECRET || "").trim()
+  );
+}
+
 export function configurePassport() {
   // Si la config a déjà été faite, on renvoie simplement l'instance existante.
   // Cela permet d'appeler configurePassport() au demarrage sans risque.
@@ -38,7 +45,7 @@ export function configurePassport() {
   // Si la configuration est incomplete, on laisse Passport disponible
   // mais sans activer Google OAuth. L'application continue donc de tourner
   // sans planter, simplement avec la connexion Google desactivee.
-  if (!clientID || !clientSecret) {
+  if (!isGoogleOAuthEnabled()) {
     return passport;
   }
 
@@ -48,6 +55,8 @@ export function configurePassport() {
         clientID,
         clientSecret,
         callbackURL,
+        // Protège le retour OAuth en vérifiant un état conservé en session.
+        state: true,
       },
       async (_accessToken, _refreshToken, profile, done) => {
         try {

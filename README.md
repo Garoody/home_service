@@ -150,6 +150,18 @@ Une intégration continue GitHub Actions exécute `npm ci` puis `npm test` à ch
 
 Ne publiez jamais les valeurs de `.env`, notamment les secrets de session, les secrets CSRF, mots de passe PostgreSQL ou identifiants OAuth.
 
+### Connexion avec Google (facultative)
+
+Pour activer le bouton « Continuer avec Google », créez un identifiant OAuth 2.0 de type **Application Web** dans la console Google, puis ajoutez ces valeurs uniquement dans votre fichier local `.env` :
+
+```env
+GOOGLE_CLIENT_ID=votre_client_id
+GOOGLE_CLIENT_SECRET=votre_client_secret
+GOOGLE_CALLBACK_URL=http://localhost:3000/auth/google/callback
+```
+
+Ajoutez également `http://localhost:3000/auth/google/callback` aux URI de redirection autorisés dans Google. Sans ces identifiants, le bouton reste volontairement désactivé.
+
 ## Documentation
 
 Les documents techniques disponibles dans [`docs/`](docs) détaillent les principaux choix du projet :

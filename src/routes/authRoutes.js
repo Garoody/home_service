@@ -2,7 +2,7 @@
 
 import { Router } from "express";
 import AuthController from "../controllers/auth/AuthController.js";
-import { passport } from "../config/passport.js";
+import { isGoogleOAuthEnabled, passport } from "../config/passport.js";
 import { authLimiter } from "../config/security.js";
 import { requireGuest } from "../middlewares/authMiddleware.js";
 
@@ -10,7 +10,7 @@ const router = Router();
 
 // Bloque les routes Google si les credentials ne sont pas definis.
 const requireGoogleOAuthConfig = (req, res, next) => {
-  if (!process.env.GOOGLE_CLIENT_ID || !process.env.GOOGLE_CLIENT_SECRET) {
+  if (!isGoogleOAuthEnabled()) {
     req.flash?.("error", "Connexion Google indisponible : configuration manquante.");
     return res.redirect("/auth/login");
   }
@@ -27,7 +27,10 @@ router.post("/login", authLimiter, requireGuest, AuthController.login);
 router.get(
   "/google",
   requireGoogleOAuthConfig,
-  passport.authenticate("google", { scope: ["profile", "email"], session: false })
+  passport.authenticate("google", {
+    scope: ["profile", "email"],
+    session: false,
+  })
 );
 
 // Callback Google: Passport valide puis on termine la session dans le controller.
