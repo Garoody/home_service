@@ -1,152 +1,167 @@
-🏠 HomeServices — Plateforme de Services à Domicile
+# HomeServices
 
-HomeServices est une application web permettant de mettre en relation des clients et des prestataires de services à domicile (ménage, plomberie, jardinage, réparation, etc.).
+[![CI](https://github.com/Garoody/home_service/actions/workflows/ci.yml/badge.svg)](https://github.com/Garoody/home_service/actions/workflows/ci.yml)
+[![Licence MIT](https://img.shields.io/badge/licence-MIT-green.svg)](LICENSE)
 
-[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-18+-336791?logo=postgresql&logoColor=white)](https://www.postgresql.org/)
-[![Node.js](https://img.shields.io/badge/Node.js-24+-339933?logo=node.js&logoColor=white)](https://nodejs.org/)
-[![Express.js](https://img.shields.io/badge/Express.js-5.x-000000?logo=express&logoColor=white)](https://expressjs.com/)
-[![License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+Application web de mise en relation entre des clients et des prestataires de services à domicile. Le projet couvre le parcours de réservation, du catalogue de services jusqu’au paiement simulé et à l’avis client.
 
-## 📋 Table des matières
+> Projet réalisé dans le cadre de la formation AFPA. L’application est conçue pour être exécutée localement ; aucune démonstration publique n’est déclarée dans ce dépôt.
 
-🎯 [Objectif du projet](#-objectif-du-projet)
-🛠 [Stack Technique] (#-stack-technique)
-📁 [Architecture du projet] (#-architecture-du-projet)
-🚀 Installation & Démarrage (#-installation--démarrage)
-📚 Documentation (#-documentation)
-📊 Modèle de données (#-exercices-pratiques)
-🧪 Scripts utilitaires (#-scripts-utilitaires)
-📝 Licence (#-license)
+## Sommaire
 
-## 🎯 Objectif du projet
+- [Fonctionnalités](#fonctionnalités)
+- [Stack technique](#stack-technique)
+- [Architecture](#architecture)
+- [Démarrage local](#démarrage-local)
+- [Commandes utiles](#commandes-utiles)
+- [Tests et intégration continue](#tests-et-intégration-continue)
+- [Sécurité et configuration](#sécurité-et-configuration)
+- [Documentation](#documentation)
+- [Licence](#licence)
 
-HomeServices permet :
+## Fonctionnalités
 
-👤 Aux clients de rechercher et réserver des services à domicile.
+- Création de comptes et authentification des utilisateurs.
+- Gestion de rôles client, prestataire et administrateur.
+- Consultation, recherche et publication de services par catégorie.
+- Création et suivi de réservations, avec confirmation ou refus côté prestataire.
+- Paiement simulé, historique de paiements et moyens de paiement enregistrés.
+- Dépôt d’avis, réponses des prestataires et gestion de conversations liées aux réservations.
+- Tableau de bord d’administration : modération des utilisateurs, services, avis et signalements.
 
-🛠 Aux prestataires de proposer leurs services.
+## Stack technique
 
-⭐ Aux utilisateurs de laisser des avis et évaluations.
+- **Backend :** Node.js (Node 22 est utilisé par l’intégration continue), Express 4 et JavaScript ES Modules.
+- **Rendu serveur :** EJS avec `express-ejs-layouts`.
+- **Base de données :** PostgreSQL et SQL versionné (migrations, vues, triggers et jeux de données).
+- **Validation :** Zod.
+- **Authentification et sessions :** bcrypt, `express-session`, stockage PostgreSQL et Passport (OAuth Google facultatif).
+- **Sécurité et observabilité :** Helmet, CORS, protection CSRF, limitation de débit et Pino.
+- **Tests :** Vitest.
 
-💳 De simuler un système de paiement.
+## Architecture
 
-📊 À l’administrateur de gérer la plateforme.
+Le projet applique une séparation MVC complétée par une couche de services et un *repository pattern* : les contrôleurs orchestrent les requêtes HTTP, les services portent les règles métier et les repositories centralisent l’accès SQL.
 
-L’objectif est de développer une architecture professionnelle backend + base de données optimisée.
+```text
+home_service/
+├── database/               # Migrations, seeders, requêtes, triggers et vues SQL
+├── docs/                   # Documentation technique du projet
+├── public/                 # Ressources statiques (CSS, JavaScript, images)
+├── scripts/                # Scripts d'initialisation et d'administration PostgreSQL
+├── src/
+│   ├── config/             # Base de données, sécurité, sessions, journalisation
+│   ├── controllers/        # Gestion des requêtes et réponses HTTP
+│   ├── dto/                # Objets de transfert de données
+│   ├── entities/           # Représentation des entités métier
+│   ├── middlewares/        # Authentification, autorisations, erreurs, CSRF
+│   ├── repositories/       # Accès aux données PostgreSQL
+│   ├── routes/             # Définition des routes Express
+│   ├── services/           # Règles métier
+│   ├── validators/         # Schémas de validation Zod
+│   └── views/              # Vues et layouts EJS
+└── tests/                  # Tests unitaires Vitest
+```
 
-🛠 Stack Technique
+## Démarrage local
 
-Backend : Node.js (ES Modules) / Express.js 5.x
+### Prérequis
 
-Frontend : EJS (Server-Side Rendering)
+- Node.js 22 recommandé (et npm).
+- PostgreSQL, avec les commandes `psql` et `createdb` accessibles dans le `PATH`.
+- Un compte PostgreSQL autorisé à créer la base et le rôle applicatif lors de l’initialisation.
+- Sous Windows, Git Bash ou WSL pour exécuter les scripts `.sh`.
 
-Base de données : PostgreSQL
+### 1. Installer les dépendances et préparer l’environnement
 
-Validation : Zod
-
-Sécurité : UUID v7, Argon2/Bcrypt, rôles applicatifs SQL
-
-Architecture : MVC + Repository Pattern + Service Layer
-
-## 📁 Architecture du projet
-
-homeservices/
-│
-├─ 📦 database/ # Intelligence SQL
-│ ├─ migrations/ # Création tables, types, extensions
-│ ├─ seeders/ # Données de test
-│ ├─ queries/ # Requêtes SQL métiers
-│ ├─ triggers/ # Trigger updated_at
-│ └─ views/ # Vues SQL (jointures complexes)
-│
-├─ 📚 docs/ # Documentation technique
-│ ├─ backend/
-│ ├─ database/
-│ ├─ frontend/
-│ └─ architecture.md
-│
-├─ 🔧 scripts/ # Automatisation DB
-│ ├─ init_db.sh
-│ ├─ reset_db.sh
-│ └─ seed_db.sh
-│
-├─ 💻 src/
-│ ├─ config/ # Connexion DB, sécurité
-│ ├─ entities/ # Représentation tables
-│ ├─ dto/ # Objets sécurisés pour vues/API
-│ ├─ repositories/ # Requêtes SQL pures
-│ ├─ services/ # Logique métier
-│ ├─ controllers/ # Gestion req/res
-│ ├─ middlewares/ # Auth, validation, erreurs
-│ ├─ routes/ # Définition routes Express
-│ ├─ validators/ # Schémas Zod
-│ └─ views/ # Templates EJS
-│
-└─ 🎨 public/ # CSS / JS / Images
-🚀 Installation & Démarrage
-1️⃣ Configuration de l’environnement
-cp .env.example .env
-
-# Modifier les variables PostgreSQL
-
-2️⃣ Initialisation de la base de données
-chmod +x scripts/\*.sh
-npm run db:init
-3️⃣ Lancer l’application
+```bash
+git clone https://github.com/Garoody/home_service.git
+cd home_service
 npm install
+cp .env.example .env
+```
+
+Dans PowerShell, la copie du fichier d’environnement peut aussi se faire ainsi :
+
+```powershell
+Copy-Item .env.example .env
+```
+
+Renseignez ensuite les valeurs locales dans `.env`, en particulier `DATABASE_URL`, les paramètres PostgreSQL, `SESSION_SECRET` et `CSRF_SECRET`. Le fichier modèle ne contient volontairement aucune valeur sensible.
+
+### 2. Initialiser la base de données
+
+Pour une première installation, exécutez le script d’initialisation depuis Git Bash ou WSL :
+
+```bash
+sh scripts/init_db.sh
+```
+
+Il crée la base si nécessaire, configure les rôles, extensions, types, triggers, tables, permissions et vues SQL. Il propose également d’insérer les données de démonstration.
+
+> Exécutez ce script sur une base de développement vierge. Pour repartir d’une base existante, utilisez plutôt `sh scripts/reset_db.sh` après avoir lu la confirmation demandée.
+
+### 3. Lancer l’application
+
+```bash
 npm run dev
+```
 
-Le serveur démarre sur :
+L’application est disponible sur `http://localhost:3000` par défaut. Le port peut être modifié avec la variable `PORT` dans `.env`.
 
-http://localhost:3000
-📚 Documentation
+## Commandes utiles
 
-Consulte le dossier docs/ pour :
+| Commande | Usage |
+| --- | --- |
+| `npm run dev` | Lance l’application en mode surveillance avec le fichier `.env`. |
+| `npm start` | Lance l’application avec `src/app.js`. |
+| `npm test` | Exécute l’ensemble des tests Vitest. |
+| `npm run test:unit` | Exécute uniquement les tests unitaires. |
+| `npm run test:watch` | Lance Vitest en mode surveillance. |
+| `sh scripts/init_db.sh` | Initialise une base PostgreSQL complète en local. |
+| `sh scripts/reset_db.sh` | Réinitialise de façon interactive les objets de la base, puis propose une réinitialisation. |
+| `sh scripts/nuke_db.sh` | Supprime intégralement la base et le rôle applicatif après double confirmation. À réserver au développement local. |
+| `npm run db:up` | Exécute la chaîne de migrations déclarée dans `package.json`. Pour une première installation, préférez `scripts/init_db.sh`, qui configure aussi les rôles, permissions, vues et données de démonstration facultatives. |
 
-Domaine Document
-Architecture MVC architecture.md
-Base de données database-guide.md
-Validation 03-validation-zod.md
-Gestion erreurs 02-error-handling.md
-📊 Modèle de données
-Tables principales
+## Tests et intégration continue
 
-users → Clients / Prestataires / Admin
+La suite de tests unitaires couvre notamment l’authentification, les contrôleurs, les services et la validation des données.
 
-catégories → Types de services
+```bash
+npm test
+```
 
-services → Services proposés
+Une intégration continue GitHub Actions exécute `npm ci` puis `npm test` à chaque push et à chaque *pull request*.
 
-bookings → Réservations
+## Sécurité et configuration
 
-payments → Paiements liés aux réservations
+- `.env` et les variantes `.env.*` sont ignorés par Git ; seul `.env.example` est versionné comme modèle.
+- Les mots de passe sont hachés avec bcrypt.
+- Les sessions sont stockées dans PostgreSQL.
+- Les formulaires sont protégés contre les attaques CSRF.
+- Helmet, CORS et la limitation de débit sont configurés au niveau de l’application.
+- Les entrées métier sont validées avec Zod avant traitement.
 
-reviews → Avis clients
+Ne publiez jamais les valeurs de `.env`, notamment les secrets de session, les secrets CSRF, mots de passe PostgreSQL ou identifiants OAuth.
 
-Relations clés
+## Documentation
 
-Un prestataire peut avoir plusieurs services
+Les documents techniques disponibles dans [`docs/`](docs) détaillent les principaux choix du projet :
 
-Un client peut faire plusieurs réservations
+| Sujet | Document |
+| --- | --- |
+| Architecture MVC et POO | [Guide MVC](docs/logic/02-architecture-mvc.md) |
+| Routage et contrôleurs | [Logique de routage](docs/logic/03-routing-logic.md) |
+| Connexion PostgreSQL | [Connexion à la base](docs/backend/01-database-connection.md) |
+| Validation des données | [Validation avec Zod](docs/backend/03-validation-zod.md) |
+| Gestion des erreurs | [Gestion des erreurs](docs/backend/02-error-handling.md) |
+| Rendu EJS et ressources statiques | [Architecture frontend](docs/frontend/01-views-and-layout.md) |
+| SQL et bonnes pratiques | [Guide SQL](docs/database/01-guide-sql.md) |
 
-Une réservation peut avoir :
+## Licence
 
-1 paiement
+Ce projet est distribué sous licence [MIT](LICENSE).
 
-1 avis
+---
 
-🧪 Scripts utilitaires
-Script Action
-npm run db:init Initialise la base complète
-npm run db:reset Réinitialise proprement
-npm run db:seed Injecte données test
-📝 Licence
-
-Projet sous licence MIT.
-
-<div align="center">
-
-Développé dans le cadre de la formation AFPA
-Dernière mise à jour : 24/02/2026
-
-</div> ```
+Développé dans le cadre de la formation AFPA.

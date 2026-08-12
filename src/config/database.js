@@ -78,9 +78,9 @@ pool.query(`
     inet_server_port() AS port
 `)
 .then(res => {
-  console.log("[DB] CONNECTED TO:", res.rows[0]);
+  logger.debug({ database: res.rows[0].db }, "[DB] Connection details verified");
 })
 .catch(err => {
-  console.error("[DB ERROR]", err.message);
+  logger.error({ err }, "[DB] Connection details query failed");
 });
 export default pool;

@@ -1,8 +1,17 @@
 {
   "name": "homeservices",
   "version": "1.0.0",
-  "description": "Plateforme de reservation de services a domicile (AFPA)",
-  "main": "src/index.js",
+  "description": "Plateforme de réservation de services à domicile développée dans le cadre de la formation AFPA.",
+  "main": "src/app.js",
+  "license": "MIT",
+  "author": "Garoody",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Garoody/home_service.git"
+  },
+  "engines": {
+    "node": ">=22"
+  },
   "type": "module",
   "scripts": {
     "db:drop:tables": "node scripts/run-sql.js database/migrations/drop/01_drop_all_tables.sql",
