@@ -14,8 +14,10 @@ class UserService {
     return PgUserRepository.findByEmail(email);
   }
 
-  async create({ full_name, email, password_hash, phone, role, gdpr_consent }) {
+  async create({ first_name, last_name, full_name, email, password_hash, phone, role, gdpr_consent }) {
     return PgUserRepository.create({
+      first_name,
+      last_name,
       full_name,
       email,
       password_hash,

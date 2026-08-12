@@ -40,6 +40,8 @@ class AuthService {
     }
     const password_hash = await bcrypt.hash(registerDto.password, 10);
     const createdUser = await PgUserRepository.create({
+      first_name: registerDto.first_name,
+      last_name: registerDto.last_name,
       full_name: registerDto.full_name,
       email: registerDto.email,
       password_hash,
@@ -67,15 +69,27 @@ class AuthService {
       return { success: true, user: existingUser };
     }
 
-    const fullName =
-      profile?.displayName ||
-      `${profile?.name?.givenName || "Utilisateur"} ${profile?.name?.familyName || "Google"}`.trim();
+    const displayNameParts = String(profile?.displayName || "")
+      .trim()
+      .split(/\s+/)
+      .filter(Boolean);
+    const first_name =
+      String(profile?.name?.givenName || "").trim() ||
+      displayNameParts.shift() ||
+      "Utilisateur";
+    const last_name =
+      String(profile?.name?.familyName || "").trim() ||
+      displayNameParts.join(" ") ||
+      "Google";
+    const full_name = `${first_name} ${last_name}`;
 
     // Le schema actuel impose un password_hash, même pour un compte OAuth.
     const password_hash = await bcrypt.hash(randomBytes(32).toString("hex"), 10);
 
     const createdUser = await PgUserRepository.create({
-      full_name: fullName,
+      first_name,
+      last_name,
+      full_name,
       email,
       password_hash,
       phone: null,

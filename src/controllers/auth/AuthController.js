@@ -36,7 +36,8 @@ function renderRegister(
       csrfToken: csrfToken ?? null,
       error,
       formData: {
-        full_name: formData.full_name || "",
+        first_name: formData.first_name || "",
+        last_name: formData.last_name || "",
         phone: formData.phone || "",
         email: formData.email || "",
         gdpr_consent: !!formData.gdpr_consent,
@@ -121,7 +122,8 @@ class AuthController {
   // scénario de création de compte :
   async register(req, res) {
     const rawFormData = {
-      full_name: req.body?.full_name || "",
+      first_name: req.body?.first_name || "",
+      last_name: req.body?.last_name || "",
       phone: req.body?.phone || "",
       email: req.body?.email || "",
       gdpr_consent:

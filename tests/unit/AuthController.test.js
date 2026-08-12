@@ -38,7 +38,8 @@ describe("AuthController.register", () => {
 
     const req = {
       body: {
-        full_name: "Utilisateur Test",
+        first_name: "Utilisateur",
+        last_name: "Test",
         phone: "0123456789",
         email: "user@example.com",
         password: "motdepasse123",
@@ -59,7 +60,8 @@ describe("AuthController.register", () => {
         csrfToken: "csrf-token",
         error: "Email invalide.",
         formData: expect.objectContaining({
-          full_name: "Utilisateur Test",
+          first_name: "Utilisateur",
+          last_name: "Test",
           phone: "0123456789",
           email: "user@example.com",
           gdpr_consent: true,

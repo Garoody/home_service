@@ -86,3 +86,35 @@ describe("AuthService.authenticate", () => {
     });
   });
 });
+
+describe("AuthService.register", () => {
+  it("enregistre le prénom, le nom et le nom complet de compatibilité", async () => {
+    const createdUser = { id: "user-id" };
+    findByEmailMock.mockResolvedValueOnce(null);
+    hashMock.mockResolvedValueOnce("password-hash");
+    createMock.mockResolvedValueOnce(createdUser);
+
+    const result = await AuthService.register({
+      first_name: "Alice",
+      last_name: "Martin",
+      full_name: "Alice Martin",
+      email: "alice@example.com",
+      password: "motdepasse123",
+      phone: "0612345678",
+      role: "client",
+      gdpr_consent: true,
+    });
+
+    expect(createMock).toHaveBeenCalledWith({
+      first_name: "Alice",
+      last_name: "Martin",
+      full_name: "Alice Martin",
+      email: "alice@example.com",
+      password_hash: "password-hash",
+      phone: "0612345678",
+      role: "client",
+      gdpr_consent: true,
+    });
+    expect(result).toEqual({ success: true, user: createdUser });
+  });
+});

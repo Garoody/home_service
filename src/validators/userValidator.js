@@ -44,12 +44,16 @@ const loginSchema = z.object({
   password: z.string().min(1, "Le mot de passe est obligatoire."),
 });
 
-const registerSchema = z.object({
-  full_name: z
+const personNameSchema = (label) =>
+  z
     .string()
     .trim()
-    .min(2, "Le nom complet est obligatoire.")
-    .max(150, "Le nom complet est trop long."),
+    .min(2, `Le ${label} est obligatoire.`)
+    .max(75, `Le ${label} est trop long.`);
+
+const registerSchema = z.object({
+  first_name: personNameSchema("prénom"),
+  last_name: personNameSchema("nom"),
   phone: phoneSchema.optional(),
   email: unicodeEmailSchema,
   password: z
@@ -81,11 +85,8 @@ const serviceProfileSchema = z.object({
 });
 
 const userProfileSchema = z.object({
-  full_name: z
-    .string()
-    .trim()
-    .min(2, "Le nom complet est obligatoire.")
-    .max(150, "Le nom complet est trop long."),
+  first_name: personNameSchema("prénom"),
+  last_name: personNameSchema("nom"),
   phone: phoneSchema.optional(),
   address: z.string().trim().max(255, "L'adresse est trop longue.").optional(),
 });
@@ -109,7 +110,8 @@ export function validateLoginPayload(payload = {}) {
 
 export function validateRegisterPayload(payload = {}) {
   const normalized = {
-    full_name: payload.full_name,
+    first_name: String(payload.first_name || ""),
+    last_name: String(payload.last_name || ""),
     phone: payload.phone,
     email: payload.email,
     password: payload.password,
@@ -188,7 +190,8 @@ export function validateServiceProfilePayload(payload = {}) {
 
 export function validateUserProfilePayload(payload = {}) {
   const normalized = {
-    full_name: payload.full_name,
+    first_name: String(payload.first_name || ""),
+    last_name: String(payload.last_name || ""),
     phone: payload.phone || "",
     address: payload.address || "",
   };

@@ -6,7 +6,17 @@ class User {
   constructor(data = {}) {
     // Mapping SQL (snake_case) vers JS (camelCase)
     this.id = data.id_user || data.id || null;
-    this.fullName = data.full_name || data.name || "";
+    const legacyNameParts = String(data.full_name || data.name || "")
+      .trim()
+      .split(/\s+/)
+      .filter(Boolean);
+    this.firstName = data.first_name || legacyNameParts.shift() || "";
+    this.lastName = data.last_name || legacyNameParts.join(" ");
+    this.fullName =
+      data.full_name ||
+      [this.firstName, this.lastName].filter(Boolean).join(" ") ||
+      data.name ||
+      "";
     this.email = data.email || "";
     this.role = data.role || data.role_name || "client";
     this.passwordHash = data.password_hash || data.password || null;
@@ -74,6 +84,8 @@ class User {
   toJSON() {
     return {
       id: this.id,
+      firstName: this.firstName,
+      lastName: this.lastName,
       fullName: this.fullName,
       email: this.email,
       role: this.role,

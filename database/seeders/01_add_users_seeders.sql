@@ -7,6 +7,8 @@ SET CLIENT_ENCODING TO 'UTF8';
 INSERT INTO
     users (
         id_user,
+        first_name,
+        last_name,
         full_name,
         email,
         password_hash,
@@ -19,6 +21,8 @@ INSERT INTO
     )
 VALUES (
         '018d5c8e-1000-7001-9001-000000000001',
+        'Admin',
+        'HomeServices',
         'Admin HomeServices',
         'admin@homeservices.local',
         crypt ('Admin123!', gen_salt ('bf')),
@@ -32,6 +36,8 @@ VALUES (
    
     (
         '018d5c8e-1000-7001-9001-000000000002',
+        'Client',
+        'Test',
         'Client Test',
         'client@homeservices.local',
         crypt ('Client123!', gen_salt ('bf')),
@@ -45,6 +51,8 @@ VALUES (
     (
         '018d5c8e-1000-7001-9001-000000000003',
         'Sagine',
+        'Demo',
+        'Sagine Demo',
         'provider@homeservices.local',
         crypt (
             'Provider123!',
@@ -60,6 +68,8 @@ VALUES (
     (
         '018d5c8e-1000-7001-9001-000000000004',
         'Lauryne',
+        'Demo',
+        'Lauryne Demo',
         'lauryne@homeservices.local',
         crypt (
             'Provider123!',
@@ -75,6 +85,8 @@ VALUES (
     (
         '018d5c8e-1000-7001-9001-000000000005',
         'Nath',
+        'Demo',
+        'Nath Demo',
         'narth@homeservices.local',
         crypt (
             'Provider123!',
@@ -90,6 +102,8 @@ VALUES (
     (
         '018d5c8e-1000-7001-9001-000000000006',
         'Camille',
+        'Demo',
+        'Camille Demo',
         'camille@homeservices.local',
         crypt (
             'Provider123!',
@@ -105,6 +119,8 @@ VALUES (
 ON CONFLICT (email) DO
 UPDATE
 SET
+    first_name = EXCLUDED.first_name,
+    last_name = EXCLUDED.last_name,
     full_name = EXCLUDED.full_name,
     password_hash = EXCLUDED.password_hash,
     phone = EXCLUDED.phone,

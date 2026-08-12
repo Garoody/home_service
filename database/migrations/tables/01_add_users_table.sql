@@ -7,6 +7,8 @@ SET CLIENT_ENCODING TO 'UTF8';
 
 CREATE TABLE IF NOT EXISTS users (
     id_user uuid DEFAULT uuidv7 () PRIMARY KEY,
+    first_name varchar(75) NOT NULL,
+    last_name varchar(75) NOT NULL,
     full_name varchar(150) NOT NULL,
     email citext NOT NULL UNIQUE,
     password_hash varchar(255) NOT NULL,

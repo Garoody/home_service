@@ -41,6 +41,8 @@ $$ LANGUAGE plpgsql;
 -- 3) Table users
 CREATE TABLE IF NOT EXISTS users (
   id                BIGSERIAL PRIMARY KEY,
+  first_name        VARCHAR(75) NOT NULL,
+  last_name         VARCHAR(75) NOT NULL,
   full_name         VARCHAR(150) NOT NULL,
   email             VARCHAR(150) NOT NULL UNIQUE,
   password_hash     VARCHAR(255) NOT NULL,

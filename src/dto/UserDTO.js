@@ -11,6 +11,8 @@
  * @typedef {Object} UserEntityLike
  * @property {string} id
  * @property {string} [email]
+ * @property {string} [first_name]
+ * @property {string} [last_name]
  * @property {string} [full_name]
  * @property {string} [pseudo]
  * @property {string} [role]
@@ -35,11 +37,17 @@ export function toLoginDTO(payload = {}) {
 /**
  * DTO pour register (utilise par AuthController).
  * @param {Object} payload
- * @returns {{ full_name: string, phone: string|null, email: string, password: string, role: string, gdpr_consent: boolean }}
+ * @returns {{ first_name: string, last_name: string, full_name: string, phone: string|null, email: string, password: string, role: string, gdpr_consent: boolean }}
  */
 export function toRegisterDTO(payload = {}) {
+  const first_name = String(payload.first_name || "").trim();
+  const last_name = String(payload.last_name || "").trim();
+
   return {
-    full_name: String(payload.full_name || "").trim(),
+    first_name,
+    last_name,
+    // full_name reste disponible pour les affichages et requetes existants.
+    full_name: `${first_name} ${last_name}`.trim(),
     phone: String(payload.phone || "").trim() || null,
     email: String(payload.email || "").trim().toLowerCase(),
     password: String(payload.password || ""),
@@ -53,11 +61,13 @@ export function toRegisterDTO(payload = {}) {
 /**
  * Retour complet pour page profil.
  * @param {UserEntityLike} user
- * @returns {{ id: string, email: string|null, pseudo: string, role: string, preferences: Object, gdprConsent: boolean, createdAt: string|null }}
+ * @returns {{ id: string, firstName: string, lastName: string, email: string|null, pseudo: string, role: string, preferences: Object, gdprConsent: boolean, createdAt: string|null }}
  */
 export function profileDTO(user) {
   return {
     id: user.id,
+    firstName: user.first_name || user.firstName || "",
+    lastName: user.last_name || user.lastName || "",
     email: user.email ?? null,
     pseudo: user.pseudo || user.full_name || user.fullName || "",
     role: user.role_name || user.role || "client",

@@ -272,25 +272,38 @@
               </div>
               <div class="profile-form-grid">
                 <div>
-                  <label class="profile-form-label" for="full_name">Nom complet</label>
+                  <label class="profile-form-label" for="first_name">Prénom</label>
                   <input
-                    id="full_name"
-                    name="full_name"
+                    id="first_name"
+                    name="first_name"
                     type="text"
-                    value="<%= user?.fullName || '' %>"
+                    value="<%= user?.firstName || '' %>"
                     required
+                    autocomplete="given-name"
                   >
                 </div>
 
                 <div>
-                  <label class="profile-form-label" for="phone">Téléphone</label>
+                  <label class="profile-form-label" for="last_name">Nom</label>
                   <input
-                    id="phone"
-                    name="phone"
+                    id="last_name"
+                    name="last_name"
                     type="text"
-                    value="<%= user?.phone || '' %>"
+                    value="<%= user?.lastName || '' %>"
+                    required
+                    autocomplete="family-name"
                   >
                 </div>
+              </div>
+
+              <div>
+                <label class="profile-form-label" for="phone">Téléphone</label>
+                <input
+                  id="phone"
+                  name="phone"
+                  type="text"
+                  value="<%= user?.phone || '' %>"
+                >
               </div>
 
               <div>

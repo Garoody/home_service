@@ -103,6 +103,8 @@ class UserRepository {
     const query = /*sql*/`
       SELECT
         id_user,
+        first_name,
+        last_name,
         full_name,
         email,
         password_hash,
@@ -144,6 +146,8 @@ class UserRepository {
     const query = /*sql*/`
       SELECT
         id_user,
+        first_name,
+        last_name,
         full_name,
         email,
         password_hash,
@@ -178,11 +182,22 @@ class UserRepository {
     return User.fromDatabase(rows[0]);
   }
 
-  static async create({ full_name, email, password_hash, phone, role, gdpr_consent }) {
+  static async create({
+    first_name,
+    last_name,
+    full_name,
+    email,
+    password_hash,
+    phone,
+    role,
+    gdpr_consent,
+  }) {
     const hasProfilePhotoColumn = await this.hasProfilePhotoColumn();
     const hasModerationColumns = await this.hasModerationColumns();
     const query = /*sql*/`
       INSERT INTO public.users (
+        first_name,
+        last_name,
         full_name,
         email,
         password_hash,
@@ -191,9 +206,11 @@ class UserRepository {
         gdpr_consent,
         gdpr_consent_date
       )
-      VALUES ($1, $2, $3, $4, $5, $6, NOW())
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, NOW())
       RETURNING
         id_user,
+        first_name,
+        last_name,
         full_name,
         email,
         password_hash,
@@ -215,7 +232,16 @@ class UserRepository {
         created_at,
         updated_at;
     `;
-    const values = [full_name, email, password_hash, phone, role, gdpr_consent];
+    const values = [
+      first_name,
+      last_name,
+      full_name,
+      email,
+      password_hash,
+      phone,
+      role,
+      gdpr_consent,
+    ];
     const { rows } = await db.query(query, values);
     return User.fromDatabase(rows[0]);
   }
@@ -330,19 +356,21 @@ class UserRepository {
     return rows[0] || null;
   }
 
-  static async updateUserProfile({ userId, full_name, phone, address }) {
+  static async updateUserProfile({ userId, first_name, last_name, phone, address }) {
     const query = /*sql*/`
       UPDATE public.users
       SET
-        full_name = $1,
-        phone = NULLIF($2, ''),
-        address = NULLIF($3, ''),
+        first_name = $1,
+        last_name = $2,
+        full_name = concat_ws(' ', $1, $2),
+        phone = NULLIF($3, ''),
+        address = NULLIF($4, ''),
         updated_at = NOW()
-      WHERE id_user = $4
-      RETURNING id_user, full_name;
+      WHERE id_user = $5
+      RETURNING id_user, first_name, last_name, full_name;
     `;
 
-    const values = [full_name, phone, address, userId];
+    const values = [first_name, last_name, phone, address, userId];
     const { rows } = await db.query(query, values);
     return rows[0] || null;
   }
