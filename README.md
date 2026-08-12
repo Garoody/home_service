@@ -7,8 +7,14 @@ Application web de mise en relation entre des clients et des prestataires de ser
 
 > Projet réalisé dans le cadre de la formation AFPA. L’application est conçue pour être exécutée localement ; aucune démonstration publique n’est déclarée dans ce dépôt.
 
+## Télécharger le code
+
+- [Télécharger le projet complet au format ZIP](https://github.com/Garoody/home_service/archive/refs/heads/main.zip)
+- [Parcourir le code source sur GitHub](https://github.com/Garoody/home_service/tree/main)
+
 ## Sommaire
 
+- [Télécharger le code](#télécharger-le-code)
 - [Fonctionnalités](#fonctionnalités)
 - [Stack technique](#stack-technique)
 - [Architecture](#architecture)
